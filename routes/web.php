@@ -7,6 +7,9 @@ Route::get('/', [AuthenticationController::class, "index"])->name('login');
 Route::post('/', [AuthenticationController::class, "auth"]);
 
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthenticationController::class, "auth"]);
-    Route::get('/MainDashboard', function () {return view('Layouts.master');});
+    Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
+    Route::get('/MainDashboard', function () {
+        return view('Layouts.master');
+    });
 });
+

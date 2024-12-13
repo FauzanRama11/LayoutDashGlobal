@@ -28,12 +28,11 @@
 	                    </div>
 	                    <div class="form-group">
 	                        <label>Password</label>
-	                        <div class="input-group">
-	                            <span class="input-group-text"><i class="icon-lock"></i></span>
-	                            <input class="form-control" name = "passwordLog" id = "passwordLog" type="password" required placeholder="*********" />
-	                            <div class="invalid-tooltip">Please enter password.</div>
-	                            <div class="show-hide"><span class="show"> </span></div>
-	                        </div>
+							<div class="input-group"><span class="input-group-text"><i class="icon-lock"></i></span>
+								<input class="form-control" type="password" name="passwordLog" required="" placeholder="*********">
+								<div class="invalid-tooltip">Please enter password.</div>
+								<div class="show-hide"><span class="show"></span></div>
+							</div>
 	                    </div>
 	                    <div class="form-group">
 	                        <div class="checkbox">
@@ -76,6 +75,7 @@
 	            false
 	        );
 	    })();
+
 	</script>
 
 
