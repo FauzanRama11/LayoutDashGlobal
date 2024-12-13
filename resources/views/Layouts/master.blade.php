@@ -1,10 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" @if (Route::current()->getName() == 'layout-rtl') dir="rtl" @endif
-    @switch(Route::current()->getName())
-      @case('layout-rtl')
-          dir="rtl"
-          @break
-  @endswitch>
+<html lang="en" @if (Route::current()->getName() == 'layout-rtl') dir="rtl" @endif>
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -33,69 +28,42 @@
     @includeIf('layouts.partials.css')
 </head>
 
-@switch(Route::current()->getName())
-    @case('boxed-layout')
+<body>
+    <!-- Loader starts-->
+    <div class="loader-wrapper">
+        <div class="theme-loader"></div>
+    </div>
+    <!-- Loader ends-->
+     
+    <!-- page-wrapper Start-->
+    <div class="page-wrapper compact-sidebar" id="pageWrapper">
+        <!-- Page Header Start-->
+        @includeIf('layouts.partials.header')
+        <!-- Page Header Ends -->
 
-        <body class="box-layout">
-        @break
+        <!-- Page Body Start-->
+        <div class="page-body-wrapper sidebar-icon">
+            <!-- Page Sidebar Start-->
+            @includeIf('layouts.partials.sidebar')
+            <!-- Page Sidebar Ends-->
 
-        @case('layout-rtl')
+            <div class="page-body">
+                <!-- Container-fluid starts-->
+                @yield('content')
+                <!-- Container-fluid Ends-->
+            </div>
 
-            <body class="rtl">
-            @break
-
-            @case('layout-dark')
-
-                <body class="dark-only">
-                @break
-
-                @default
-
-                    <body>
-                @endswitch
-                <!-- Loader starts-->
-                <div class="loader-wrapper">
-                    <div class="theme-loader"></div>
-                </div>
-                <!-- Loader ends-->
-                <!-- page-wrapper Start-->
-                <div class="page-wrapper compact-sidebar" id="pageWrapper">
-                    <!-- Page Header Start-->
-                    @includeIf('layouts.partials.header')
-                    <!-- Page Header Ends -->
-                    <!-- Page Body Start-->
-                    <div class="page-body-wrapper sidebar-icon">
-                        <!-- Page Sidebar Start-->
-                        @includeIf('layouts.partials.sidebar')
-                        <!-- Page Sidebar Ends-->
-                        <div class="page-body">
-                            <!-- Container-fluid starts-->
-                            @yield('content')
-                            <!-- Container-fluid Ends-->
+            <!-- footer start-->
+                    <footer>
+                        <div class="container-fluid">
+                            <div class="row">
+                                    <p class="mb-0">Copyright 2025 © Direktorat Sistem Informasi dan Digitalisasi Universitas Airlangga</p>
+                            </div>
                         </div>
-                        <!-- footer start-->
-                        @switch(Route::current()->getName())
-                            @case('footer-dark')
-                                <footer class="footer footer-dark">
-                                @break
-
-                                @case('footer-fixed')
-                                    <footer class="footer footer-fix">
-                                    @break
-
-                                    @default
-                                        <footer>
-                                    @endswitch
-                                    <div class="container-fluid">
-                                        <div class="row">
-                                                <p class="mb-0">Copyright 2025 © Direktorat Sistem Informasi dan Digitalisasi Universitas Airlangga</p>
-                                        </div>
-                                    </div>
-                                </footer>
-                    </div>
-                </div>
-                <!-- latest jquery-->
-                @includeIf('layouts.partials.js')
-            </body>
-
+                    </footer>
+        </div>
+    </div>
+    <!-- latest jquery-->
+    @includeIf('layouts.partials.js')
+</body>
 </html>

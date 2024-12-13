@@ -13,7 +13,7 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="{{asset('assets/js/script.js')}}"></script>
-<script src="{{asset('assets/js/theme-customizer/customizer.js')}}"></script>
+<!-- <script src="{{asset('assets/js/theme-customizer/customizer.js')}}"></script> -->
 <!-- Plugin used-->
 
 <script>

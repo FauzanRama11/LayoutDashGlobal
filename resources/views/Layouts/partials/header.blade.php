@@ -42,7 +42,10 @@
         </li>
        
         <li class="onhover-dropdown p-0">
-          <button class="btn btn-primary-light" type="button"><i data-feather="log-out"></i>Log out</button>
+          <form action = "{{url('logout')}}" method="POST">
+            @csrf
+            <button class="btn btn-primary-light" type="submit"><i data-feather="log-out"></i>Log out</button>
+          </form>        
         </li>
       </ul>
     </div>
