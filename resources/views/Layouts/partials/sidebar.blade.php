@@ -23,6 +23,10 @@
 
                         {{-- Button 2 dropdown --}}
                         @includeIf('layouts.partials.button-route.staffinbound')
+
+                        @includeIf('layouts.partials.button-route.studentinbound')
+
+                        @includeIf('layouts.partials.button-route.studentoutbound')
                         
                     </li>
                 </ul>

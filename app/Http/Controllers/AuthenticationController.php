@@ -14,12 +14,13 @@ class AuthenticationController extends Controller
 
  public function auth(Request $request){
 
-    if (Auth::attempt(['name' => $request->usernameLog, 'password' => $request->passwordLog])) {
+    if (Auth::attempt(['username' => $request->usernameLog, 'password' => $request->passwordLog])) {
         return redirect("/MainDashboard");
 
     } else {
         return redirect("/");
     }
+
  }
  public function logout(Request $request)
     {

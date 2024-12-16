@@ -6,10 +6,10 @@ use App\Http\Controllers\AuthenticationController;
 Route::get('/', [AuthenticationController::class, "index"])->name('login');
 Route::post('/', [AuthenticationController::class, "auth"]);
 
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
+Route::middleware(['auth', 'verified', 'role:gmp'])->group(function () {
+    Route::post('/logout', action: [AuthenticationController::class, 'logout'])->name('logout');
     Route::get('/MainDashboard', function () {
-        return view('Layouts.master');
+            return view('gmp.view_stubound');});
     });
-});
 
+require __DIR__.'/auth.php';
