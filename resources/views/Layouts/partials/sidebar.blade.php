@@ -17,12 +17,39 @@
                         <div>
                             <h6>General</h6>
                         </div>
-                        
-                        {{-- Button 1 dropdown --}}
-                        @includeIf('layouts.partials.button-route.mitraakademik')
 
-                        {{-- Button 2 dropdown --}}
-                        @includeIf('layouts.partials.button-route.staffinbound')
+                        @if(Auth::check())
+                            @if(Auth::user()->username == 'gmp')
+
+                                <li><a href="" class="">Home</a></li>
+
+                                @includeIf('layouts.partials.button-route.staffinbound')
+
+                                @includeIf('layouts.partials.button-route.studentinbound')
+
+                                @includeIf('layouts.partials.button-route.studentoutbound')
+
+                                <li><a href="" class="">Tagged Meetings</a></li>
+
+                            @elseif(substr(Auth::user()->username, 0, 2) === 'fa')
+
+                                <li><a href="" class="">Home</a></li>
+
+                                @includeIf('layouts.partials.button-route.mitraakademik')
+
+                                @includeIf('layouts.partials.button-route.staffinbound')
+
+                                @includeIf('layouts.partials.button-route.studentoutbound')
+
+                                @includeIf('layouts.partials.button-route.studentinbound')
+
+                                @includeIf('layouts.partials.button-route.other')
+                                
+                                @includeIf('layouts.partials.button-route.dashboard')
+
+                            @endif
+
+                        @endif
                         
                     </li>
                 </ul>
