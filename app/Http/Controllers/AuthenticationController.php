@@ -14,8 +14,19 @@ class AuthenticationController extends Controller
 
  public function auth(Request $request){
 
-    if (Auth::attempt(['username' => $request->usernameLog, 'password' => $request->passwordLog])) {
-        return redirect("/MainDashboard");
+    if (Auth::attempt(credentials: ['username' => $request->usernameLog, 'password' => $request->passwordLog])) {
+        $user = Auth::user();
+
+        if ($user->hasRole('gmp')) {
+            return redirect('/gmp/dashboard');
+        } elseif ($user->hasRole('fakultas')) {
+            return redirect('/fakultas/dashboard');
+
+        } else {
+            // Jika role tidak cocok
+            Auth::logout(); // Logout pengguna
+            return redirect('/')->with('error', 'Role tidak valid.');
+        }
 
     } else {
         return redirect("/");

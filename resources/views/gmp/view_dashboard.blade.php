@@ -1,5 +1,5 @@
 @extends("Layouts.master")
 
 @section("content")
-    <h1>Ini Stubound</h1>
+    <h1>Ini Halaman GMP</h1>
 @endsection

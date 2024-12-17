@@ -1,7 +1,5 @@
 <header class="main-nav">
-    <div class="sidebar-user text-center">
-        <a class="setting-primary" href="javascript:void(0)"><i data-feather="settings"></i></a><img class="img-90 rounded-circle" src="{{asset('assets/images/dashboard/1.png')}}" alt="" />
-        <div class="badge-bottom"><span class="badge badge-primary">New</span></div>
+    <div class="sidebar-user text-start">
         <a href="user-profile"> <h6 class="mt-3 f-14 f-w-600">Nama Role</h6></a>
         <p class="mb-0 font-roboto">Email</p>
     </div>
@@ -16,18 +14,22 @@
                     <li class="sidebar-main-title">
                         <div>
                             <h6>General</h6>
-                        </div>
-                        
-                        {{-- Button 1 dropdown --}}
-                        @includeIf('layouts.partials.button-route.mitraakademik')
+                        </div>                        
+                        @role("fakultas")
+                            @includeIf('layouts.partials.button-route.mitraakademik')
+                        @endrole
 
-                        {{-- Button 2 dropdown --}}
-                        @includeIf('layouts.partials.button-route.staffinbound')
+                        @hasanyrole("fakultas|gmp")
+                            @includeIf('layouts.partials.button-route.staffinbound')
+                        @endhasanyrole
 
-                        @includeIf('layouts.partials.button-route.studentinbound')
+                        @hasanyrole("fakultas|gmp")
+                            @includeIf('layouts.partials.button-route.studentinbound')
+                        @endhasanyrole
 
-                        @includeIf('layouts.partials.button-route.studentoutbound')
-                        
+                        @hasanyrole("fakultas|gmp")
+                            @includeIf('layouts.partials.button-route.studentoutbound')
+                        @endhasanyrole                        
                     </li>
                 </ul>
             </div>
