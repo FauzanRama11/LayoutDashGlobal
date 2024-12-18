@@ -12,8 +12,8 @@
     <meta name="keywords"
         content="admin template, viho admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('assets/images/logoAGE.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logoAGE.png') }}" type="image/png">
     <title>@yield('title')</title>
     <!-- Google font-->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -57,9 +57,11 @@
 
             <!-- footer start-->
                     <footer>
-                        <div class="container-fluid">
+                        <div class="container-fluid w-100">
                             <div class="row">
+                                <div class="col-12 ">
                                     <p class="mb-0">Copyright 2025 © Direktorat Sistem Informasi dan Digitalisasi Universitas Airlangga</p>
+                                </div>
                             </div>
                         </div>
                     </footer>

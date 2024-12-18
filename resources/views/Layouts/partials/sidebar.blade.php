@@ -1,6 +1,6 @@
 <header class="main-nav">
     <div class="sidebar-user text-start">
-        <a href="user-profile"> <h6 class="mt-3 f-14 f-w-600">Nama Role</h6></a>
+        <a href="user-profile"> <h6 class="mt-3 f-14 f-w-600">{{ Auth::user()->name}}</h6></a>
         <p class="mb-0 font-roboto">Email</p>
     </div>
     <nav>
@@ -14,22 +14,29 @@
                     <li class="sidebar-main-title">
                         <div>
                             <h6>General</h6>
-                        </div>                        
+                        </div>            
+                        @hasanyrole("fakultas|gmp")
+                        <li><a href="" class="">Home</a></li>
+                        @endrole
+                        
                         @role("fakultas")
                             @includeIf('layouts.partials.button-route.mitraakademik')
+                            @includeIf('layouts.partials.button-route.staffinbound')
                         @endrole
 
                         @hasanyrole("fakultas|gmp")
-                            @includeIf('layouts.partials.button-route.staffinbound')
-                        @endhasanyrole
-
-                        @hasanyrole("fakultas|gmp")
-                            @includeIf('layouts.partials.button-route.studentinbound')
-                        @endhasanyrole
-
-                        @hasanyrole("fakultas|gmp")
                             @includeIf('layouts.partials.button-route.studentoutbound')
-                        @endhasanyrole                        
+                            @includeIf('layouts.partials.button-route.studentinbound')
+                        @endhasanyrole           
+
+                        @hasanyrole("gmp")
+                        <li><a href="" class="">Tagged Meetings</a></li>
+                        @endrole
+                        
+                        @role("fakultas")
+                            @includeIf('layouts.partials.button-route.other')
+                            @includeIf('layouts.partials.button-route.dashboard')
+                        @endrole
                     </li>
                 </ul>
             </div>

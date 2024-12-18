@@ -19,3 +19,12 @@
 <link id="color" rel="stylesheet" href="{{asset('assets/css/color-1.css')}}" media="screen">
 <!-- Responsive css-->
 <link rel="stylesheet" type="text/css" href="{{asset('assets/css/responsive.css')}}">
+<style>
+.page-wrapper.compact-wrapper .page-body-wrapper header.main-nav .main-navbar .nav-menu{
+    height: calc(100vh - 280px);
+}
+
+.page-wrapper.compact-wrapper .page-body-wrapper header.main-nav.close_icon ~ footer {
+    margin-left: 0px;
+}
+</style>

@@ -7844,11 +7844,11 @@ table tbody .border-bottom-warning td {
 .error-page1 .svg-wrraper {
   margin-bottom: 35px; }
   .error-page1 .svg-wrraper svg.svg-45 {
-    width: 45%; }
+    width: 32%; }
   .error-page1 .svg-wrraper svg.svg-60 {
     width: 60%; }
   .error-page1 .svg-wrraper svg.svg-40 {
-    width: 40%; }
+    width: 20%; }
 
 .error-page1 .wheel {
   -webkit-animation: wheel-rotate 6s ease infinite;
