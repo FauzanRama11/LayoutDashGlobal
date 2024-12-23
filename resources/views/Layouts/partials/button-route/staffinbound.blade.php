@@ -10,7 +10,7 @@
                 Internal<span class="sub-arrow"><i class="fa fa-chevron-right"></i></span>
             </a>
             <ul class="nav-sub-childmenu submenu-content" style="display: {{ in_array(Route::currentRouteName(), ['tab-bootstrap','tab-material']) ? 'block' : 'none' }};">
-                <li><a href="}" class="">Research/Academic Lectures</a></li>
+                <li><a href="" class="">Research/Academic Lectures</a></li>
                 <li><a href="" class="">Adjucant Professor</a></li>
                 <li><a href="" class="">Adjucant Professor for Research Center</a></li>
                 <li><a href="" class="">Visiting Fellow for Research Center</a></li>
@@ -25,7 +25,7 @@
                 Eksternal<span class="sub-arrow"><i class="fa fa-chevron-right"></i></span>
             </a>
             <ul class="nav-sub-childmenu submenu-content" style="display: {{ in_array(Route::currentRouteName(), ['tab-bootstrap','tab-material']) ? 'block' : 'none' }};">
-                <li><a href="}" class="">Academic Lectures</a></li>
+                <li><a href="" class="">Academic Lectures</a></li>
                 <li><a href="" class="">Airlangga Post-Doctoral</a></li>
                 <li><a href="" class="">Visiting Fellow</a></li>
             </ul>

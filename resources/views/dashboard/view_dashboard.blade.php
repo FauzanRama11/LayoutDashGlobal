@@ -1,5 +1,5 @@
 @extends("Layouts.master")
 
 @section("content")
-    <h1>Ini Halaman GMP</h1>
+    <h2>Ini Halaman Home {{ Auth::user()->name}}</h2>
 @endsection

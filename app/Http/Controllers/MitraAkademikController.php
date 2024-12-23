@@ -8,11 +8,11 @@ class MitraAkademikController extends Controller
 {
     public function daftarmitra()
     {
-        return view('fakultas.daftarmitra');
+        return view('mitra_akademik.daftarmitra');
     }
     public function submitmitra()
     {
-        return view('fakultas.submitmitra');
+        return view('mitra_akademik.submitmitra');
     }
 }
 

@@ -1,38 +1,17 @@
 <li class="dropdown">
-    <a class="nav-link menu-title " href="javascript:void(0)"><i data-feather="box"></i><span>Student Outbound</span></a>
-    <ul class="nav-submenu menu-content">
-        <li><a href="" class="">Program Fakultas</a></li>
-        <li><a href="" class="">Applicant</a></li>
+    <a class="nav-link menu-title {{ prefixActive(1, 'student-outbound') }}" href="javascript:void(0)"><i data-feather="box"></i><span>Student Outbound</span></a>
+    <ul class="nav-submenu menu-content" style="display: {{ prefixBlock(1, 'student-outbound') }};">
+        
+        {{-- fa --}}
+        <li><a href="{{ route('stuout_program_fak') }}" class="{{ routeActive('stuout_program_fak') }}">Program Fakultas</a></li>
+        <li><a href="{{ route('stuout_program_age') }}" class="{{ routeActive('stuout_program_age') }}">Program AGE</a></li>
+        <li><a href="{{ route('stuout_view_peserta') }}" class="{{ routeActive('stuout_view_peserta') }}">View Peserta</a></li>
 
-            @role("gmp")
-            {{-- Dropdown Internal --}}
-            <li>
-                <a class="submenu-title  {{ in_array(Route::currentRouteName(), ['tab-bootstrap','tab-material']) ? 'active' : '' }}" href="javascript:void(0)">
-                    Internal<span class="sub-arrow"><i class="fa fa-chevron-right"></i></span>
-                </a>
-                <ul class="nav-sub-childmenu submenu-content">
-                    <li><a href="" class="">Research/Academic Lectures</a></li>
-                    <li><a href="" class="">Adjucant Professor</a></li>
-                    <li><a href="" class="">Adjucant Professor for Research Center</a></li>
-                    <li><a href="" class="">Visiting Fellow for Research Center</a></li>
-                    <li><a href="" class="">PGWT</a></li>
-                    <li><a href="" class="">Visit Unair</a></li>
-                </ul>
-            </li>
-
-            {{-- Dropdown Eksternal --}}
-            <li>
-                <a class="submenu-title  {{ in_array(Route::currentRouteName(), ['tab-bootstrap','tab-material']) ? 'active' : '' }}" href="javascript:void(0)">
-                    Eksternal<span class="sub-arrow"><i class="fa fa-chevron-right"></i></span>
-                </a>
-                <ul class="nav-sub-childmenu submenu-content">
-                    <li><a href="}" class="">Academic Lectures</a></li>
-                    <li><a href="" class="">Airlangga Post-Doctoral</a></li>
-                    <li><a href="" class="">Visiting Fellow</a></li>
-                </ul>
-            </li>
+        @role("gmp")
+            <li><a href="{{ route('stuout_approval_dana') }}" class="{{ routeActive('stuout_approval_dana') }}">Approval Dana Bantuan</a></li>
+            <li><a href="{{ route('stuout_approval_pelaporan') }}" class="{{ routeActive('stuout_approval_pelaporan') }}">Approval Pelaporan</a></li>
+            <li><a href="{{ route('stuout_pengajuan_setneg') }}" class="{{ routeActive('stuout_pengajuan_setneg') }}">Pengajuan SETNEG</a></li>
+            <li><a href="{{ route('stuout_target') }}" class="{{ routeActive('stuout_target') }}">Target</a></li>
         @endrole
-
-        <li><a href="" class="">View Applicant</a></li>
     </ul>
 </li>
