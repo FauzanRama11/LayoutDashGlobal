@@ -17,22 +17,54 @@ class AuthenticationController extends Controller
     if (Auth::attempt(credentials: ['username' => $request->usernameLog, 'password' => $request->passwordLog])) {
         $user = Auth::user();
 
-        if ($user->hasRole('gmp')) {
-            return redirect('/gmp/dashboard');
-        } elseif ($user->hasRole('fakultas')) {
-            return redirect('/fakultas/dashboard');
+        $routes = [
+            'gmp' => 'gmp.dashboard',
+            'fakultas' => 'fakultas.dashboard',
+            // Tambahkan role lainnya
+        ];
 
-        } else {
-            // Jika role tidak cocok
-            Auth::logout(); // Logout pengguna
-            return redirect('/')->with('error', 'Role tidak valid.');
+        foreach ($routes as $role => $routeName) {
+            if ($user->hasRole($role)) {
+                return redirect()->route($routeName); // Redirect dan hentikan proses
+            }
         }
-
-    } else {
-        return redirect("/");
-    }
-
+        return redirect()->route('/'); // Default redirect
+        }
+    return redirect('/'); 
  }
+
+ public function backToHome(){
+    $user = Auth::user();
+
+    $routes = [
+        'gmp' => 'gmp.dashboard',
+        'fakultas' => 'fakultas.dashboard',
+        // Tambahkan role lainnya
+    ];
+
+    foreach ($routes as $role => $routeName) {
+        if ($user->hasRole($role)) {
+            logger()->info("User has role: {$role}, redirecting to: {$routeName}");
+            return redirect()->route($routeName); // Redirect dan hentikan proses
+        }
+    }
+    return redirect('/'); 
+}
+
+    // if ($user->hasRole('gmp')) {
+    //     return redirect('/gmp/dashboard');
+    // } elseif ($user->hasRole('fakultas')) {
+    //     return redirect('/fakultas/dashboard');
+
+    // } else {
+    //     // Jika role tidak cocok
+    //     Auth::logout(); // Logout pengguna
+    //     return redirect('/')->with('error', 'Role tidak valid.');
+//     }
+
+// }
+
+
  public function logout(Request $request)
     {
         Auth::logout();
@@ -41,3 +73,4 @@ class AuthenticationController extends Controller
         return redirect('/'); 
     }
 }
+

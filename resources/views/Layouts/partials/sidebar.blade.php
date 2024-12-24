@@ -16,7 +16,7 @@
                             <h6>General</h6>
                         </div>            
                         @hasanyrole("fakultas|gmp")
-                        <li><a href="" class="">Home</a></li>
+                            <li class=""><a class="nav-link menu-title link-nav" href="{{ route('back.home') }}"><i data-feather="monitor"></i><span>Home</span></a></li>
                         @endrole
                         
                         @role("fakultas")
@@ -30,7 +30,7 @@
                         @endhasanyrole           
 
                         @hasanyrole("gmp")
-                        <li><a href="" class="">Tagged Meetings</a></li>
+                            <li class=""><a class="nav-link menu-title link-nav" href=""><i data-feather="monitor"></i><span>Tagged Meeting</span></a></li>
                         @endrole
                         
                         @role("fakultas")
