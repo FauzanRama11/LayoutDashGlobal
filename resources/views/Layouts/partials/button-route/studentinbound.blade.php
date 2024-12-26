@@ -5,10 +5,10 @@
             @role("gmp")
             {{-- Dropdown Amerta --}}
             <li>
-                <a class="submenu-title  {{ in_array(Route::currentRouteName(), ['tab-bootstrap','tab-material']) ? 'active' : '' }}" href="javascript:void(0)">
+                <a class="submenu-title  {{ in_array(Route::currentRouteName(), ['am_materi_promosi','am_template_rps','am_pendaftar','am_periode','am_synced_data','am_nominasi_matkul']) ? 'active' : '' }}" href="javascript:void(0)">
                     AMERTA<span class="sub-arrow"><i class="fa fa-chevron-right"></i></span>
                 </a>
-                <ul class="nav-sub-childmenu submenu-content">
+                <ul class="nav-sub-childmenu submenu-content" style="display: {{ in_array(Route::currentRouteName(), ['am_materi_promosi','am_template_rps','am_pendaftar','am_periode','am_synced_data','am_nominasi_matkul']) ? 'block' : 'none'}};">
                     <li><a href="{{ route('am_periode') }}" class="{{ routeActive('am_periode') }}">Periode</a></li>
                     <li><a href="{{ route('am_template_rps') }}" class="{{ routeActive('am_template_rps') }}">Template RPS</a></li>
                     <li><a href="{{ route('am_materi_promosi') }}" class="{{ routeActive('am_materi_promosi') }}">Materi Promosi</a></li>
@@ -19,10 +19,10 @@
             </li>
             {{-- Dropdown Lingua --}}
             <li>
-                <a class="submenu-title  {{ in_array(Route::currentRouteName(), ['tab-bootstrap','tab-material']) ? 'active' : '' }}" href="javascript:void(0)">
+                <a class="submenu-title  {{ in_array(Route::currentRouteName(), ['li_materi_promosi','li_pendaftar','li_periode','li_template_rps']) ? 'active' : '' }}" href="javascript:void(0)">
                     LINGUA<span class="sub-arrow"><i class="fa fa-chevron-right"></i></span>
                 </a>
-                <ul class="nav-sub-childmenu submenu-content">
+                <ul class="nav-sub-childmenu submenu-content" style="display: {{ in_array(Route::currentRouteName(), ['li_materi_promosi','li_pendaftar','li_periode','li_template_rps']) ? 'block' : 'none'}};">
                     <li><a href="{{ route('li_periode') }}" class="{{ routeActive('li_periode') }}">Periode</a></li>
                     <li><a href="{{ route('li_template_rps') }}" class="{{ routeActive('li_template_rps') }}">Template RPS</a></li>
                     <li><a href="{{ route('li_materi_promosi') }}" class="{{ routeActive('li_materi_promosi') }}">Materi Promosi</a></li>

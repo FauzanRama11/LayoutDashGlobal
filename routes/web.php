@@ -3,26 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 
-// // // Route untuk Guest (belum login)
-// // Route::middleware('guest')->group(function () {
-//     Route::get('/', [AuthenticationController::class, "index"])->name('login');
-//     Route::post('/', [AuthenticationController::class, "auth"]);
-// // });
-
-// // Route untuk Authenticated User (sudah login)
-// Route::middleware(['auth', 'verified'])->group(function () {
-//     Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
-//     Route::get('/home', [AuthenticationController::class, 'redirectToDashboard'])->name('home');
-
-//     Route::get('/gmp/dashboard', function () {
-//         return view('homepage.home');
-//     })->name('gmp.dashboard');
-    
-//     Route::get('/fakultas/dashboard', function () {
-//         return view('homepage.berita');
-//     })->name('fakultas.dashboard');
-// });
-
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthenticationController::class, "index"])->name('login');
     Route::post('/', [AuthenticationController::class, "auth"]);

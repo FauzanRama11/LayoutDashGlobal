@@ -51,20 +51,6 @@ class AuthenticationController extends Controller
     return redirect('/'); 
 }
 
-    // if ($user->hasRole('gmp')) {
-    //     return redirect('/gmp/dashboard');
-    // } elseif ($user->hasRole('fakultas')) {
-    //     return redirect('/fakultas/dashboard');
-
-    // } else {
-    //     // Jika role tidak cocok
-    //     Auth::logout(); // Logout pengguna
-    //     return redirect('/')->with('error', 'Role tidak valid.');
-//     }
-
-// }
-
-
  public function logout(Request $request)
     {
         Auth::logout();
