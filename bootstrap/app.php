@@ -51,10 +51,10 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // Handle 500 Error (Internal Server Error)
-        $exceptions->render(function (Throwable $e, $request) {
-            if ($e->getCode() === 500 || $e instanceof \ErrorException) {
-                return response()->view('errors.error500', [], 500);
-            }
-        });
+        // $exceptions->render(function (Throwable $e, $request) {
+        //     if ($e->getCode() === 500 || $e instanceof \ErrorException) {
+        //         return response()->view('errors.error500', [], 500);
+        //     }
+        // });
     })->create();
 
