@@ -8,12 +8,12 @@
         <li><a href="" class="">View Peserta</a></li>
 
         {{-- gmp --}}
-        @if(Auth::user()->name == 'gmp')
+       
             <li><a href="" class="">Approval Dana Bantuan</a></li>
             <li><a href="" class="">Approval Pelaporan</a></li>
             <li><a href="" class="">Pengajuan SETNEG</a></li>
             <li><a href="" class="">Target</a></li>
-        @endif
+
 
     </ul>
 </li>
