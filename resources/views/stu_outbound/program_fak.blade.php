@@ -11,8 +11,12 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
+							
 	                        <table class="display" id="API-2">
-	                            <thead>
+							@role("fakultas")
+								<a href= "/tambah_program_fakultas"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
+	                        @endrole    
+							<thead>
 	                                <tr>
                                         <th>Name</th>
 	                                    <th>Started Date</th>

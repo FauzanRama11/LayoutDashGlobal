@@ -46,4 +46,17 @@ class MStuOutprogramController extends Controller
 
         return view('stu_outbound.program_age', compact('data'));
     }
+
+    public function add_program_fak(){
+        $category = DB::table('m_stu_out_program_category')->get();
+
+        $negara = DB::table('m_country')
+            ->whereNotIn('id', [-1, 95])
+            ->get();
+
+
+        return view('stu_outbound.form_program_fakultas', compact('category', 'negara'));
+    }
+
+
 }

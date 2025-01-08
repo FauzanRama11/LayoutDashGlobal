@@ -46,9 +46,9 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // Handle 404 Error (Not Found)
-        $exceptions->render(function (NotFoundHttpException $e, $request) {
-            return response()->view('errors.error404', [], 404);
-        });
+        // $exceptions->render(function (NotFoundHttpException $e, $request) {
+        //     return response()->view('errors.error404', [], 404);
+        // });
 
         // Handle 500 Error (Internal Server Error)
         // $exceptions->render(function (Throwable $e, $request) {

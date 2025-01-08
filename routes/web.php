@@ -30,4 +30,6 @@ Route::get('/404', function () { return view('admin.authentication.error404');})
 Route::get('/500', function () { return view('admin.authentication.error500');});
 
 
+use App\Http\Controllers\outbound\MStuOutprogramController;
+Route::get('/tambah_program_fakultas', [MStuOutprogramController::class, 'add_program_fak']);
 require __DIR__.'/auth.php';
