@@ -1,6 +1,7 @@
 @extends('layouts.master') 
 
 @section('content') 
+
     <h2>Student Outbound</h2>
     <p>This is the Program AGE.</p>
     <div class="container-fluid">
@@ -11,6 +12,7 @@
 	                <div class="card-body">
 	                    <div class="table-responsive">
 	                        <table class="display" id="API-2">
+								<a href= "/tambah-program-age"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                            <thead>
 	                                <tr>
                                         <th>Name</th>
@@ -20,7 +22,7 @@
 	                                    <th>Via</th>
                                         <th>Kategori MBKM</th>
                                         <th>Host Unit</th>
-	                                    <th>Universitas Tujuan/th>
+	                                    <th>Universitas Tujuan</th>
 	                                    <th>Negara Tujuan</th>
 	                                    <th>Part/Full Time</th>
                                         <th>Jenis</th>
@@ -44,12 +46,14 @@
 										<td>{{ $item->pt_ft ?? '-' }}</td>                                    
 										<td>{{ $item->is_private_event ?? '-' }}</td>
                                         <td>{{ $item->created_time ?? '-' }}</td>
-                                        <td><form action="" method="GET">
+                                        <td><form  action="{{ route('program_stuout.edit', ['id' => $item->id]) }}" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Edit</button>
 											</form>
 										</td>
-										<td><form action="" method="GET">
-												<button type="submit" class="btn btn-primary delete-button">Delete</button>
+										<td><form action="{{ route('prog_stuout.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
+										@csrf
+										@method('DELETE')		
+										<button type="submit" class="btn btn-primary delete-button">Delete</button>
 											</form>
 										</td>
 
@@ -65,7 +69,7 @@
 	                                    <th>Via</th>
                                         <th>Kategori MBKM</th>
                                         <th>Host Unit</th>
-	                                    <th>Universitas Tujuan/th>
+	                                    <th>Universitas Tujuan</th>
 	                                    <th>Negara Tujuan</th>
 	                                    <th>Part/Full Time</th>
                                         <th>Jenis</th>

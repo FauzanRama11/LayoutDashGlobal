@@ -14,7 +14,7 @@
 							
 	                        <table class="display" id="API-2">
 							@role("fakultas")
-								<a href= "/tambah_program_fakultas"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
+								<a href= "/tambah-program-fakultas"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                        @endrole    
 							<thead>
 	                                <tr>
@@ -25,13 +25,14 @@
 	                                    <th>Via</th>
                                         <th>Kategori MBKM</th>
                                         <th>Host Unit</th>
-	                                    <th>Universitas Tujuan/th>
+	                                    <th>Universitas Tujuan</th>
 	                                    <th>Negara Tujuan</th>
 	                                    <th>Part/Full Time</th>
                                         <th>Jenis</th>
 	                                    <th>Created Time</th>
 	                                    <th>Edit</th>
                                         <th>Delete</th>
+
 	                                </tr>
 	                            </thead>
 	                            <tbody>
@@ -49,15 +50,18 @@
 										<td>{{ $item->pt_ft ?? '-' }}</td>                                    
 										<td>{{ $item->is_private_event ?? '-' }}</td>
                                         <td>{{ $item->created_time ?? '-' }}</td>
-                                        <td><form action="" method="GET">
+                                        <td><form action="{{ route('program_stuout.edit', ['id' => $item->id]) }}" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Edit</button>
 											</form>
 										</td>
-										<td><form action="" method="GET">
+
+										<td><form action="{{ route('prog_stuout.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
+										@csrf
+										@method('DELETE')
 												<button type="submit" class="btn btn-primary delete-button">Delete</button>
 											</form>
 										</td>
-
+							
 									</tr>
 									@endforeach
 	                            </tbody>
@@ -70,13 +74,14 @@
 	                                    <th>Via</th>
                                         <th>Kategori MBKM</th>
                                         <th>Host Unit</th>
-	                                    <th>Universitas Tujuan/th>
+	                                    <th>Universitas Tujuan</th>
 	                                    <th>Negara Tujuan</th>
 	                                    <th>Part/Full Time</th>
                                         <th>Jenis</th>
 	                                    <th>Created Time</th>
-	                                    <th>Edit</th>
+	                                    <th>Edit</th>		
                                         <th>Delete</th>
+								
 	                                </tr>
 	                            </tfoot>
 	                        </table>

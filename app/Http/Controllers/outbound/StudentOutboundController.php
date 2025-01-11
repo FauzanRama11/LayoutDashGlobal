@@ -4,6 +4,8 @@ namespace App\Http\Controllers\outbound;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\MStuOutPeserta;
+use Illuminate\Support\Facades\Auth;
 
 class StudentOutboundController extends Controller
 {
@@ -37,6 +39,19 @@ class StudentOutboundController extends Controller
 
         return view('stu_outbound.approval_pelaporan', compact('data'));
     }
+
+    public function action_approve(Request $request, $id)
+    {
+        $peserta = MStuOutPeserta::find($id);
+        $peserta->is_approved = 1;
+        $peserta->approved_time = now();
+        $peserta->approved_by = Auth::user()->id;
+        $peserta->save();
+    
+        return redirect()->route('stuout_approval_pelaporan');
+    }
+    
+    
 
     public function pengajuan_setneg()
     {

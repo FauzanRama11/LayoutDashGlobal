@@ -52,10 +52,16 @@
 										<td>{{ $item->student_id_url ?? '-' }}</td>
 										<td>{{ $item->loa_url ?? '-' }}</td>
 										<td>{{ $item->cv_url ?? '-' }}</td>
-										<td>{{ $item->is_approve ?? '-' }}</td>
-										<td><form action="" method="GET">
+										<td>{{ $item->is_approved ?? '-' }}</td>
+										<td>
+											@if($item->is_approved != 1)
+											<form action="{{ route('stuout_peserta.approve', ['id' => $item->id]) }}" method="POST">
+												@csrf
+												@method('PUT') 
 												<button type="submit" class="btn btn-primary edit-button">Approve</button>
 											</form>
+											@endif
+							
 										</td>
 										<td><form action="" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Revise</button>

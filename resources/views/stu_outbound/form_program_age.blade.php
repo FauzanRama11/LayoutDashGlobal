@@ -3,15 +3,16 @@
 
 <div class="card">
   <div class="card-header pb-0">
-    <h5>Form Program {{ Auth::user()->name }}</h5><span>This is Optional Notes</span>
+    <h5>Form Program AGE</h5><span>This is Optional Notes</span>
   </div>
+
   <div class="card-body">
     <form class="was-validated" action="{{ url('/store_program_outbound') }}" method="post" enctype="multipart/form-data">
       @csrf
 
       <div class="mb-3" style="display: none;">
         <label class="form-label" for="progAge"></label>
-        <input class="form-control" id="progAge" name="progAge" value="N">
+        <input class="form-control" id="progAge" name="progAge" value="Y">
         <div class="invalid-feedback"></div>
       </div>
 
@@ -155,10 +156,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // const progCategory = document.getElementById('progCategory');
-  // const mbkmSection = document.querySelector('.mbkm');
-  // progCategory.addEventListener('change', function () {
-  //   mbkmSection.style.display = this.value === "12" ? 'block' : 'none';
-  // });
+  const progCategory = document.getElementById('progCategory');
+  const mbkmSection = document.querySelector('.mbkm');
+  progCategory.addEventListener('change', function () {
+    mbkmSection.style.display = this.value === "12" ? 'block' : 'none';
+  });
 });
 </script>

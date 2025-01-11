@@ -31,5 +31,21 @@ Route::get('/500', function () { return view('admin.authentication.error500');})
 
 
 use App\Http\Controllers\outbound\MStuOutprogramController;
-Route::get('/tambah_program_fakultas', [MStuOutprogramController::class, 'add_program_fak']);
+use App\Http\Controllers\outbound\MStuOutPesertaController;
+use App\Http\Controllers\outbound\StudentOutboundController;
+
+Route::get('/tambah-program-fakultas', action: [MStuOutprogramController::class, 'add_program_fak']);
+Route::post('/store_program_outbound', [MStuOutprogramController::class, 'store_program'])->name('program_fakultas.store');
+Route::delete('/Delete/{id}', [MStuOutprogramController::class, 'destroy_program_fak'])->name('prog_stuout.destroy');
+Route::get('/tambah-program-age', [MStuOutprogramController::class, 'add_program_age']);
+Route::get('/edit-program/{id}', [MStuOutprogramController::class, 'edit'])->name('program_stuout.edit');
+Route::put('/update-program/{id}', [MStuOutprogramController::class, 'update'])->name('program_stuout.update');
+
+Route::get('/edit-program/{ids}/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta'])->name('tambah.peserta');
+Route::post('/store-peserta', [MStuOutPesertaController::class, 'store_peserta'])->name('peserta.store');
+Route::put('/approve-peserta/{id}', [StudentOutboundController::class, 'action_approve'])->name('stuout_peserta.approve');
+
+// Route::get('/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta']);
+
+
 require __DIR__.'/auth.php';
