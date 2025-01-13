@@ -30,6 +30,11 @@ return [
 
     'disks' => [
 
+        'outside' => [
+            'driver' => 'local',
+            'root' => '../penyimpanan',
+        ],  
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),

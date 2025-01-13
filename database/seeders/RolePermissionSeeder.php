@@ -23,6 +23,10 @@ class RolePermissionSeeder extends Seeder
         Role::create(["name" => "fakultas"]);
         Role::create(["name" => "mahasiswa"]);
 
+        Role::create(["name" => "kps"]);
+        Role::create(["name" => "dirpen"]);
+        Role::create(["name" => "pusba"]);
+
         $rolegmp = Role::findByName("gmp");
         $rolegmp-> givePermissionTo("student-inbound");
         $rolegmp-> givePermissionTo("student-outbound");
@@ -32,5 +36,17 @@ class RolePermissionSeeder extends Seeder
         $rolefa-> givePermissionTo("student-outbound");
         $rolefa-> givePermissionTo("staff-inbound");
         $rolefa-> givePermissionTo("staff-outbound");
+
+        $rolekps = Role::findByName("kps");
+        $rolekps-> givePermissionTo("student-inbound");
+        $rolekps-> givePermissionTo("student-outbound");
+
+        $roledirpen = Role::findByName("dirpen");
+        $roledirpen-> givePermissionTo("student-inbound");
+        $roledirpen-> givePermissionTo("student-outbound");
+
+        $rolepusba = Role::findByName("pusba");
+        $rolepusba-> givePermissionTo("student-inbound");
+        $rolepusba-> givePermissionTo("student-outbound");
     }
 }

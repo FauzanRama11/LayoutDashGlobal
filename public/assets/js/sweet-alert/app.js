@@ -14,7 +14,7 @@ var SweetAlert_custom = {
         },  document.querySelector('.sweet-5').onclick = function(){
                 swal({
                     title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this imaginary file!",
+                    text: "Once deleted, you will not be able to recover this data!",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -25,7 +25,7 @@ var SweetAlert_custom = {
                             icon: "success",
                         });
                     } else {
-                        swal("Your imaginary file is safe!");
+                        swal("Your record is safe!");
                     }
                 })
         },  document.querySelector('.sweet-6').onclick = function(){

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\DokumenController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthenticationController::class, "index"])->name('login');
@@ -11,6 +12,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/logout', action: [AuthenticationController::class, 'logout'])->name('logout');
     Route::get('/back-home', [AuthenticationController::class, 'backToHome'])->name('back.home');
+    Route::get('/view-pdf/{fileName}', [DokumenController::class, 'viewPdf'])->name('view.pdf');
 });
 
 Route::middleware(['auth', 'verified', 'role:gmp'])->group(function () {
@@ -26,6 +28,24 @@ Route::middleware(['auth', 'verified', 'role:fakultas'])->group(function () {
 });
 
 
+Route::middleware(['auth', 'verified', 'role:kps'])->group(function () {
+    Route::get('/kps/dashboard', function () {
+       return view('homepage.home');
+        })->name('kps.dashboard');
+});
+
+Route::middleware(['auth', 'verified', 'role:dirpen'])->group(function () {
+    Route::get('/dirpen/dashboard', function () {
+       return view('homepage.home');
+        })->name('dirpen.dashboard');
+});
+
+Route::middleware(['auth', 'verified', 'role:pusba'])->group(function () {
+    Route::get('/pusba/dashboard', function () {
+       return view('homepage.home');
+        })->name('pusba.dashboard');
+});
+
 Route::get('/404', function () { return view('admin.authentication.error404');});
 Route::get('/500', function () { return view('admin.authentication.error500');});
 
@@ -34,7 +54,7 @@ use App\Http\Controllers\outbound\MStuOutprogramController;
 use App\Http\Controllers\outbound\MStuOutPesertaController;
 use App\Http\Controllers\outbound\StudentOutboundController;
 
-Route::get('/tambah-program-fakultas', action: [MStuOutprogramController::class, 'add_program_fak']);
+Route::get('/tambah-program-fakultas', [MStuOutprogramController::class, 'add_program_fak'])->name('stuout_fak.create');
 Route::post('/store_program_outbound', [MStuOutprogramController::class, 'store_program'])->name('program_fakultas.store');
 Route::delete('/Delete/{id}', [MStuOutprogramController::class, 'destroy_program_fak'])->name('prog_stuout.destroy');
 Route::get('/tambah-program-age', [MStuOutprogramController::class, 'add_program_age']);

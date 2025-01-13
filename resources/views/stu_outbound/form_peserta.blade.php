@@ -56,19 +56,6 @@
             <option value="Perempuan">Perempuan</option>
           </select>
         </div>
-
-        <!-- <div class="mb-3">
-        <label class="form-label" for="angkatanPeserta">Jenis Kelamin</label>
-        <div class="form-check">
-            <input class="form-check-input" id="validationFormCheck2" type="radio" name="radio-stacked" required="">
-                <label class="form-check-label" for="validationFormCheck2">Toggle this radio</label>
-        </div>
-        <div class="form-check mb-3">
-            <input class="form-check-input" id="validationFormCheck3" type="radio" name="radio-stacked" required="">
-                <label class="form-check-label" for="validationFormCheck3">Or toggle this other radio</label>
-            <div class="invalid-feedback">More example invalid feedback text</div>
-        </div>
-        </div> -->
         
       <div class="mb-3">
         <label class="form-label" for="dobPeserta">Tanggal Lahir</label>

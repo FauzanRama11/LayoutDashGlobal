@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MStuOutProgram extends Model
+class MStuInProgram extends Model
 {
     use HasFactory;
 
-    protected $table = 'm_stu_out_programs';
+    protected $table = 'm_stu_in_programs';
     protected $primaryKey = "id";
     public $timestamps = false; 
 
@@ -22,24 +22,20 @@ class MStuOutProgram extends Model
         'pic',
         'corresponding',
         'website',
-        'created_by',
         'pt_ft',
         'via',
         'reg_date_start',
         'reg_date_closed',
-        'description',
         'logo',
         'created_time',
         'duration',
+        'url_generate',
+        'description',
         'host_unit_text',
         'category_text',
+        'created_by',
         'is_private_event',
         'is_program_age',
-        'url_generate',
-        'universitas_tujuan',
-        'negara_tujuan',
-        'email',
-        'sub_mbkm'
     ];
 
     protected $casts = [
@@ -55,8 +51,8 @@ class MStuOutProgram extends Model
     ];
 
 
-    public function mStuOutPesertas()
+    public function mStuInPesertas()
     {
-        return $this->hasMany(MStuOutPeserta::class, 'program_id');
+        return $this->hasMany(MStuInPeserta::class, 'program_id');
     }
 }

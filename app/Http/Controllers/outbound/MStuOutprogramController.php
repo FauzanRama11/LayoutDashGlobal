@@ -125,8 +125,6 @@ class MStuOutprogramController extends Controller
 
     }
 
-
-
     public function edit(string $id)
     {   $category = DB::table('m_stu_out_program_category')->get();
         $dosen = DB::table('m_dosen')->get();

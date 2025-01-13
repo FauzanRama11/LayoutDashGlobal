@@ -20,6 +20,9 @@ class AuthenticationController extends Controller
         $routes = [
             'gmp' => 'gmp.dashboard',
             'fakultas' => 'fakultas.dashboard',
+            'kps' => 'kps.dashboard',
+            'dirpen' => 'dirpen.dashboard',
+            'pusba' => 'pusba.dashboard',
             // Tambahkan role lainnya
         ];
 
