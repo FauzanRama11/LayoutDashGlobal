@@ -49,7 +49,7 @@
     <link rel="stylesheet" type="text/css" href="../assets/css/themify.css">
     <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="../assets/css/flag-icon.css">
-    <link rel="stylesheet" type="text/css" href="../assets/css/select2.css">
+    <link rel="stylesheet" type="text/css" href= "{{asset('assets/css/select2.css')}}">
     <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="../assets/css/feather-icon.css">
     <!-- Plugins css start-->
@@ -114,7 +114,7 @@
     @includeIf('layouts.partials.js')
 </body>
    
-<script src="../assets/js/select2/select2.full.min.js"></script>
-<script src="../assets/js/select2/select2-custom.js"></script>
+<script src="{{asset('/assets/js/select2/select2.full.min.js')}}"></script>
+<script src="{{asset('/assets/js/select2/select2-custom.js')}}"></script>
 
 </html>

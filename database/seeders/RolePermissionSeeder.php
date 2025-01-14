@@ -14,23 +14,19 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(["name" => "student-inbound"]);
-        Permission::create(["name" => "student-outbound"]);
-        Permission::create(["name" => "staff-inbound"]);
-        Permission::create(["name" => "staff-outbound"]);
+        Permission::create(["name" => "telaah-naskah"]);
+        // Permission::create(["name" => "student-outbound"]);
+        // Permission::create(["name" => "staff-inbound"]);
+        // Permission::create(["name" => "staff-outbound"]);
 
-        Role::create(["name" => "gmp"]);
-        Role::create(["name" => "fakultas"]);
-        Role::create(["name" => "mahasiswa"]);
+        Role::create(["name" => "gpc"]);
+        Role::create(["name" => "wadek3"]);
+    
 
-        $rolegmp = Role::findByName("gmp");
-        $rolegmp-> givePermissionTo("student-inbound");
-        $rolegmp-> givePermissionTo("student-outbound");
+        $rolegpc = Role::findByName("gmp");
+        $rolegpc-> givePermissionTo("telaah-naskah");
 
-        $rolefa = Role::findByName("fakultas");
-        $rolefa-> givePermissionTo("student-inbound");
-        $rolefa-> givePermissionTo("student-outbound");
-        $rolefa-> givePermissionTo("staff-inbound");
-        $rolefa-> givePermissionTo("staff-outbound");
+        $rolewdk = Role::findByName("fakultas");
+        $rolewdk-> givePermissionTo("telaah-naskah");
     }
 }

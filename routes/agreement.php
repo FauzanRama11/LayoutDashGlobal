@@ -1,0 +1,24 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\agreement\AgreementController;
+
+Route::middleware(['auth', 'verified', 'role:gpc|wadek3'])->group(function () {
+    Route::get('/review-agreement', [AgreementController::class, 'review_agreement'])->name('review_agreement');
+    Route::get('/completed-agreement', [AgreementController::class, 'completed_agreement'])->name('completed_agreement');
+
+
+    Route::get('/form-pelaporan', [AgreementController::class, 'tambah_pelaporan'])->name('tambah_pelaporan');
+    Route::post('/store-pelaporan', [AgreementController::class, 'store_pelaporan'])->name('pelaporan.store');
+    Route::get('/view-pelaporan', [AgreementController::class, 'view_pelaporan'])->name('view_pelaporan');
+    Route::get('/edit-pelaporan/{id}', [AgreementController::class, 'tambah_pelaporan'])->name('pelaporan.edit');
+    Route::put('/update-pelaporan/{id}', [AgreementController::class, 'store_pelaporan'])->name('pelaporan.update');
+    Route::delete('/delete-pelaporan/{id}', [AgreementController::class, 'destroy_pelaporan'])->name('pelaporan.destroy');
+
+    Route::get('/view-database', [AgreementController::class, 'database_agreement'])->name('view_database');
+    Route::delete('/delete-database-agreement/{id}', [AgreementController::class, 'destroy_database_agreement'])->name('database_agreement.destroy');
+    Route::get('/email', [AgreementController::class, 'email_list'])->name('email_list');
+});
+
+    
+require __DIR__.'/auth.php';

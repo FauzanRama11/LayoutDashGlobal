@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
             Route::middleware('web')->prefix('mitra-akademik')->group(base_path('routes/mitra_akademik.php'));
 
+            Route::middleware('web')->prefix('agreement')->group(base_path('routes/agreement.php'));
+
         }
     )
     ->withMiddleware(function (Middleware $middleware) {

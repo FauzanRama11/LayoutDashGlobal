@@ -13,21 +13,21 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $gmp_user = User::create(
-            ["username" => "gmp", 
-            "name" => "Global Mobility Program", 
+        $gpc_user = User::create(
+            ["username" => "gpc", 
+            "name" => "Global Partnership & Collaboartion", 
             "email" => "",
             "password" => bcrypt("12345"),
         "is_active" => "True"]);
-        $gmp_user->assignRole("gmp");
+        $gpc_user->assignRole("gpc");
 
-        $fa_user = User::create(
-            ["username" => "fa_ftmm", 
-            "name" => "Fakultas Teknologi Maju dan Multidisiplin", 
+        $wdk_user = User::create(
+            ["username" => "198404202008121005", 
+            "name" => "	Iman Harymawan, S.E., M.BA., Ph.D.", 
             "email" => "",
             "password" => bcrypt("12345"),
         "is_active" => "True"]);
 
-        $fa_user->assignRole("fakultas");
+        $wdk_user->assignRole("wadek3");
     }
 }

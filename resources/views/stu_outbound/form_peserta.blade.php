@@ -13,8 +13,6 @@
         </div>
         
     <div class="card-body">
-
-    
       <div class="mb-3" style="display: none;">
           <label class="form-label" for="progId"></label>
           <input class="form-control" id="progId" name="progId" value="{{$ids}}" readonly>
