@@ -155,10 +155,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // const progCategory = document.getElementById('progCategory');
-  // const mbkmSection = document.querySelector('.mbkm');
-  // progCategory.addEventListener('change', function () {
-  //   mbkmSection.style.display = this.value === "12" ? 'block' : 'none';
-  // });
+  
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const progCategory = document.getElementById('progCategory');
+  const mbkmSection = document.querySelector('.mbkm');
+  const mbkmInputs = mbkmSection.querySelectorAll('input, select, textarea');
+
+  progCategory.addEventListener('change', function () {
+    if (this.value === 12) { 
+      mbkmSection.style.display = 'block';
+      mbkmInputs.forEach(input => input.setAttribute('required', ''));
+    } else {
+      mbkmSection.style.display = 'none';
+      mbkmInputs.forEach(input => input.removeAttribute('required'));
+    }
+  });
 });
 </script>

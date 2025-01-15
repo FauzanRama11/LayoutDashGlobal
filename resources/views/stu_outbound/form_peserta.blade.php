@@ -78,8 +78,10 @@
         <div class="mb-3">
           <label class="form-label" for="jenjangPeserta">Jenjang</label>
           <select class="form-select" id="jenjangPeserta" name="jenjangPeserta">
-            <option value="Laki-Laki">Laki-Laki</option>
-            <option value="Perempuan">Perempuan</option>
+            <option value="Diploma">Diploma</option>
+            <option value="Bahcelor">Bachelor</option>
+            <option value="Master">Master</option>
+            <option value="Doctor">Doctor</option>
           </select>
         </div>
 
@@ -108,7 +110,7 @@
         <div class="mb-3">
             <label class="form-label" for="fotoPeserta">Foto</label>
             <input class="form-control" type="file" id="fotoPeserta" name="fotoPeserta"  accept=".jpg, .jpeg, .png"  required>
-            <div class="invalid-feedback">CV wajib diisi.</div>
+            <div class="invalid-feedback">Foto wajib diisi.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="cvPeserta">CV</label>
@@ -154,7 +156,7 @@
     <div class="card-body">
         <div class="mb-3">
             <label class="form-label" for="noPassPeserta">Nomor Passport</label>
-            <input class="form-control" id="noPassPeserta" name="noPassPeserta" placeholder="NIM Peserta" required>
+            <input class="form-control" id="noPassPeserta" name="noPassPeserta" placeholder="Nomor Passport" required>
             <div class="invalid-feedback">Nomor passport wajib diisi.</div>
         </div>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\outbound;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Models\MStuOutPeserta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\MStuOutProgram;
@@ -132,8 +133,14 @@ class MStuOutprogramController extends Controller
             ->whereNot('country', 95)
             ->get();
         $data = MStuOutProgram::find($id);
-        // dd($data);
-        return view("stu_outbound.edit_program", compact("data", "category", "dosen", "univ"));
+        $peserta = DB::table('m_stu_out_peserta')
+        ->select('m_stu_out_peserta.*', 'm_university.name as univ_name', 'm_country.name as country_name')
+        ->where("program_id", "=", $id)
+        ->leftjoin('m_university', 'm_university.id', '=', 'm_stu_out_peserta.univ')
+        ->leftjoin('m_country', 'm_country.id', '=', 'm_stu_out_peserta.kebangsaan')
+        ->get();
+        // dd($peserta);
+        return view("stu_outbound.edit_program", compact("peserta", "data", "category", "dosen", "univ"));
     }
 
     public function update(Request $request, string $id)

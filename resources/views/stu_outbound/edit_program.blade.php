@@ -8,7 +8,9 @@
                     <h5>Edit Program</h5><span>This is Optional Notes</span></div>
                     <div class="card-body">
                     @if($data->is_private_event === "Ya")
-                        <a href="{{ route('tambah.peserta', ['ids' => $data->id]) }}"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah Peserta</button></a>
+                        @hasrole('fakultas')
+                            <a href="{{ route('tambah.peserta', ['ids' => $data->id]) }}"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah Peserta</button></a>
+                        @endhasrole
                         @endif    
                     <form action="{{ route('program_stuout.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -136,4 +138,87 @@
             </div>
         </div>
     </div>
+
+    <div class="container-fluid">
+	    <div class="row">
+	        <!-- Individual column searching (text inputs) Starts-->
+	        <div class="col-sm-12">
+	            <div class="card">
+	                <div class="card-body">
+	                    <div class="table-responsive">
+							
+	                        <table class="display" id="API-2">   
+							<thead>
+	                            <tr>
+                                    <th>No.</th>
+                                    <th>Nama</th>
+                                    <th>Jenis Kelamin</th>
+                                    <th>Tgl Lahir</th>
+                                    <th>Telepon</th>
+                                    <th>Email</th>
+                                    <th>Jenjang</th>
+                                    <th>Prodi Asal</th>
+                                    <th>Fakultas Asal</th>
+                                    <th>Universitas</th>
+                                    <th>Negara</th>
+                                    <th>Waktu Registrasi</th>
+                                    <th>Status Persetujuan</th>
+                                    <th>Status Pengajuan Dana</th>
+                                    <th>LOA URL</th>
+                                    <th>Aksi</th>
+	                            </tr>
+	                        </thead>
+	                            <tbody>
+                                    @foreach ($peserta as $item )	    
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{$item->nama}}</td>
+                                            <td>{{$item->jenis_kelamin}}</td>
+                                            <td>{{$item->tgl_lahir}}</td>
+                                            <td>{{$item->telp}}</td>
+                                            <td>{{$item->email}}</td>
+                                            <td>{{$item->jenjang}}</td>
+                                            <td>{{$item->prodi_asal}}</td>
+                                            <td>{{$item->fakultas_asal}}</td>
+                                            <td>{{$item->univ_name}}</td>
+                                            <td>{{$item->country_name}}</td>
+                                            <td>{{$item->reg_time}}</td>
+                                            <td>{{$item->is_approved}}</td>
+                                            <td>{{$item->pengajuan_dana_status}}</td>
+                                            <td>{{$item->loa_url}}</td>
+                                            <td><form action="" method="GET">
+                                                    <button type="submit" class="btn btn-primary edit-button">Edit</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+	                            </tbody>
+	                            <tfoot>
+	                                <tr>
+                                    <th>No.</th>
+                                    <th>Nama</th>
+                                    <th>Jenis Kelamin</th>
+                                    <th>Tgl Lahir</th>
+                                    <th>Telepon</th>
+                                    <th>Email</th>
+                                    <th>Jenjang</th>
+                                    <th>Prodi Asal</th>
+                                    <th>Fakultas Asal</th>
+                                    <th>Universitas</th>
+                                    <th>Negara</th>
+                                    <th>Waktu Registrasi</th>
+                                    <th>Status Persetujuan</th>
+                                    <th>Status Pengajuan Dana</th>
+                                    <th>LOA URL</th>
+                                    <th>Aksi</th>
+	                                </tr>
+	                            </tfoot>
+	                        </table>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	        <!-- Individual column searching (text inputs) Ends-->
+	    </div>
+	</div>
 @endsection
