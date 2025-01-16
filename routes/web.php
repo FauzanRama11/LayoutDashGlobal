@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\inbound\PendaftaranController;
+use App\Http\Controllers\PendaftaranProgramController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthenticationController::class, "index"])->name('login');
@@ -48,6 +50,18 @@ Route::middleware(['auth', 'verified', 'role:pusba'])->group(function () {
 
 Route::get('/404', function () { return view('admin.authentication.error404');});
 Route::get('/500', function () { return view('admin.authentication.error500');});
+Route::get('/registrasi', function () { return view('pendaftaran.registrasi');});
+
+// Pendaftaran Amerta
+Route::get('/registrasi-peserta-amerta', [PendaftaranController::class, 'amerta'])->name('amerta.registrasi');
+Route::get('/registrasi-peserta-lingua', [PendaftaranController::class, 'lingua'])->name('lingua.registrasi');
+Route::post('/registrasi-peserta-amerta', [PendaftaranController::class, 'storeRegistrationForm'])->name('simpan.registrasi');
+
+
+// Pendaftaran Amerta
+// Route::get('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
+Route::get('/registrasi-peserta-inbound/{url_generate}', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
+Route::get('/registrasi-peserta-lingua', [PendaftaranController::class, 'stuout'])->name('stuout.registrasi');
 
 
 use App\Http\Controllers\outbound\MStuOutprogramController;

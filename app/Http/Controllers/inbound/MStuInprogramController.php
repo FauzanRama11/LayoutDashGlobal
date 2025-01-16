@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MStuInProgram;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class MStuInProgramController extends Controller
 {
@@ -17,7 +18,7 @@ class MStuInProgramController extends Controller
         if ($user->hasRole('fakultas')) {
             $fa = $user->name;
             
-            $data = $data = DB::table('m_stu_in_programs')
+            $data = DB::table('m_stu_in_programs')
             ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
             ->where('host_unit_text', 'like', "%$fa%")
             ->where("is_program_age", "N")
@@ -82,7 +83,7 @@ class MStuInProgramController extends Controller
         ->where('id', '=', $request->input('progCategory'))
         ->pluck('name')->first();
 
-        dd($request->input('jenisSelect'));
+        // dd($request->input('jenisSelect'));
     
         $program = new MStuInProgram();
         $program->is_program_age = $request->input('progAge');
@@ -99,17 +100,43 @@ class MStuInProgramController extends Controller
         $program->website = $request->input('website') ?? null;
         $program->pt_ft = $this->calculateDuration($request->input('startDate'), $request->input('endDate'));
         $program->via = $request->input('via');
+        $program->created_by = Auth::User()->id;
+        $program->created_time = now();
 
-        if ($request->hasFile('programLogo')) {
-            // $path = $request->file('programLogo')->store('program_logos', 'public');
-            $path = "Anggap/Ini/Path";
-            $program->logo = $path;
-        }
+        
 
         if ($request->input('jenisSelect')=== 'Tidak') {
             $program->reg_date_start = $request->input('regOpen');
             $program->reg_date_closed = $request->input('regClose');
             $program->description = $request->input('programDesc') ?? null;
+
+            // Pembuatan kode generate url
+            $kode = DB::table('m_fakultas_unit')
+            ->where('nama_ind', $request->input('hostUnit'))
+            ->pluck('kode')->first(); 
+
+            $namadepan = explode(' ', $program->name)[0];
+
+            $program->url_generate = ($kode.'_'. $namadepan.'_'.uniqid());
+
+            if ($request->hasFile('programLogo')) {
+                $file = $request->file('programLogo');
+        
+                // Tentukan direktori penyimpanan di luar folder Laravel
+                $storagePath = base_path('../penyimpanan'); 
+        
+                // Pastikan folder "penyimpanan" ada
+                if (!file_exists($storagePath)) {
+                    mkdir($storagePath, 0777, true); 
+                }
+        
+                // Simpan file ke folder "penyimpanan"
+                $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
+                $file->move($storagePath, $fileName);
+                $program->logo = 'penyimpanan/' . $fileName;
+                // dd($program);
+            }
+
         }
 
         MStuInProgram::create($program->getAttributes());
@@ -122,14 +149,40 @@ class MStuInProgramController extends Controller
     }
 
     public function edit(string $id)
-    {   $category = DB::table('m_stu_in_program_category')->get();
+    {   
+        $category = DB::table('m_stu_out_program_category')->get();
         $dosen = DB::table('m_dosen')->get();
         $univ = DB::table('m_university')
             ->whereNot('country', 95)
             ->get();
+
+
         $data = MStuInProgram::find($id);
-        // dd($data);
-        return view("stu_inbound.edit_program", compact("data", "category", "dosen", "univ"));
+        $cleanPath = ltrim(str_replace('penyimpanan/', '', $data->logo), '/');
+        
+        $filePath = base_path('../' . $data->logo);
+        
+        if ($data->logo && Storage::disk('outside')->exists($cleanPath)) {
+            // Dapatkan konten file
+            
+            $fileContent = Storage::disk('outside')->get($cleanPath);
+            $data->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
+            // dd($data->logo_base64);
+
+        } else {
+            $data->logo_base64 = null;
+        }
+
+        $peserta = DB::table('m_stu_in_peserta')
+        
+        ->select('m_stu_in_peserta.*', 'm_university.name as univ_name', 'm_country.name as country_name')
+        ->where("program_id", "=", $id)
+        ->leftjoin('m_university', 'm_university.id', '=', 'm_stu_in_peserta.univ')
+        ->leftjoin('m_country', 'm_country.id', '=', 'm_stu_in_peserta.kebangsaan')
+        ->get();
+        // dd($peserta);
+        return view("stu_inbound.edit_program", compact("peserta", "data", "category", "dosen", "univ"));
+    
     }
 
     public function update(Request $request, string $id)
@@ -151,7 +204,6 @@ class MStuInProgramController extends Controller
         ->pluck('name')
         ->first();
 
-    $program->is_private_event = $request->input('jenisSelect');
     $program->name = $request->input('nameProg');
     $program->start_date = $request->input('startDate');
     $program->end_date = $request->input('endDate');
@@ -166,15 +218,43 @@ class MStuInProgramController extends Controller
     $program->via = $request->input('via');
 
     if ($request->hasFile('programLogo')) {
-        $path = $request->file('programLogo')->store('program_logos', 'public');
-        $program->logo = $path;
+        $file = $request->file('programLogo');
+        
+        // Tentukan direktori penyimpanan di luar folder Laravel
+        $storagePath = base_path('../penyimpanan'); 
+
+        // Pastikan folder "penyimpanan" ada
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0777, true); 
+        }
+
+        // Simpan file ke folder "penyimpanan"
+        $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
+        $file->move($storagePath, $fileName);
+        $program->logo = 'penyimpanan/' . $fileName;
     }
 
-    if ($request->input('jenisSelect') === 'Tidak') {
+    if ($request->input('jenisSelect') === 'Registrasi') {
         $program->reg_date_start = $request->input('regOpen');
         $program->reg_date_closed = $request->input('regClose');
+        
         $program->description = $request->input('programDesc') ?? null;
+
+        if ($program->url_generate === null) {
+            // Pembuatan kode generate url
+            $kode = DB::table('m_fakultas_unit')
+            ->where('nama_ind', $request->input('hostUnit'))
+            ->pluck('kode')->first(); 
+
+            $namadepan = explode(' ', $program->name)[0];
+            
+            $program->url_generate = ($kode.'_'. $namadepan.'_'.uniqid());
+        }
+
     }
+
+
+    // dd($program);
 
     $program->save();
 

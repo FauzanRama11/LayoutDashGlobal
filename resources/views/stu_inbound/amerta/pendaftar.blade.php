@@ -46,10 +46,11 @@
 												<span class="badge badge-info">Belum diproses</span>
 											@endif
 										</td>
-										<td><form action="" method="GET">
-											<button type="submit" class="btn btn-primary edit-button">Edit</button>
-										</form>
-									</td>
+										<td>
+											<form action="{{route('edit_peserta_inbound', ['id' => $item['id'] ]) }}" method="GET">
+												<button type="submit" class="btn btn-primary edit-button">Edit</button>
+											</form>
+										</td>
 									</tr>
 									@endforeach
 	                            </tbody>

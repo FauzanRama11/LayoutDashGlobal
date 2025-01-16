@@ -32,7 +32,7 @@ return [
 
         'outside' => [
             'driver' => 'local',
-            'root' => '../penyimpanan',
+            'root' => base_path('../penyimpanan'),
         ],  
 
         'local' => [

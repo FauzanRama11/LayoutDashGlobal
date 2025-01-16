@@ -14,6 +14,7 @@ use App\Http\Controllers\inbound\MStuInTargetController;
 use App\Http\Controllers\inbound\VTStudenInboundController;
 use App\Http\Controllers\inbound\StudentInboundController;
 use App\Http\Controllers\inbound\MStuInPesertaController;
+use App\Http\Controllers\inbound\PendaftaranController;
 
 // Student Inbound
 Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function () {
@@ -76,7 +77,11 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
           Route::put('/tambah-matkul/{id}', [LinguaController::class, 'tambah_matkul'])->name('li_update_matkul');
           Route::delete('/hapus-matkul/{id}', [LinguaController::class, 'hapus_matkul'])->name('li_hapus_matkul');
     });
-       
+        
+        Route::get('/edit-peserta/{id}', [PendaftaranController::class, 'edit'])->name('edit_peserta_inbound');
+        Route::put('/approval-peserta/{id}', [PendaftaranController::class, 'approve'])->name('approve_peserta_inbound');
+        Route::put('/rejection-peserta/{id}', [PendaftaranController::class, 'reject'])->name('reject_peserta_inbound');
+
         Route::get('/program-age', [MStuInProgramController::class, 'program_age'])->name('stuin_program_age');
         Route::get('/program-fak', [MStuInProgramController::class, 'program_fak'])->name('stuin_program_fak');
         Route::get('/view-peserta', [VTStudenInboundController::class, 'index'])->name('stuin_view_peserta');

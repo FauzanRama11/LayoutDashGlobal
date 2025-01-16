@@ -27,4 +27,8 @@
 .page-wrapper.compact-wrapper .page-body-wrapper header.main-nav.close_icon ~ footer {
     margin-left: 0px;
 }
+
+.compact-wrapper .page-body-wrapper {
+    padding: 40px 20px;
+}
 </style>

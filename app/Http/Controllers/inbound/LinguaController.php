@@ -29,10 +29,51 @@ class LinguaController extends Controller
                 'id' => $item->id,
                 'type' => $item->type,
                 'email' => $item->email,
+                'secondary_email' => $item->secondary_email,
                 'created_date' => $item->created_date,
-                'date_program' => $item->date_program,
+                'date_program' => $item->date_program ?? null,
                 'is_approve' => $item->is_approve,
-                'full_name' => $metadata['fullname'] ?? '-', 
+                'full_name' => $metadata['fullname'] ?? '-',
+                'first_name' => $metadata['firstname'] ?? '-',
+                'last_name' => $metadata['lastname'] ?? '-',
+                'dob' => $metadata['dob'] ?? null, // Date of birth
+                'pob' => $metadata['pob'] ?? '-', // Place of birth
+                'gpa' => $metadata['gpa'] ?? null,
+                'sex' => $metadata['sex'] ?? '-',
+                'major' => $metadata['major'] ?? '-',
+                'phone' => $metadata['phone'] ?? '-',
+                'photo' => $metadata['photo'] ?? '-',
+                'native_language' => $metadata['native'] ?? '-',
+                'address' => $metadata['address'] ?? '-',
+                'university' => $metadata['university'] ?? '-',
+                'year_entry' => $metadata['year_entry'] ?? null,
+                'nationality' => $metadata['nationality'] ?? '-',
+                'passport_number' => $metadata['passport_number'] ?? '-',
+                'passport_date_issue' => $metadata['passport_date_issue'] ?? null,
+                'passport_date_exp' => $metadata['passport_date_exp'] ?? null,
+                'issuing_authority' => $metadata['issuing_authority'] ?? '-',
+                'motivation_letter' => $metadata['motivation_letter'] ?? '-',
+                'transcript' => $metadata['transcript'] ?? '-',
+                'letter_recom' => $metadata['letter_recom'] ?? '-',
+                'selected_program' => $metadata['selected_program'] ?? '-',
+                'take_indo' => $metadata['take_indo'] ?? '-',
+                'taken_indo' => $metadata['taken_indo'] ?? '-',
+                'english_certificate' => $metadata['english_certificate'] ?? '-',
+                'english_score' => $metadata['english_score'] ?? '-',
+                'pic_name' => $metadata['pic_name'] ?? '-',
+                'pic_email' => $metadata['pic_email'] ?? '-',
+                'pic_telephone' => $metadata['pic_telephone'] ?? '-',
+                'pic_address' => $metadata['pic_address'] ?? '-',
+                'pic_position' => $metadata['pic_position'] ?? '-',
+                'referee_name' => $metadata['referee_name'] ?? '-',
+                'referee_email' => $metadata['referee_email'] ?? '-',
+                'referee_relation' => $metadata['referee_relation'] ?? '-',
+                'referee_organization' => $metadata['referee_organization'] ?? '-',
+                'kin_name' => $metadata['kin_name'] ?? '-',
+                'kin_email' => $metadata['kin_email'] ?? '-',
+                'kin_phone' => $metadata['kin_phone'] ?? '-',
+                'kin_address' => $metadata['kin_address'] ?? '-',
+                'kin_relation' => $metadata['kin_relation'] ?? '-',
             ];
         });
         
@@ -111,4 +152,6 @@ class LinguaController extends Controller
 
        return redirect()->route('li_periode')->with('success', 'Data berhasil dihapus.');
    }
+
+
 }
