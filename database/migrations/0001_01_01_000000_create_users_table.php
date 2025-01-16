@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string(column: 'username');
+            $table->string(column: 'name');
+            $table->string('email');
             $table->string('password');
+            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('last_login')->nullable();
+            $table->boolean('is_deleted')->default(false);
+            $table->string('is_active');
+            $table->string('user_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -35,6 +40,24 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+        schema::create('p_role', function (blueprint $table){
+            $table->id('id');
+            $table->string('role_name');
+            $table->string('role_description');
+            $table->string('menu_path');
+            $table->string('home_url');
+            $table->string('role_path');
+        });
+
+        Schema::create('p_user_role', function(blueprint $table){
+            $table->id('id');
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->unsignedBigInteger('role_id')->nullable()->index();
+            $table->string('is_default_role');
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('role_id')->references('id')->on('p_role');
+        }); 
     }
 
     /**
