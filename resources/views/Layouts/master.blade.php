@@ -114,6 +114,7 @@
     @includeIf('layouts.partials.js')
 </body>
    
+
 <script src="{{ asset('assets/js/datatable/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/js/datatable/datatables/datatable.custom.js') }}"></script>
 <script src="{{ asset('assets/js/select2/select2.full.min.js') }}"></script>
@@ -121,6 +122,7 @@
 
 <script src="{{ asset('assets/js/sweet-alert/sweetalert.min.js') }}"></script>
 <script src="{{ asset('assets/js/sweet-alert/app.js') }}"></script>
+
 
 
 </html>

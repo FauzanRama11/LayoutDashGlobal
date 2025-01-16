@@ -15,7 +15,7 @@
                         <div>
                             <h6>General</h6>
                         </div>            
-                        @hasanyrole("fakultas|gmp")
+                        @hasanyrole("fakultas|gmp|gpc|wadek3")
                             <li class=""><a class="nav-link menu-title link-nav" href="{{ route('back.home') }}"><i data-feather="monitor"></i><span>Home</span></a></li>
                         @endrole
                         
@@ -29,7 +29,11 @@
                         @endhasanyrole
                         @hasanyrole("fakultas|gmp|kps|dirpen|pusbamulya")
                             @includeIf('layouts.partials.button-route.studentinbound')
-                        @endhasanyrole           
+                        @endhasanyrole    
+                        
+                        @hasanyrole("gpc|wadek3")
+                            @includeIf('layouts.partials.button-route.agreement')
+                        @endhasanyrole    
 
                         @hasanyrole("gmp")
                             <li class=""><a class="nav-link menu-title link-nav" href=""><i data-feather="monitor"></i><span>Tagged Meeting</span></a></li>
@@ -40,6 +44,7 @@
                             @includeIf('layouts.partials.button-route.dashboard')
                         @endrole
 
+
                         @hasanyrole("kps|dirpen")
                             @includeIf('layouts.partials.button-route.amerta')
                             {{-- @includeIf('layouts.partials.button-route.dashboard') --}}
@@ -48,6 +53,7 @@
                         @role("pusbamulya")
                             @includeIf('layouts.partials.button-route.lingua')
                         @endrole
+
 
                     </li>
                 </ul>

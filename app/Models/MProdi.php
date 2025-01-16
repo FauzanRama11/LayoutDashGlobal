@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MProdi extends Model
@@ -24,4 +25,5 @@ class MProdi extends Model
         'gelar_eng',
         'id_cyber',
     ];
+
 }

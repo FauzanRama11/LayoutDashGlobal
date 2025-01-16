@@ -14,18 +14,23 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(["name" => "student-inbound"]);
-        Permission::create(["name" => "student-outbound"]);
-        Permission::create(["name" => "staff-inbound"]);
-        Permission::create(["name" => "staff-outbound"]);
+        Permission::create(["name" => "telaah-naskah"]);
+        // Permission::create(["name" => "student-outbound"]);
+        // Permission::create(["name" => "staff-inbound"]);
+        // Permission::create(["name" => "staff-outbound"]);
 
-        Role::create(["name" => "gmp"]);
-        Role::create(["name" => "fakultas"]);
-        Role::create(["name" => "mahasiswa"]);
+        Role::create(["name" => "gpc"]);
+        Role::create(["name" => "wadek3"]);
+
+        $rolegpc = Role::findByName("gmp");
+        $rolegpc-> givePermissionTo("telaah-naskah");
+
+        $rolewdk = Role::findByName("fakultas");
+        $rolewdk-> givePermissionTo("telaah-naskah");
 
         Role::create(["name" => "kps"]);
         Role::create(["name" => "dirpen"]);
-        Role::create(["name" => "pusba"]);
+        Role::create(["name" => "pusbamulya"]);
 
         $rolegmp = Role::findByName("gmp");
         $rolegmp-> givePermissionTo("student-inbound");
@@ -45,7 +50,7 @@ class RolePermissionSeeder extends Seeder
         $roledirpen-> givePermissionTo("student-inbound");
         $roledirpen-> givePermissionTo("student-outbound");
 
-        $rolepusba = Role::findByName("pusba");
+        $rolepusba = Role::findByName("pusbamulya");
         $rolepusba-> givePermissionTo("student-inbound");
         $rolepusba-> givePermissionTo("student-outbound");
     }

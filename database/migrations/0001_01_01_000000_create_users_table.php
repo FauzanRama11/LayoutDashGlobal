@@ -40,24 +40,7 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
-        schema::create('p_role', function (blueprint $table){
-            $table->id('id');
-            $table->string('role_name');
-            $table->string('role_description');
-            $table->string('menu_path');
-            $table->string('home_url');
-            $table->string('role_path');
-        });
-
-        Schema::create('p_user_role', function(blueprint $table){
-            $table->id('id');
-            $table->unsignedBigInteger('user_id')->nullable()->index();
-            $table->unsignedBigInteger('role_id')->nullable()->index();
-            $table->string('is_default_role');
-
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('role_id')->references('id')->on('p_role');
-        }); 
+    
     }
 
     /**

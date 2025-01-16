@@ -29,6 +29,18 @@ Route::middleware(['auth', 'verified', 'role:fakultas'])->group(function () {
         })->name('fakultas.dashboard');
 });
 
+Route::middleware(['auth', 'verified', 'role:gpc'])->group(function () {
+    Route::get('/gpc/dashboard', function () {
+       return view('homepage.home');
+        })->name('gpc.dashboard');
+});
+
+Route::middleware(['auth', 'verified', 'role:wadek3'])->group(function () {
+    Route::get('/wadek3/dashboard', function () {
+       return view('homepage.home');
+        })->name('wadek3.dashboard');
+});
+
 
 Route::middleware(['auth', 'verified', 'role:kps'])->group(function () {
     Route::get('/kps/dashboard', function () {
@@ -67,6 +79,7 @@ Route::get('/registrasi-peserta-lingua', [PendaftaranController::class, 'stuout'
 use App\Http\Controllers\outbound\MStuOutprogramController;
 use App\Http\Controllers\outbound\MStuOutPesertaController;
 use App\Http\Controllers\outbound\StudentOutboundController;
+use App\Http\Controllers\agreement\AgreementController;
 
 Route::get('/tambah-program-fakultas', [MStuOutprogramController::class, 'add_program_fak'])->name('stuout_fak.create');
 Route::post('/store_program_outbound', [MStuOutprogramController::class, 'store_program'])->name('program_fakultas.store');
@@ -78,8 +91,5 @@ Route::put('/update-program/{id}', [MStuOutprogramController::class, 'update'])-
 Route::get('/edit-program/{ids}/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta'])->name('tambah.peserta');
 Route::post('/store-peserta', [MStuOutPesertaController::class, 'store_peserta'])->name('peserta.store');
 Route::put('/approve-peserta/{id}', [StudentOutboundController::class, 'action_approve'])->name('stuout_peserta.approve');
-
-// Route::get('/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta']);
-
 
 require __DIR__.'/auth.php';

@@ -19,11 +19,15 @@ class RedirectIfAuthenticated
         // Jika pengguna mencoba mengakses halaman login atau '/', arahkan ke dashboard
         if ($request->is('/') || $request->route()->named('login')) {
             $routes = [
+              
                 'gmp' => 'gmp.dashboard', 
                 'fakultas' => 'fakultas.dashboard', 
                 'kps' => 'kps.dashboard',
                 'dirpen' => 'dirpen.dashboard',
-                'pusba' => 'pusba.dashboard',
+                'pusbamulya' => 'pusba.dashboard',
+                'gpc' => 'gpc.dashboard',
+                'wadek3' => 'wadek3.dashboard',
+
             ];
 
             foreach ($routes as $role => $routeName) {

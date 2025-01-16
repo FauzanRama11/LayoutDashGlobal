@@ -7,11 +7,13 @@
                 <div class="card-header pb-0">
                     <h5>Edit Program</h5><span>This is Optional Notes</span></div>
                     <div class="card-body">
+
                     @if($data->is_private_event === "Ya")
                         @hasrole('fakultas')
                             <a href="{{ route('tambah.peserta', ['ids' => $data->id]) }}"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah Peserta</button></a>
                         @endhasrole
                         @endif    
+
                     <form action="{{ route('program_stuout.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
