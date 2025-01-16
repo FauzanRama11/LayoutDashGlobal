@@ -15,9 +15,19 @@ Route::middleware(['auth', 'verified', 'role:gpc|wadek3'])->group(function () {
     Route::put('/update-pelaporan/{id}', [AgreementController::class, 'store_pelaporan'])->name('pelaporan.update');
     Route::delete('/delete-pelaporan/{id}', [AgreementController::class, 'destroy_pelaporan'])->name('pelaporan.destroy');
 
+    Route::get('/form-master-database', [AgreementController::class, 'tambah_master_database'])->name('master_database.tambah');
+    Route::post('/store-master-database', [AgreementController::class, 'store_master_database'])->name('master_database.store');
+    Route::get('/edit-master-database/{id}', action: [AgreementController::class, 'tambah_master_database'])->name('master_database.edit');
+    Route::put('/update-master-database/{id}', [AgreementController::class, 'store_master_database'])->name('master_database.update');
     Route::get('/view-database', [AgreementController::class, 'database_agreement'])->name('view_database');
     Route::delete('/delete-database-agreement/{id}', [AgreementController::class, 'destroy_database_agreement'])->name('database_agreement.destroy');
+    
     Route::get('/email', [AgreementController::class, 'email_list'])->name('email_list');
+
+    Route::put('/approve-pelaporan/{id}', [AgreementController::class, 'approve_pelaporan'])->name('pelaporan.approve');
+    Route::put('/reject-pelaporan/{id}', [AgreementController::class, 'reject_pelaporan'])->name('pelaporan.reject');
+    Route::put('/revise-pelaporan/{id}', [AgreementController::class, 'revise_pelaporan'])->name('pelaporan.revise');
+    
 });
 
     

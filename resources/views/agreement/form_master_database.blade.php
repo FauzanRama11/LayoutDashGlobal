@@ -4,86 +4,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <div class="card">
   <div class="card-header pb-0">
-    <h5>Form Pelaporan</h5><span>This is Form Pelaporan</span>
+    <h5>Form Databases</h5><span>This is Form Databases</span>
   </div>
 
     <div class="card-body">
-    @if(isset($data))
-    @hasrole("gpc")
-            <div class="d-flex justify-content-start" style="margin-bottom: 15px;">
-              @if(isset($data) && isset($data->approval_pelaporan) && $data->approval_pelaporan != 1)
-                    <form style="margin: 5px;" action="{{ route('pelaporan.approve', ['id' => $data-> id]) }}" method="POST">
-                        @csrf
-                        @method('PUT') 
-                        <button type="submit" class="btn btn-primary mr-2">Approved</button>
-                    </form>
-
-                      <button style="margin: 5px;" type="submit" id = "rejectButton" class="btn btn-danger mr-2">Rejected</button>
-                      <button style="margin: 5px;" type="submit" id = "reviseButton" class="btn btn-warning">Revise</button>
-              @endif
-          </div>
-
-          <div id="reNotes">
-            <form action="{{ route('pelaporan.revise', ['id' => $data-> id]) }}" method = "POST">
-              @csrf
-              @method('PUT') 
-                <div class="mb-3">
-                  <label class="form-label" for="notes">Notes</label>
-                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-                  <div class="invalid-feedback">Notes wajib diisi.</div>
-                </div>
-              <button type="submit" id = "reviseButton" class="btn btn-warning">Click to Revise</button>
-            </form>
-          </div>
-          <div id="reNotes2">
-            <form action="{{ route('pelaporan.reject', ['id' => $data-> id]) }}" method = "POST">
-              @csrf
-              @method('PUT') 
-                <div class="mb-3">
-                  <label class="form-label" for="notes">Notes</label>
-                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-                  <div class="invalid-feedback">Notes wajib diisi.</div>
-                </div>
-              <button type="submit" id = "reviseButton" class="btn btn-danger">Click to Reject</button>
-            </form>
-          </div>
-      @endhasrole
-    @endif
-
-    @hasrole('wadek3')
-      @if(isset($data) && isset($data->approval_note))
-        <label class="form-label" for="notesRead">Revision or Rejection Notes</label>
-        <textarea class="form-control" id="notesRead" name="notesRead" placeholder="notesRead" readonly>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-        <div class="invalid-feedback">.</div>
-        @endif
-    @endhasrole
-        
-    <form class="was-validated" action =  "{{ isset($data) ? route('pelaporan.update', $data->id) :  route('pelaporan.store') }} " method="POST" enctype="multipart/form-data">
+    <form class="was-validated" action =  "{{ isset($data) ? route('master_database.update', $data->id) :   route('master_database.store')  }} " method="POST" enctype="multipart/form-data">
         @csrf
         @if(isset($data))
             @method('PUT') <!-- Untuk update, menambahkan method PUT -->
         @endif
-
         <div class="row">
           <!-- Kolom Kiri -->
           <div class="col-md-6">
-
       <div class="mb-3">
         <label class="form-label" for="jenisP">Type of Agreement</label>
         <select class="form-select" id="jenisP" name="jenisP" required>
             <option value="General" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'General' ? 'selected' : '' }}>General</option>
             <option value="Riset" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
-
-
         </select>
       </div>
-
+      <div class="mb-3">
+        <label class="form-label" for="queueP">On Queue</label>
+            <select class="form-select" id="queueP" name="queueP" required>
+                <option value="Y" {{ old('queueP', isset($data->is_queue) ? $data->is_queue : '') == 'Y' ? 'selected' : '' }}>Ya</option>
+                <option value="N" {{ old('queueP', isset($data->is_queue) ? $data->is_queue : '') == 'N' ? 'selected' : '' }}>Tidak</option>
+            </select>
+      </div>
+ 
       <div class="mb-3">
         <label class="form-label" for="triDharma">Kategori Tri Dharma</label>
         <select class="form-select" id="triDharma" name="triDharma" required>
             <option value="Pendidikan" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
             <option value="Riset" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
             <option value="Pengabdian Masyarakat" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Pengabdian Masyarakat' ? 'selected' : '' }}>Pengabdian Masyarakat</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+      <label class="form-label" for="statusLapkerma">Status Lapkerma</label>
+        <select class="form-select" id="statusLapkerma" name="statusLapkerma" required>
+            <option value="SUDAH" {{ old('statusLapkerma', isset($data->status_lapkerma) ? $data->status_lapkerma : '') == 'SUDAH' ? 'selected' : '' }}>Sudah</option>
+            <option value="BELUM" {{ old('statusLapkerma', isset($data->status_lapkerma) ? $data->status_lapkerma : '') == 'BELUM' ? 'selected' : '' }}>Belum</option>
         </select>
       </div>
 
@@ -156,6 +117,43 @@
         <input type="date" class="form-control" id="endDate" name="endDate" value="{{ old('endDate', isset($data) ? $data->mou_end_date : '')}}" required>
         <div class="invalid-feedback">Tanggal berakhir wajib diisi.</div>
       </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="catNaskah">Kategori Naskah</label>
+        <select class="form-select" id="catNaskah" name="catNaskah" required>
+            <option value="Research Collaboration Agreement" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Research Collaboration Agreement' ? 'selected' : '' }}>Research Collaboration Agreement</option>
+            <option value="Letter Of Intent" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Letter Of Intent' ? 'selected' : '' }}>Letter Of Intent</option>
+            <option value="Adjunct Professor" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Adjunct Professor' ? 'selected' : '' }}>Adjunct Professor</option>
+            <option value="Learning Agreement" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Learning Agreement' ? 'selected' : '' }}>Learning Agreement</option>
+            <option value="Double Degree Framework Agreement" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Double Degree Framework Agreement' ? 'selected' : '' }}>Double Degree Framework Agreement</option>
+            <option value="MoA On Academic Cooperation" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'MoA On Academic Cooperation' ? 'selected' : '' }}>MoA On Academic Cooperation</option>
+            <option value="MoU On Academic Cooperation" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'MoU On Academic Cooperation' ? 'selected' : '' }}>MoU On Academic Cooperation</option>
+            <option value="MoA On Student Exchange" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'MoA On Student Exchange' ? 'selected' : '' }}>MoA On Student Exchange</option>
+            <option value="MoU On Student Exchange" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'MoU On Student Exchange' ? 'selected' : '' }}>MoU On Student Exchange</option>
+            <option value="ERASMUS KA171" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'ERASMUS KA171' ? 'selected' : '' }}>ERASMUS KA171</option>
+            <option value="Letter of Assignment" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Letter of Assignment' ? 'selected' : '' }}>Letter of Assignment</option>
+            <option value="Letter of Appointment" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Letter of Appointment' ? 'selected' : '' }}>Letter of Appointment</option>
+            <option value="Contract of The Online Airlangga Post-Doctoral Fellowship" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Contract of The Online Airlangga Post-Doctoral Fellowship' ? 'selected' : '' }}>Contract of The Online Airlangga Post-Doctoral Fellowship</option>
+        </select>
+      </div>
+
+
+      <div class="mb-3">
+        <label class="form-label" for="skema">Skema</label>
+        <select class="form-select" id="skema" name="skema" required>
+            <option value="International Research Collaboration Hibah Mandate" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Hibah Mandate' ? 'selected' : '' }}>International Research Collaboration Hibah Mandate</option>
+            <option value="International Research Collaboration Top 100" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Top 100' ? 'selected' : '' }}>International Research Collaboration Top 100</option>
+            <option value="International Research Collaboration Top 300" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Top 300' ? 'selected' : '' }}>International Research Collaboration Top 300</option>
+            <option value="International Research Collaboration Top 500" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Top 500' ? 'selected' : '' }}>International Research Collaboration Top 500</option>
+            <option value="International Research Collaboration Over 500" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Over 500' ? 'selected' : '' }}>International Research Collaboration Over 500</option>
+            <option value="SATU Joint Research" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'SATU Joint Research' ? 'selected' : '' }}>SATU Joint Research</option>
+            <option value="Matching Fund" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'Matching Fund' ? 'selected' : '' }}>Matching Fund</option>
+            <option value="Project Collaboration" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'Project Collaboration' ? 'selected' : '' }}>Project Collaboration</option>
+            <option value="International Research Network (IRN)" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Network (IRN)' ? 'selected' : '' }}>International Research Network (IRN)</option>
+            <option value="International Research Consortium (IRCON)" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Consortium (IRCON)' ? 'selected' : '' }}>International Research Consortium (IRCON)</option>
+            <option value="Other" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'Other' ? 'selected' : '' }}>Other</option>
+        </select>
+    </div>
 
       <div class="mb-3">
         <label class="form-label" for="deptP">Department</label>
@@ -250,8 +248,11 @@
             </div>
         </div>
     </div>
-  </div>
-  <div class="col-md-6">
+          </div>
+
+
+      <div class="col-md-6">
+
       <div class="card-header pb-0">
           <h5>Penandatanganan</h5><span>Informasi Penandatanganan</span>
         </div>
@@ -336,9 +337,8 @@
       </div>
       
     </div>
-    </div>
-
-</div>
+      </div>
+  </div>
 
       <div class="col-12">
       @if(isset($data->approval_pelaporan))
@@ -352,6 +352,7 @@
       @else
         <button class="btn btn-primary" type="submit">Submit</button>
       @endif
+
       </div>
     </form>
   </div>

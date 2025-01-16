@@ -13,7 +13,7 @@
 	                    <div class="table-responsive">
 	                        <table class="display" id="API-2">
                             @role("gpc")
-								<a href= "form-pelaporan"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
+								<a href= "form-master-database"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                        @endrole   
                             <thead>
                                 <tr>
@@ -42,10 +42,6 @@
                                     <th>Department (Partners)</th>
                                     <th>Program Studi (Partners)</th>
                                     <th>Type of Institution (Partners)</th>
-                                    <th>QS WUR 2023</th>
-                                    <th>QS WUR 100 by Subject 2022</th>
-                                    <th>THE WUR 2022</th>
-                                    <th>THE Impact Ranking 2021</th>
                                     <th>Region</th>
                                     <th>Type of Grant</th>
                                     <th>Source of Funding</th>
@@ -64,15 +60,11 @@
                                     <th>Email of UNAIR PIC</th>
                                     <th>Telephone / WA of UNAIR PIC</th>
                                     <th>Involved Faculty at UNAIR</th>
-                                    <th>World Rank (1-4)</th>
-                                    <th>Number of Agreements (1-4)</th>
-                                    <th>Level of Activities (1-4)</th>
-                                    <th>Number of Faculty Involved (1-4)</th>
-                                    <th>Scival Publication (1-4)</th>
-                                    <th>Total Score</th>
                                     <th>Partnership Badge</th>
+                                    @hasrole('gpc')
                                     <th>Edit</th>
                                     <th>Delete</th>
+                                    @endhasrole
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -103,10 +95,6 @@
                                         <td>{{ $item->department_partner }}</td>
                                         <td>{{ $item->program_study_partner }}</td>
                                         <td>{{ $item->type_institution_partner }}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
                                         <td>{{ $item->region }}</td>
                                         <td>{{ $item->type_grant }}</td>
                                         <td>{{ $item->source_funding }}</td>
@@ -125,14 +113,20 @@
                                         <td>{{ $item->pic_fak_email }}</td>
                                         <td>{{ $item->pic_fak_phone }}</td>
                                         <td>{{ $item->faculty_involved }}</td>
-                                        <td>{{ $item->world_rank }}</td>
-                                        <td>{{ $item->number_agreements }}</td>
-                                        <td>{{ $item->level_activities }}</td>
-                                        <td>{{ $item->number_faculty_involved }}</td>
-                                        <td>{{ $item->scival_publication }}</td>
-                                        <td>{{ $item->total_score }}</td>
                                         <td>{{ $item->partnership_badge }}</td>
-                                        <td></td>
+                                        @hasrole('gpc')
+                                        <td>
+                                            <form action="{{ route('master_database.edit', ['id' => $item->id]) }}" method="GET">
+                                                <button class="btn btn-success btn-sm" 
+                                                        type="submit" 
+                                                        data-toggle="tooltip" 
+                                                        data-placement="top" 
+                                                        title="Edit">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        
                                         <td><form  action="{{ route('database_agreement.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
 												@csrf
 												@method('DELETE')
@@ -140,6 +134,7 @@
 													<i class="fa fa-trash"></i>
 												</button>
 											</form></td>
+                                        @endhasrole
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -170,10 +165,6 @@
                                         <th>Department (Partners)</th>
                                         <th>Program Studi (Partners)</th>
                                         <th>Type of Institution (Partners)</th>
-                                        <th>QS WUR 2023</th>
-                                        <th>QS WUR 100 by Subject 2022</th>
-                                        <th>THE WUR 2022</th>
-                                        <th>THE Impact Ranking 2021</th>
                                         <th>Region</th>
                                         <th>Type of Grant</th>
                                         <th>Source of Funding</th>
@@ -192,15 +183,11 @@
                                         <th>Email of UNAIR PIC</th>
                                         <th>Telephone / WA of UNAIR PIC</th>
                                         <th>Involved Faculty at UNAIR</th>
-                                        <th>World Rank (1-4)</th>
-                                        <th>Number of Agreements (1-4)</th>
-                                        <th>Level of Activities (1-4)</th>
-                                        <th>Number of Faculty Involved (1-4)</th>
-                                        <th>Scival Publication (1-4)</th>
-                                        <th>Total Score</th>
                                         <th>Partnership Badge</th>
+                                        @hasrole('gpc')
                                         <th>Edit</th>
                                         <th>Delete</th>
+                                        @endhasrole
                                     </tr>
                                 </tfoot>
 	                        </table>

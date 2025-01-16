@@ -58,16 +58,4 @@ Route::get('/edit-program/{ids}/tambah-peserta', [MStuOutPesertaController::clas
 Route::post('/store-peserta', [MStuOutPesertaController::class, 'store_peserta'])->name('peserta.store');
 Route::put('/approve-peserta/{id}', [StudentOutboundController::class, 'action_approve'])->name('stuout_peserta.approve');
 
-Route::get('/tambah-pelaporan-no', [AgreementController::class, 'tambah_pelaporan'])->name('tambah_pelaporan');
-Route::post('/store-pelaporan', [AgreementController::class, 'store_pelaporan'])->name('pelaporan.store');
-Route::get('/view-pelaporan', [AgreementController::class, 'view_pelaporan'])->name('view_pelaporan');
-Route::get('/edit-pelaporan/{id}', [AgreementController::class, 'tambah_pelaporan'])->name('pelaporan.edit');
-Route::put('/update-pelaporan/{id}', [AgreementController::class, 'store_pelaporan'])->name('pelaporan.update');
-Route::delete('/delete-pelaporan/{id}', [AgreementController::class, 'destroy_pelaporan'])->name('pelaporan.destroy');
-
-Route::put('/approve-pelaporan/{id}', [AgreementController::class, 'approve_pelaporan'])->name('pelaporan.approve');
-Route::put('/reject-pelaporan/{id}', [AgreementController::class, 'reject_pelaporan'])->name('pelaporan.reject');
-Route::put('/revise-pelaporan/{id}', [AgreementController::class, 'revise_pelaporan'])->name('pelaporan.revise');
-
-
 require __DIR__.'/auth.php';
