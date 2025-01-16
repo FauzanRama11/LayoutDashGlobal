@@ -26,6 +26,8 @@
 
                         @hasanyrole("fakultas|gmp")
                             @includeIf('layouts.partials.button-route.studentoutbound')
+                        @endhasanyrole
+                        @hasanyrole("fakultas|gmp|kps|dirpen|pusbamulya")
                             @includeIf('layouts.partials.button-route.studentinbound')
                         @endhasanyrole    
                         
@@ -41,6 +43,17 @@
                             @includeIf('layouts.partials.button-route.other')
                             @includeIf('layouts.partials.button-route.dashboard')
                         @endrole
+
+
+                        @hasanyrole("kps|dirpen")
+                            @includeIf('layouts.partials.button-route.amerta')
+                            {{-- @includeIf('layouts.partials.button-route.dashboard') --}}
+                        @endhasanyrole
+
+                        @role("pusbamulya")
+                            @includeIf('layouts.partials.button-route.lingua')
+                        @endrole
+
 
                     </li>
                 </ul>

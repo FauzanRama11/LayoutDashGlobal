@@ -50,8 +50,6 @@ class StudentOutboundController extends Controller
     
         return redirect()->route('stuout_approval_pelaporan');
     }
-    
-    
 
     public function pengajuan_setneg()
     {

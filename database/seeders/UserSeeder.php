@@ -18,16 +18,51 @@ class UserSeeder extends Seeder
             "name" => "Global Partnership & Collaboartion", 
             "email" => "",
             "password" => bcrypt("12345"),
+             
         "is_active" => "True"]);
         $gpc_user->assignRole("gpc");
+        "is_active" => "True"]);
+        $gmp_user->assignRole("gmp");
+
 
         $wdk_user = User::create(
             ["username" => "198404202008121005", 
             "name" => "	Iman Harymawan, S.E., M.BA., Ph.D.", 
             "email" => "",
             "password" => bcrypt("12345"),
-        "is_active" => "True"]);
+            "is_active" => "True"]);
+
 
         $wdk_user->assignRole("wadek3");
+
+        $fa_user->assignRole("fakultas");
+
+        $kps_user = User::create(
+            ["username" => "1984020380922", 
+            "name" => "Rimuljo Hendra", 
+            "email" => "",
+            "password" => bcrypt("12345"),
+            "is_active" => "True"]);
+
+        $kps_user->assignRole("kps");
+
+        $dirpen_user = User::create(
+            ["username" => "dirpen", 
+            "name" => "Kennedy Bruce", 
+            "email" => "",
+            "password" => bcrypt("12345"),
+            "is_active" => "True"]);
+
+        $dirpen_user->assignRole("dirpen");
+
+        $pusba_user = User::create(
+            ["username" => "pusba", 
+            "name" => "Simanalagi Kurch", 
+            "email" => "",
+            "password" => bcrypt("12345"),
+            "is_active" => "True"]);
+
+        $pusba_user->assignRole("pusbamulya");
+
     }
 }

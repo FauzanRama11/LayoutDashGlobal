@@ -15,6 +15,11 @@
 	                <div class="card-body">
 	                    <div class="table-responsive">
 	                        <table class="display" id="API-2">
+								@role("fakultas")
+								<a href="{{ route('stuin_age.create') }}">
+									<button class="btn btn-success btn-sm active" type="button" style="width: 20%; margin:15px">+ Tambah</button>
+								</a>
+								@endrole   
 	                            <thead>
 	                                <tr>
 	                                    <th>Name</th>
@@ -44,12 +49,14 @@
 										<td>{{ $item->peserta ?? '-' }}</td>
 										<td>{{ $item->is_private_event ?? '-' }}</td>
 										<td>{{ $item->created_time ?? '-' }}</td>                                    
-										<td><form action="" method="GET">
+										<td><form  action="{{ route('program_stuin.edit', ['id' => $item->id]) }}" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Edit</button>
 											</form>
 										</td>
-										<td><form action="" method="GET">
-												<button type="submit" class="btn btn-primary delete-button">Delete</button>
+										<td><form action="{{ route('program_stuin.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
+										@csrf
+										@method('DELETE')		
+										<button type="submit" class="btn btn-primary delete-button">Delete</button>
 											</form>
 										</td>
 

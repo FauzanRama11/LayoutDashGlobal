@@ -1,8 +1,6 @@
 @extends('layouts.master') 
 @section('content') 
 
-
-               
                       <div class="mb-2">
                         <label class="col-form-label">Select2 single select</label>
                         <select class="js-example-basic-single col-sm-12">
@@ -13,7 +11,9 @@
                         </select>
                       </div>
                      
-                    
-
 @endsection
 
+
+
+<script src="../assets/js/select2/select2.full.min.js"></script>
+<script src="../assets/js/select2/select2-custom.js"></script>

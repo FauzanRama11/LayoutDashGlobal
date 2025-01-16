@@ -38,6 +38,7 @@ class MStuOutProgram extends Model
         'url_generate',
         'universitas_tujuan',
         'negara_tujuan',
+        'email',
         'sub_mbkm'
     ];
 
