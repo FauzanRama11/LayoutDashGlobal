@@ -15,6 +15,7 @@ use App\Models\GrieMoaAcademicScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AgreementController extends Controller
 {
@@ -34,7 +35,19 @@ class AgreementController extends Controller
         ->get();
         $data = $id ? GrieMoaAcademicPelaporan::findOrFail($id) : null;
 
-        return view('agreement.form_pelaporan', compact('data', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
+        if ($data !== null) {
+                $selPartners = GrieMoaAcademicPelaporanPartner::where('id_moa_academic', $data->id)->get()->toArray();
+                $selPartners = array_column($selPartners, 'id_partner_university'); 
+                $selFaculties = GrieMoaAcademicPelaporanFaculty::where('id_moa_academic', $data->id)->get()->toArray();
+                $selFaculties = array_column($selFaculties, 'id_faculty'); 
+                $selScopes = GrieMoaAcademicPelaporanScope::where('id_moa_academic', $data->id)->get()->toArray();
+                $selScopes = array_column($selScopes, 'id_collaboration_scope'); 
+                $selProdis = GrieMoaAcademicPelaporanProdi::where('id_moa_academic', $data->id)->get()->toArray();
+                $selProdis = array_column($selProdis, column_key: 'id_program_study_unair'); 
+                return view('agreement.form_pelaporan', compact('data',  'selPartners', 'selFaculties','selScopes', 'selProdis', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
+            }
+        else{ 
+            return view('agreement.form_pelaporan', compact('data',  'univ', 'unit','country', 'scope', 'department', 'prodi'));}
     }
 
     public function tambah_master_database($id = null){
@@ -53,9 +66,24 @@ class AgreementController extends Controller
         ->get();
 
         $data = $id ? GrieMoaAcademic::findOrFail($id) : null;
+        if ($data !== null) {
+            $selPartners = GrieMoaAcademicPartner::where('id_moa_academic', $data->id)->get()->toArray();
+            $selPartners = array_column($selPartners, 'id_partner_university'); 
+            $selFaculties = GrieMoaAcademicFaculty::where('id_moa_academic', $data->id)->get()->toArray();
+            $selFaculties = array_column($selFaculties, 'id_faculty'); 
+            $selScopes = GrieMoaAcademicScope::where('id_moa_academic', $data->id)->get()->toArray();
+            $selScopes = array_column($selScopes, 'id_collaboration_scope'); 
+            $selProdis = GrieMoaAcademicProdi::where('id_moa_academic', $data->id)->get()->toArray();
+            $selProdis = array_column($selProdis, column_key: 'id_program_study_unair'); 
 
-        return view('agreement.form_master_database', compact('data', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
+            return view('agreement.form_master_database', compact('data', 'selPartners', 'selFaculties', 'selScopes', 'selProdis', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
+        }else{
+                return view('agreement.form_master_database', compact('data', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
     }
+
+        }
+
+    
 
 
 public function destroy_pelaporan($id){
@@ -88,6 +116,7 @@ public function store_pelaporan(Request $request, $id = null) {
     } else {
         $pelaporan = new GrieMoaAcademicPelaporan();
         $pelaporan->approval_pelaporan = 0;
+        $pelaporan->created_by = Auth::user()->id;
     }
 
     $pelaporan->id_dosen = null;
@@ -102,7 +131,19 @@ public function store_pelaporan(Request $request, $id = null) {
     $pelaporan->text_end_date = "Automatically Renewed";
     $pelaporan->jenis_naskah = $request->input('docP');
     $pelaporan->title = $request->input('tittleP');
-    $pelaporan->link_download_naskah = $request->input('linkDownload');
+    // $pelaporan->link_download_naskah = $request->input('linkDownload');
+    if ($request->hasFile('linkDownload')) {
+        $file = $request->file('linkDownload');
+        $storagePath = '/naskah';
+    
+        if (!Storage::disk('outside')->exists($storagePath)) {
+            Storage::disk('outside')->makeDirectory($storagePath);
+        }
+        $fileName = uniqid() . '_' . $file->getClientOriginalName();
+        $file->storeAs($storagePath, $fileName, 'outside');
+        $pelaporan->link_download_naskah = $storagePath . '/' . $fileName;
+    }
+
     $pelaporan->mou_start_date = $request->input('startDate');
     $pelaporan->mou_end_date = $request->input('endDate');
     $pelaporan->id_department_unair = $request->input('deptP');
@@ -113,7 +154,6 @@ public function store_pelaporan(Request $request, $id = null) {
     $pelaporan->type_institution_partner = $request->input('typeP');
     $pelaporan->signatories_unair_name = $request->input('nosUnair');
     $pelaporan->signatories_unair_pos = $request->input('nopUnair');
-    $pelaporan->created_by = Auth::user()->id;
     $pelaporan->current_role = 'KSLN';
     $pelaporan->signatories_partner_name = $request->input('nosPart');
     $pelaporan->signatories_partner_pos = $request->input('nopPart');
@@ -137,7 +177,6 @@ public function store_pelaporan(Request $request, $id = null) {
    
     $pelaporan->save();
     $pelaporan_id = $pelaporan->id;
-
 
     foreach ($request->input('partnerP', []) as $partnerId) {
         GrieMoaAcademicPelaporanPartner::updateOrCreate(
@@ -181,7 +220,7 @@ public function store_pelaporan(Request $request, $id = null) {
             DB::table('grie_moa_academic_pelaporan_partner')
                 ->select(
                     'id_moa_academic',
-                    DB::raw('STRING_AGG(u.name, \', \') AS partner')
+                    DB::raw('STRING_AGG(u.name, \', \') AS partner') 
                 )
                 ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_pelaporan_partner.id_partner_university')
                 ->groupBy('id_moa_academic')
@@ -285,9 +324,10 @@ public function store_pelaporan(Request $request, $id = null) {
             ->where(function($query) {
                 $query->where('g.status', '=', 'Completed')
                       ->orWhere('g.status', '=', 'Progress');
-            })  // Kondisi untuk status Completed atau Progress
-            ->whereNotNull('g.link_download_naskah')  // Kondisi untuk memastikan link_download_naskah tidak null
+            })  
+            ->whereNotNull('g.link_download_naskah')  
             ->where('g.link_download_naskah', '!=', '')  // K
+            ->orderByDesc('lapkerma_archive')
             ->get();
 
         $result = DB::table('grie_moa_academic_scope as gs')
@@ -335,6 +375,42 @@ public function store_pelaporan(Request $request, $id = null) {
 
     }
 
+    public function upload_bukti($id){
+
+        $data = GrieMoaAcademic::find($id);
+        return view('agreement.upload_pelaporan', compact('data'));
+
+    }
+
+
+    public function store_bukti(Request $request, $id){
+
+        $agreement = GrieMoaAcademic::find($id);
+
+        if ($request->hasFile('linkPelaporan')) {
+            $file = $request->file('linkPelaporan');
+            $storagePath = '/naskah';
+    
+            // Pastikan direktori penyimpanan ada
+            if (!Storage::disk('outside')->exists($storagePath)) {
+                Storage::disk('outside')->makeDirectory($storagePath);
+            }
+    
+            // Simpan file dengan nama unik
+            $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            $file->storeAs($storagePath, $fileName, 'outside');
+    
+            // Perbarui hanya kolom link_pelaporan
+            $agreement->update([
+                'link_pelaporan' => $storagePath . '/' . $fileName,
+            ]);
+        }
+       
+
+        return redirect()->route('view_database');
+
+    }
+
     public function generate_number(){
         $year = date('Y');
         $lastRecord = DB::table('grie_moa_academic')
@@ -373,9 +449,13 @@ public function store_pelaporan(Request $request, $id = null) {
 
     } else {
         $agreement = new GrieMoaAcademic();
+        $agreement->created_by = Auth::user()->id;
+        if(Auth::user()->hasRole('gpc')){
+            $agreement->current_role = 'KSLN';
+            $agreement->current_iterasi = 1;
+        }
     }
-    $agreement->current_id_status = Auth::user()->id;
-    $agreement->current_iterasi = 0;
+    $agreement->current_id_status = 0;
     $agreement->id_dosen = null;
     $agreement->created_date = now();
     $agreement->id_partner_university = null;
@@ -388,7 +468,17 @@ public function store_pelaporan(Request $request, $id = null) {
     $agreement->text_end_date = "Automatically Renewed";
     $agreement->jenis_naskah = $request->input('docP');
     $agreement->title = $request->input('tittleP');
-    $agreement->link_download_naskah = $request->input('linkDownload');
+    if ($request->hasFile('linkDownload')) {
+        $file = $request->file('linkDownload');
+        $storagePath = '/naskah';
+    
+        if (!Storage::disk('outside')->exists($storagePath)) {
+            Storage::disk('outside')->makeDirectory($storagePath);
+        }
+        $fileName = uniqid() . '_' . $file->getClientOriginalName();
+        $file->storeAs($storagePath, $fileName, 'outside');
+        $agreement->link_download_naskah = $storagePath . '/' . $fileName;
+    }
     $agreement->mou_start_date = $request->input('startDate');
     $agreement->mou_end_date = $request->input('endDate');
     $agreement->id_department_unair = $request->input('deptP');
@@ -399,8 +489,6 @@ public function store_pelaporan(Request $request, $id = null) {
     $agreement->type_institution_partner = $request->input('typeP');
     $agreement->signatories_unair_name = $request->input('nosUnair');
     $agreement->signatories_unair_pos = $request->input('nopUnair');
-    $agreement->created_by = Auth::user()->id;
-    $agreement->current_role = 'KSLN';
     $agreement->signatories_partner_name = $request->input('nosPart');
     $agreement->signatories_partner_pos = $request->input('nopPart');
     $agreement->pic_mitra_nama = $request->input('namePic');
@@ -420,6 +508,9 @@ public function store_pelaporan(Request $request, $id = null) {
     $agreement->age_archive_sn = GrieMoaAcademic::generateNumber();        
     $agreement->lapkerma_archive = $agreement->age_archive_sn.'.KSLN';
     $agreement->year = date('Y', strtotime($agreement->mou_start_date));
+    // $agreement->link_pelaporan = 'None';
+    // $agreement->current_id_status = 0;
+
 
     $agreement->save();
     $agreement_id = $agreement->id;
@@ -461,6 +552,7 @@ public function store_pelaporan(Request $request, $id = null) {
         
         return view('agreement.email_list');
     }
+
 
     public function review_agreement(){
 

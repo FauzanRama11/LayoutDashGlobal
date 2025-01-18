@@ -13,6 +13,7 @@
     @endhasanyrole
 
     @role("gpc")
+        <li><a href="{{ route('univ_score') }}" class="{{ routeActive('univ_score') }}">University Score</a></li>
         <li><a href="{{ route('email_list') }}" class="{{ routeActive('email_list') }}">Email Notif List</a></li>
     @endrole
     </ul>

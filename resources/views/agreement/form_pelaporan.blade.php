@@ -106,10 +106,13 @@
     </div>
 
     <div class="mb-2">
-        <label class="col-form-label" for="partnerP">University Partner</label>
+        <label class="form-label" for="partnerP">University Partner</label>
         <select class="js-example-placeholder-multiple col-sm-12" id="partnerP" name="partnerP[]" multiple="multiple">
             @foreach ($univ as $item)
-                <option value="{{ $item->id }}" {{ in_array($item->id, old('partnerP', [])) ? 'selected' : '' }}>{{ $item->name }}- Rank: {{$item->ranking}}</option>
+                <option value="{{ $item->id }}" 
+                    {{ in_array($item->id, old('partnerP', $selPartners ?? [])) ? 'selected' : '' }}>
+                    {{ $item->name }} - Rank: {{ $item->ranking }}
+                </option>
             @endforeach
         </select>
     </div>
@@ -131,18 +134,32 @@
         </div>
 
         <div class="mb-2">
-            <label class="col-form-label" for="scopeP">Scope of Agreement</label>
-            <select class="js-example-placeholder-multiple col-sm-12"  id="scopeP" name="scopeP[]" multiple="multiple">
-        @foreach ($scope as $item)
-        <option value="{{ $item->id }}" {{ in_array($item->id, old('scopeP', $data->scope_ids ?? [])) ? 'selected' : '' }}>{{ $item->name }}</option>
-        @endforeach
-        </select>
-            </div>
+          <label class="form-label" for="scopeP">Scope of Agreement</label>
+          <select class="js-example-placeholder-multiple col-sm-12" id="scopeP" name="scopeP[]" multiple="multiple">
+              @foreach ($scope as $item)
+                  <option value="{{ $item->id }}" 
+                      {{ in_array($item->id, old('scopeP', $selScopes ?? [])) ? 'selected' : '' }}>
+                      {{ $item->name }}
+                  </option>
+              @endforeach
+          </select>
+      </div>
 
         <div class="mb-3">
-            <label class="form-label" for="linkDownload">Link Download Agreement</label>
-            <textarea class="form-control" id="linkDownload" name="linkDownload" placeholder="Link Download" required>{{ old('linkDownload', isset($data) ? $data->link_download_naskah : '') }}</textarea>
-            <div class="invalid-feedback">Link download agreement wajib diisi.</div>
+          <label class="form-label" for="linkDownload">Agreement</label>
+            @if (isset($data) && !empty($data->link_download_naskah))
+                <div class="mb-2">
+                    <a href="{{ route('view_naskah.pdf', basename($data->link_download_naskah)) }}" target="_blank" class="btn btn-primary">
+                      View / Download Document
+                    </a>
+                </div>                              
+                  <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)">
+                  <div class="mb-2">
+                    <small>Current file: {{ basename($data->link_download_naskah) }}</small>
+                  </div>
+              @else
+                <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)" required>
+              @endif
         </div>
 
         <div class="mb-3">
@@ -167,19 +184,20 @@
       </div>
 
       <div class="mb-2">
-            <label class="col-form-label" for="FacP">Faculty</label>
+            <label class="form-label" for="FacP">Faculty</label>
             <select class="js-example-placeholder-multiple col-sm-12" id="FacP" name="FacP[]" multiple="multiple">
         @foreach ($unit as $item)
-            <option value="{{ $item->id }}">{{ $item->nama_ind }}</option>
+            <option value="{{ $item->id }}"  {{ in_array($item->id, old('FacP', $selFaculties ?? [])) ? 'selected' : '' }}>
+          {{ $item->nama_ind }}</option>
         @endforeach
         </select>
         </div>
 
         <div class="mb-2">
-            <label class="col-form-label" for="stuProgP">Study Program</label>
+            <label class="form-label" for="stuProgP">Study Program</label>
             <select class="js-example-placeholder-multiple col-sm-12" id="stuProgP" name="stuProgP[]"  multiple="multiple">
             @foreach ($prodi as $item)
-                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                <option value="{{ $item->id }}"  {{ in_array($item->id, old('stuProgP', $selProdis ?? [])) ? 'selected' : '' }}>{{ $item->level }} {{ $item->name }}</option>
             @endforeach
             </select>
         </div>
@@ -418,6 +436,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 });
+</script>
+<script>
+    function validateFileSize(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxSize = 2.5 * 1024 * 1024; // 2.5 MB in bytes
+            if (file.size > maxSize) {
+                alert("File size exceeds 2.5 MB!");
+                input.value = ""; // Clear the input
+            }
+        }
+    }
 </script>
 <script>
   document.getElementById("reNotes").style.display ="none";

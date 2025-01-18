@@ -22,7 +22,7 @@ class AuthenticationController extends Controller
             'fakultas' => 'fakultas.dashboard',
 
             'gpc' => 'gpc.dashboard',
-            'wadek3' => 'wadek3.dashboard'
+            'wadek3' => 'wadek3.dashboard',
 
             'kps' => 'kps.dashboard',
             'dirpen' => 'dirpen.dashboard',

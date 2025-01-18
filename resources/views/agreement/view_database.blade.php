@@ -61,6 +61,7 @@
                                     <th>Telephone / WA of UNAIR PIC</th>
                                     <th>Involved Faculty at UNAIR</th>
                                     <th>Partnership Badge</th>
+                                    <th>Upload Pelaporan</th>
                                     @hasrole('gpc')
                                     <th>Edit</th>
                                     <th>Delete</th>
@@ -76,10 +77,23 @@
                                         <td>{{ $item->partner_involved}}</td> <!-- Update for the 'University / Institutions' -->
                                         <td>{{ $item->jenis_naskah }}</td>
                                         <td>{{ $item->title }}</td>
-                                        <td><a href="{{ $item->link_download_naskah }}" target="_blank">Download</a></td> <!-- Assuming it's a link -->
+                                        <td><a href="{{ route('view_naskah.pdf', basename($item->link_download_naskah)) }}" target="_blank">Download</a></td> <!-- Assuming it's a link -->
                                         <td>{{ $item->mou_start_date }}</td>
-                                        <td>{{ $item->mou_end_date }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($item->mou_end_date)->isPast() ? 'Expired' : 'Active' }}</td> <!-- Active/Expired logic -->
+                                        <td>@if ($item->mou_end_date != "0000-00-00")
+												{{$item->mou_end_date}}
+											@else
+												{{ $item->text_end_date }}
+											@endif
+                                        </td>
+                                        <td>
+                                        @if ($item->mou_end_date != "0000-00-00" && \Carbon\Carbon::parse($item->mou_end_date)->isPast())
+                                            Expired
+                                        @elseif ($item->mou_end_date != "0000-00-00")
+                                            Active
+                                        @else
+                                            Active
+                                        @endif
+                                        </td> <!-- Active/Expired logic -->
                                         <td>{{ $item->status_lapkerma }}</td>
                                         <td>{{ $item->category_document }}</td>
                                         <td>{{ $item->skema }}</td>
@@ -114,6 +128,20 @@
                                         <td>{{ $item->pic_fak_phone }}</td>
                                         <td>{{ $item->faculty_involved }}</td>
                                         <td>{{ $item->partnership_badge }}</td>
+                                        <td>
+                                        @if ($item->created_by == Auth::user()->id || Auth::user()->hasRole('gpc'))
+                                            <form action="{{ route('bukti.upload', ['id' => $item->id]) }}" method="GET">
+                                                <button class="btn btn-warning btn-sm" 
+                                                        type="submit" 
+                                                        data-toggle="tooltip" 
+                                                        data-placement="top" 
+                                                        title="Upload">
+                                                    <i class="fa fa-upload"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        </td>
                                         @hasrole('gpc')
                                         <td>
                                             <form action="{{ route('master_database.edit', ['id' => $item->id]) }}" method="GET">
@@ -126,7 +154,6 @@
                                                 </button>
                                             </form>
                                         </td>
-                                        
                                         <td><form  action="{{ route('database_agreement.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
 												@csrf
 												@method('DELETE')
@@ -184,6 +211,7 @@
                                         <th>Telephone / WA of UNAIR PIC</th>
                                         <th>Involved Faculty at UNAIR</th>
                                         <th>Partnership Badge</th>
+                                        <th>Upload Pelaporan</th>
                                         @hasrole('gpc')
                                         <th>Edit</th>
                                         <th>Delete</th>

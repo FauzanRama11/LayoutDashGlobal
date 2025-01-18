@@ -50,7 +50,13 @@
                                             @endif
                                         </td>
 										<td>{{$item -> mou_start_date}}</td>
-										<td>{{$item -> mou_end_date}}</td>
+										<td>
+											@if ($item->mou_end_date != "0000-00-00")
+												{{$item->mou_end_date}}
+											@else
+												{{ $item->text_end_date }}
+											@endif
+										</td>
 										<td>{{$item -> created_date}}</td>
 										<td><form action="{{ route('pelaporan.edit', ['id' => $item->id]) }}" method="GET">
                                                 <button class="btn btn-success btn-sm" 
@@ -95,4 +101,5 @@
 	        <!-- Individual column searching (text inputs) Ends-->
 	    </div>
 	</div>
+
 @endsection
