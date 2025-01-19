@@ -51,8 +51,9 @@
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/select2.css") }}">
     <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/feather-icon.css") }}">
-    <!-- Plugins css start-->
+    <!-- DataTables Buttons -->
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/datatables.css") }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/bootstrap.css") }}">
@@ -63,19 +64,12 @@
      
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/responsive.css") }}">
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/sweetalert2.css") }}">
-    
-</head>
+
+  
     @includeIf('layouts.partials.css')
 </head>
 
 <body>
-{{-- @push('css')
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/datatables.css')}}">
-@endpush --}}
-@push('scripts')
-	<script src="{{ asset('assets/js/datatable/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/js/datatable/datatables/datatable.custom.js') }}"></script>
-@endpush
     <!-- Loader starts-->
     <div class="loader-wrapper">
         <div class="theme-loader"></div>
@@ -115,13 +109,22 @@
 </body>
    
 
-<script src="{{ asset('assets/js/datatable/datatables/jquery.dataTables.min.js') }}"></script>
+
+
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
 <script src="{{ asset('assets/js/datatable/datatables/datatable.custom.js') }}"></script>
+<script src="{{ asset('assets/js/datatable/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/js/datatable/datatables/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('assets/js/datatable/datatables/buttons.html5.min.js') }}"></script>
+
 <script src="{{ asset('assets/js/select2/select2.full.min.js') }}"></script>
 <script src="{{ asset('assets/js/select2/select2-custom.js') }}"> </script>
 
 <script src="{{ asset('assets/js/sweet-alert/sweetalert.min.js') }}"></script>
 <script src="{{ asset('assets/js/sweet-alert/app.js') }}"></script>
+   
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
 

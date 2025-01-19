@@ -15,6 +15,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/logout', action: [AuthenticationController::class, 'logout'])->name('logout');
     Route::get('/back-home', [AuthenticationController::class, 'backToHome'])->name('back.home');
     Route::get('/view-pdf/{fileName}', [DokumenController::class, 'viewPdf'])->name('view.pdf');
+    Route::get('/view-pdf-naskah/{fileName}', [DokumenController::class, 'viewPdfNaskah'])->name('view_naskah.pdf');
+
 });
 
 Route::middleware(['auth', 'verified', 'role:gmp'])->group(function () {

@@ -11,7 +11,7 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
-	                        <table class="display" id="API-2">
+	                        <table class="display" id="norm-1" data-columns-export=":not(:eq(0)):not(:gt(7))">
                             @role("wadek3")
 								<a href= "form-pelaporan"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                        @endrole   
@@ -50,9 +50,16 @@
                                             @endif
                                         </td>
 										<td>{{$item -> mou_start_date}}</td>
-										<td>{{$item -> mou_end_date}}</td>
-										<td>{{$item -> created_date}}</td>
-										<td><form action="{{ route('pelaporan.edit', ['id' => $item->id]) }}" method="GET">
+										<td>
+											@if ($item->mou_end_date != "0000-00-00")
+												{{$item->mou_end_date}}
+											@else
+												{{ $item->text_end_date }}
+											@endif
+										</td>
+										<td>{{$item ->created_date}}</td>
+										<td>
+											<form action="{{ route('pelaporan.edit', ['id' => $item->id]) }}" method="GET">
                                                 <button class="btn btn-success btn-sm" 
                                                         type="submit" 
                                                         data-toggle="tooltip" 
@@ -62,13 +69,15 @@
                                                 </button>
                                             </form>
                                         </td>
-										<td>  <form  action="{{ route('pelaporan.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
+										<td>  
+											<form id="deleteForm{{ $item->id }}" action="{{ route('pelaporan.destroy', ['id' => $item->id]) }}" method="POST">
 												@csrf
 												@method('DELETE')
-												<button class="btn btn-danger btn-sm mr-2" type="submit" data-toggle="tooltip" data-placement="top" title="Delete">
+												<button type="button" class="btn btn-danger btn-sm mr-2" onclick="confirmDelete('{{ $item->id }}', 'Data yang telah dihapus tidak dapat dipulihkan')">
 													<i class="fa fa-trash"></i>
 												</button>
-											</form></td>    
+											</form>
+										</td>       
 									</tr>
                                 @endforeach
 	                            </tbody>
@@ -95,4 +104,80 @@
 	        <!-- Individual column searching (text inputs) Ends-->
 	    </div>
 	</div>
+
 @endsection
+
+
+<!-- SweetAlert2  -->
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+function confirmDelete(itemId, message) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Hapus data!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.getElementById(`deleteForm${itemId}`);
+            if (form) {
+                $.ajax({
+                    url: form.action, // URL dari atribut action form
+                    type: 'POST', // Laravel DELETE menggunakan POST + _method
+                    data: $(form).serialize(), // Kirim CSRF token dan _method
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: response.message,
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload(); // Refresh halaman
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: response.message || 'Tidak dapat menghapus data.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX Error:', xhr.responseText); // Debugging
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat menghapus data.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Form penghapusan tidak ditemukan.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    });
+}
+
+
+
+</script>

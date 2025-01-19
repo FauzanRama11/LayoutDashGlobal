@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\agreement\AgreementController;
+use App\Http\Controllers\agreement\UniversityScoringController;
 
 Route::middleware(['auth', 'verified', 'role:gpc|wadek3'])->group(function () {
     Route::get('/review-agreement', [AgreementController::class, 'review_agreement'])->name('review_agreement');
@@ -18,10 +19,14 @@ Route::middleware(['auth', 'verified', 'role:gpc|wadek3'])->group(function () {
     Route::get('/form-master-database', [AgreementController::class, 'tambah_master_database'])->name('master_database.tambah');
     Route::post('/store-master-database', [AgreementController::class, 'store_master_database'])->name('master_database.store');
     Route::get('/edit-master-database/{id}', action: [AgreementController::class, 'tambah_master_database'])->name('master_database.edit');
+    Route::get('/upload-bukti/{id}', action: [AgreementController::class, 'upload_bukti'])->name('bukti.upload');
     Route::put('/update-master-database/{id}', [AgreementController::class, 'store_master_database'])->name('master_database.update');
+    Route::put('/update-bukti/{id}', [AgreementController::class, 'store_bukti'])->name('bukti.update');
     Route::get('/view-database', [AgreementController::class, 'database_agreement'])->name('view_database');
     Route::delete('/delete-database-agreement/{id}', [AgreementController::class, 'destroy_database_agreement'])->name('database_agreement.destroy');
     
+    
+    Route::get('/university-score', [UniversityScoringController::class, 'univ_score'])->name('univ_score');
     Route::get('/email', [AgreementController::class, 'email_list'])->name('email_list');
 
     Route::put('/approve-pelaporan/{id}', [AgreementController::class, 'approve_pelaporan'])->name('pelaporan.approve');

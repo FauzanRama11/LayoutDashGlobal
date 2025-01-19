@@ -33,6 +33,8 @@ return [
         'outside' => [
             'driver' => 'local',
             'root' => base_path('../penyimpanan'),
+            'url' => env('APP_URL').'/penyimpanan',
+            'visibility' => 'public',
         ],  
 
         'local' => [
