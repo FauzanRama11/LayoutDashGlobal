@@ -13,8 +13,6 @@
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
 <script src="{{asset('assets/js/script.js')}}"></script>
-<!-- <script src="{{asset('assets/js/theme-customizer/customizer.js')}}"></script> -->
-<!-- Plugin used-->
 
 <script>
     $(document).ready(function() {
@@ -53,4 +51,152 @@
         });
         setInterval(getDirAttributeValue, 5000);
     });
+</script>
+
+<script>
+
+ $(document).ready(function () {
+    console.log('Initializing DataTables...');
+
+    // Fungsi toggle date range
+    window.toggleDateRange = function () {
+        const dateRangeElement = document.getElementById('date-range');
+        if (dateRangeElement) {
+            if (dateRangeElement.classList.contains('d-none')) {
+                dateRangeElement.classList.remove('d-none');
+            } else {
+                dateRangeElement.classList.add('d-none');
+            }
+        } else {
+            console.error('Element with ID "date-range" not found.');
+        }
+    };
+
+    // Tutup pop-up jika klik di luar elemen
+    document.addEventListener('click', function (event) {
+        const dateRangeElement = document.getElementById('date-range');
+        const toggleButton = document.querySelector('.btn-secondary');
+
+        if (
+            dateRangeElement &&
+            !dateRangeElement.classList.contains('d-none') &&
+            !dateRangeElement.contains(event.target) &&
+            !toggleButton.contains(event.target)
+        ) {
+            dateRangeElement.classList.add('d-none');
+        }
+    });
+
+    // Fungsi untuk inisialisasi DataTable
+    function initializeDataTable(tableId) {
+        if ($(tableId).length && !$.fn.DataTable.isDataTable(tableId)) {
+            const columnsToExport = $(tableId).data('columns-export');
+            console.log(`Initializing DataTable for ${tableId}`);
+            return $(tableId).DataTable({
+                info: true,
+                ordering: true,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [
+                    [25, 50, 100, 250, 500, 1000, -1],
+                    ['25', '50', '100', '250', '500', '1000', 'All']
+                ],
+                dom: '<"top"lBf>rt<"bottom"ip><"clear">',
+                buttons: [
+                    {
+                        extend: 'csv',
+                        text: 'Export CSV',
+                        className: 'btn btn-success btn-sm active ms-4',
+                        exportOptions: {
+                            columns: columnsToExport,
+                            modifier: {
+                                search: 'applied', // Hanya data yang difilter
+                                order: 'applied',  // Mempertahankan urutan yang diterapkan
+                                page: 'current'        // Ekspor semua halaman
+                            }
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { orderable: false, targets: 3 }
+                ],
+                initComplete: function () {
+                    console.log(`Setting up search inputs for ${tableId}`);
+                    $(`${tableId} tfoot th`).each(function () {
+                        const title = $(this).text();
+                        if ($(this).length) {
+                            $(this).html(`<input type="text" placeholder="Search ${title}" />`);
+                        }
+                    });
+
+                    this.api().columns().every(function () {
+                        const that = this;
+                        $('input', this.footer()).on('keyup change', function () {
+                            if (that.search() !== this.value) {
+                                that.search(this.value).draw();
+                            }
+                        });
+                    });
+                }
+            });
+        }
+        return null;
+    }
+
+
+    // Inisialisasi DataTable jika elemen tersedia
+    if (document.getElementById('norm-1')) {
+        const tableNorm1 = initializeDataTable('#norm-1');
+    }
+
+    if (document.getElementById('norm-2')) {
+        const tableNorm2 = initializeDataTable('#norm-2');
+
+        if (tableNorm2) {
+            console.log('DataTable "example" initialized successfully.');
+
+            // Filter tanggal custom menggunakan DataTables
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                const startDateInput = document.getElementById('start-date')?.value || null;
+                const endDateInput = document.getElementById('end-date')?.value || null;
+
+                if (!startDateInput && !endDateInput) {
+                    return true;
+                }
+
+                const row = tableNorm2.row(dataIndex).node();
+                const rowStartDate = row?.getAttribute('data-start-date')
+                    ? new Date(row.getAttribute('data-start-date'))
+                    : new Date(data[3]); // Fallback ke kolom tanggal
+
+                if (isNaN(rowStartDate.getTime())) {
+                    return false; // Jika tanggal tidak valid
+                }
+
+                const startDate = startDateInput ? new Date(startDateInput) : null;
+                const endDate = endDateInput ? new Date(endDateInput) : null;
+
+                return (
+                    (!startDate || rowStartDate >= startDate) &&
+                    (!endDate || rowStartDate <= endDate)
+                );
+            });
+
+            window.applyBetweenFilter = function () {
+                console.log('Applying date filter...');
+                tableNorm2.draw();
+            };
+
+            // Tambahkan event listener pada tombol eksternal untuk eksport
+            $('#export-excel').on('click', function () {
+                if (tableNorm2) {
+                    tableNorm2.button('.buttons-excel').trigger();
+                } else {
+                    console.error('Table is not initialized for export.');
+                }
+            });
+        }
+    }
+});
+
 </script>

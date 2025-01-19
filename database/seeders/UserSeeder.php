@@ -18,12 +18,8 @@ class UserSeeder extends Seeder
             "name" => "Global Partnership & Collaboartion", 
             "email" => "",
             "password" => bcrypt("12345"),
-             
-        "is_active" => "True"]);
-        $gpc_user->assignRole("gpc");
-        "is_active" => "True"]);
-        $gmp_user->assignRole("gmp");
-
+            "is_active" => "True"]);
+            $gpc_user->assignRole("gpc");
 
         $wdk_user = User::create(
             ["username" => "198404202008121005", 
@@ -35,6 +31,13 @@ class UserSeeder extends Seeder
 
         $wdk_user->assignRole("wadek3");
 
+        $fa_user = User::create(
+            ["username" => "fa_ftmm", 
+            "name" => "Fakultas Teknologi Maju dan Multidisiplin", 
+            "email" => "",
+            "password" => bcrypt("12345"),
+            "is_active" => "True"]);
+            $gpc_user->assignRole("fa");
         $fa_user->assignRole("fakultas");
 
         $kps_user = User::create(

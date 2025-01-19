@@ -11,10 +11,57 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
-	                        <table class="display" id="API-2">
-                            @role("gpc")
-								<a href= "form-master-database"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
-	                        @endrole   
+	                        <table class="display" id="norm-2" data-columns-export=":not(:eq(0)):not(:eq(1)):not(:gt(44))">
+                                <div class="row align-items-center justify-content-between mb-4">
+                                    <!-- Tombol Tambah di Kiri -->
+                                    <div class="col-auto">
+                                        @role("gpc")
+                                            <a href= "form-master-database">
+                                                <button class="btn btn-success btn-sm active" type="button"  style="padding:8px 44px">+ Tambah</button>
+                                            </a>
+                                        @endrole   
+                                    </div>
+                               
+                                    <!-- Tombol Filter di Kanan -->
+                                    <div class="col-auto">
+                                        <div class="btn-group" role="group" aria-label="Filter Tanggal">
+                                            <div class="position-relative">
+                                                <button class="btn btn-secondary" onclick="toggleDateRange()">Between</button>
+                               
+                                                <!-- Pop-up Input untuk Filter Between -->
+                                                <div class="position-absolute bg-dark rounded p-3 shadow d-none" id="date-range" style="z-index: 1050; right: 0; top: 40px;">
+                                                    <div class="d-flex flex-column">
+                                                        <!-- Pilihan Filter -->
+                                                        <div class="mb-3">
+                                                            <label for="filter-type" class="form-label text-white">Filter By:</label>
+                                                            <select id="filter-type" class="form-select">
+                                                                <option value="start-date">Start Date</option>
+                                                                <option value="end-date">End Date</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- Input Tanggal -->
+                                                        <div class="d-flex gap-3 align-items-center">
+                                                            <!-- Input From -->
+                                                            <div class="mb-3 flex-fill">
+                                                                <label for="start-date" class="form-label text-white">From:</label>
+                                                                <input type="date" id="start-date" class="form-control">
+                                                            </div>
+                                                            
+                                                            <!-- Input To -->
+                                                            <div class="mb-3 flex-fill">
+                                                                <label for="end-date" class="form-label text-white">To:</label>
+                                                                <input type="date" id="end-date" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button class="btn btn-success w-100" onclick="applyBetweenFilter()">Apply</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                           
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -70,7 +117,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($merged as $item)
-                                    <tr>
+                                    <tr data-start-date={{ $item->mou_start_date }}>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $item->year_order_no }}</td>
                                         <td>{{ $item->country }}</td>
@@ -154,13 +201,15 @@
                                                 </button>
                                             </form>
                                         </td>
-                                        <td><form  action="{{ route('database_agreement.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
-												@csrf
-												@method('DELETE')
-												<button class="btn btn-danger btn-sm mr-2" type="submit" data-toggle="tooltip" data-placement="top" title="Delete">
-													<i class="fa fa-trash"></i>
-												</button>
-											</form></td>
+                                        <td>
+                                            <form id="deleteForm{{ $item->id }}" action="{{ route('database_agreement.destroy', ['id' => $item->id]) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-danger btn-sm mr-2" onclick="confirmDelete('{{ $item->id }}', 'Data yang telah dihapus tidak dapat dipulihkan')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>                                                                              
                                         @endhasrole
                                     </tr>
                                     @endforeach
@@ -227,3 +276,80 @@
 	    </div>
 	</div>
 @endsection
+
+
+<!-- SweetAlert2  -->
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+function confirmDelete(itemId, message) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Hapus data!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Submit form untuk menghapus data
+            const form = document.getElementById(`deleteForm${itemId}`);
+            if (form) {
+                $.ajax({
+                    url: form.action, // URL diambil dari atribut action form
+                    type: 'POST', // Laravel mengharuskan POST untuk DELETE
+                    data: $(form).serialize(), // Kirim data form (CSRF token, dll.)
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            // Tampilkan pesan SweetAlert2 jika berhasil
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Data telah terhapus.',
+                                icon: 'success',
+                                timer: 4000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                // Refresh halaman atau hapus baris dari tabel
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: response.message || 'Tidak dapat menghapus data.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat menghapus data.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Form penghapusan tidak ditemukan.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    });
+}
+
+
+</script>

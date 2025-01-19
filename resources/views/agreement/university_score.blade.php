@@ -13,7 +13,7 @@
 	                <div class="card-body">
 	                    <div class="table-responsive">
 							
-	                        <table class="display" id="API-2">
+	                        <table class="display" id="norm-1" data-columns-export=":not(:eq(0))">
 							@role("fakultas")
 								<a href= ""><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                        @endrole    

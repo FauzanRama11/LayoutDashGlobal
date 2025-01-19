@@ -1,7 +1,10 @@
 @extends('layouts.master') 
 
 @section('content') 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 <div class="card">
   <div class="card-header pb-0">
     <h5>Form Databases</h5><span>This is Form Databases</span>
@@ -370,7 +373,7 @@
 </div>
 
 
-<script>
+{{-- <script>
   $('#rejectModal .btn-danger').on('click', function () {
     var approvalNotes = $('#approvalNotes').val(); // Ambil nilai dari textarea
     var form = $('#reject-form'); // Ambil form reject
@@ -381,9 +384,8 @@
     }).appendTo(form);
     form.submit(); // Submit form
   });
-</script>
+</script> --}}
 
-</script>
 <script>
 $(document).ready(function() {
     $('#scopeP').select2({
@@ -404,8 +406,9 @@ $(document).ready(function() {
         multiple: true});
 });
 
-    </script>
-    <script>
+</script>
+
+<script>
 document.addEventListener('DOMContentLoaded', function () {
   const jenisSelect = document.getElementById('jenisP'); 
   const regSection = document.querySelector('.riset'); 
@@ -421,6 +424,7 @@ document.addEventListener('DOMContentLoaded', function () {
         regInputs.forEach(input => input.removeAttribute('required')); 
       }
     });
+
     if (jenisSelect.value === 'Riset') {
       regSection.style.display = 'block';
       regInputs.forEach(input => input.setAttribute('required', ''));
@@ -431,13 +435,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 </script>
-<script>
+
+{{-- <script>
   document.getElementById("reNotes").style.display ="none";
     function openTest() {
         document.getElementById("reNotes").style.display = "block";
     }
     document.getElementById('reviseButton').addEventListener('click', openTest);
 </script>
+
 <script>
   document.getElementById("reNotes2").style.display ="none";
     function openTest() {
@@ -445,10 +451,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById('rejectButton').addEventListener('click', openTest);
-</script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
+</script> --}}
 @endsection
 

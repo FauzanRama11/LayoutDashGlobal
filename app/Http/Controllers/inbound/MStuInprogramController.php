@@ -28,7 +28,7 @@ class MStuInProgramController extends Controller
         }
         else{
             $data = DB::table('m_stu_in_programs')
-            ->select( 'name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
+            ->select('id', 'name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
             ->where("is_program_age", "N")
             ->limit(500)
             ->orderBy('created_time', 'desc')
