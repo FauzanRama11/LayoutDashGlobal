@@ -30,7 +30,7 @@ class GrieMoaAcademic extends Model
             "source_funding", "sum_funding", "world_rank", "number_agreements", "level_activities", "number_faculty_involved", 
             "scival_publication", "total_score", "partnership_badge", "tipe_moa", "email", "ranking", "region", "is_need_ttd", 
             "url_surat_pengajuan", "url_naskah_kerjasama", "url_naskah_kerjasama_ttd", "inisiator", "is_queue", "kategori", "link_pelaporan",
-            "skema", "is_lpm", "kategori_tridharma", "status_lapkerma"
+            "skema", "is_lpm", "kategori_tridharma", "status_lapkerma", "status_pelaporan_lapkerma"
         ];
 
     // Define relationships (you may need to adjust the foreign keys)

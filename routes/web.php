@@ -82,6 +82,7 @@ use App\Http\Controllers\outbound\MStuOutprogramController;
 use App\Http\Controllers\outbound\MStuOutPesertaController;
 use App\Http\Controllers\outbound\StudentOutboundController;
 use App\Http\Controllers\agreement\AgreementController;
+use App\Http\Controllers\TryController;
 
 Route::get('/tambah-program-fakultas', [MStuOutprogramController::class, 'add_program_fak'])->name('stuout_fak.create');
 Route::post('/store_program_outbound', [MStuOutprogramController::class, 'store_program'])->name('program_fakultas.store');
@@ -93,5 +94,12 @@ Route::put('/update-program/{id}', [MStuOutprogramController::class, 'update'])-
 Route::get('/edit-program/{ids}/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta'])->name('tambah.peserta');
 Route::post('/store-peserta', [MStuOutPesertaController::class, 'store_peserta'])->name('peserta.store');
 Route::put('/approve-peserta/{id}', [StudentOutboundController::class, 'action_approve'])->name('stuout_peserta.approve');
+
+
+use App\Http\Controllers\YourController;  // Import your controller
+
+Route::get('/try', [TryController::class, 'showDatabase'])->name('your.name');
+
+
 
 require __DIR__.'/auth.php';

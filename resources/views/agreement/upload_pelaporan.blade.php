@@ -29,6 +29,14 @@
                     @endif
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label" for="buktiP">Upload Bukti Pelaporan Lapkerma</label>
+                    <select class="form-select" id="buktiP" name="buktiP" required>
+                        <option value="Belum" {{ old('buktiP', isset($data->status_pelaporan_lapkerma) ? $data->status_pelaporan_lapkerma : '') == 'Belum' ? 'selected' : '' }}>Belum</option>
+                        <option value="Sudah" {{ old('buktiP', isset($data->status_pelaporan_lapkerma) ? $data->status_pelaporan_lapkerma : '') == 'Sudah' ? 'selected' : '' }}>Sudah</option>
+                    </select>
+                </div>
+
                 <button class="btn btn-primary" id="submitButton" type="submit">Submit</button>
             </form>
         </div>

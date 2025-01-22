@@ -72,7 +72,6 @@
         }
     };
 
-    // Tutup pop-up jika klik di luar elemen
     document.addEventListener('click', function (event) {
         const dateRangeElement = document.getElementById('date-range');
         const toggleButton = document.querySelector('.btn-secondary');
@@ -87,7 +86,7 @@
         }
     });
 
-    // Fungsi untuk inisialisasi DataTable
+
     function initializeDataTable(tableId) {
         if ($(tableId).length && !$.fn.DataTable.isDataTable(tableId)) {
             const columnsToExport = $(tableId).data('columns-export');
@@ -143,8 +142,6 @@
         return null;
     }
 
-
-    // Inisialisasi DataTable jika elemen tersedia
     if (document.getElementById('norm-1')) {
         const tableNorm1 = initializeDataTable('#norm-1');
     }
@@ -167,10 +164,10 @@
                 const row = tableNorm2.row(dataIndex).node();
                 const rowStartDate = row?.getAttribute('data-start-date')
                     ? new Date(row.getAttribute('data-start-date'))
-                    : new Date(data[3]); // Fallback ke kolom tanggal
+                    : new Date(data[3]); 
 
                 if (isNaN(rowStartDate.getTime())) {
-                    return false; // Jika tanggal tidak valid
+                    return false; 
                 }
 
                 const startDate = startDateInput ? new Date(startDateInput) : null;

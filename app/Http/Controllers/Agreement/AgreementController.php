@@ -22,7 +22,24 @@ class AgreementController extends Controller
     public function tambah_pelaporan($id = null){
 
         $univ = DB::table('m_university')
+        ->leftJoinSub(
+            DB::table('m_univ_ranking')
+                ->selectRaw('univ, MIN(rank_value_min) as rank_value_min, MIN(subject) as subject')
+                ->where('type', 5)
+                ->groupBy('univ'),
+            'r',
+            'r.univ',
+            '=',
+            'm_university.id'
+        )
+        ->select(
+            'm_university.*',
+            DB::raw('r.univ as rank_univ'),
+            DB::raw('r.rank_value_min'),
+            DB::raw('r.subject as subject')
+        )
         ->get();
+
         $unit = DB::table('m_fakultas_unit')
         ->get(); 
         $country = DB::table('m_country')
@@ -53,6 +70,22 @@ class AgreementController extends Controller
     public function tambah_master_database($id = null){
 
         $univ = DB::table('m_university')
+        ->leftJoinSub(
+            DB::table('m_univ_ranking')
+                ->selectRaw('univ, MIN(rank_value_min) as rank_value_min, MIN(subject) as subject')
+                ->where('type', 5)
+                ->groupBy('univ'),
+            'r',
+            'r.univ',
+            '=',
+            'm_university.id'
+        )
+        ->select(
+            'm_university.*',
+            DB::raw('r.univ as rank_univ'),
+            DB::raw('r.rank_value_min'),
+            DB::raw('r.subject as subject')
+        )
         ->get();
         $unit = DB::table('m_fakultas_unit')
         ->get(); 
@@ -229,7 +262,9 @@ public function store_pelaporan(Request $request, $id = null) {
             DB::table('grie_moa_academic_pelaporan_partner')
                 ->select(
                     'id_moa_academic',
-                    DB::raw('STRING_AGG(u.name, \', \') AS partner') 
+                    // DB::raw('STRING_AGG(u.name, \', \') AS partner')
+
+                    DB::raw('GROUP_CONCAT(u.name) AS partner')
                 )
                 ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_pelaporan_partner.id_partner_university')
                 ->groupBy('id_moa_academic')
@@ -342,10 +377,15 @@ public function store_pelaporan(Request $request, $id = null) {
         $result = DB::table('grie_moa_academic_scope as gs')
                 ->select(
                     'gs.id_moa_academic',
-                    DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'),
-                    DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'),
-                    DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'),
-                    DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope')
+                    DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'),
+                    DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'),
+                    DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'),
+                    DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope')
+                    // DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'),
+                    // DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'),
+                    // DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'),
+                    // DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'),
+
                 )
                 ->leftJoin('grie_moa_academic_prodi as gap', 'gap.id_moa_academic', '=', 'gs.id_moa_academic')
                 ->leftJoin('m_prodi as p', 'p.id', '=', 'gap.id_program_study_unair')
@@ -409,13 +449,11 @@ public function store_pelaporan(Request $request, $id = null) {
         if ($request->hasFile('linkPelaporan')) {
             $file = $request->file('linkPelaporan');
             $storagePath = '/naskah';
-    
-            // Pastikan direktori penyimpanan ada
+
             if (!Storage::disk('outside')->exists($storagePath)) {
                 Storage::disk('outside')->makeDirectory($storagePath);
             }
     
-            // Simpan file dengan nama unik
             $fileName = uniqid() . '_' . $file->getClientOriginalName();
             $file->storeAs($storagePath, $fileName, 'outside');
     
@@ -424,7 +462,12 @@ public function store_pelaporan(Request $request, $id = null) {
                 'link_pelaporan' => $storagePath . '/' . $fileName,
             ]);
         }
-       
+        // dd( $request->input('buktiP'));
+
+        $agreement->update([
+            'status_pelaporan_lapkerma' => $request->input('buktiP')
+        ]);
+
 
         return redirect()->route('view_database');
 
