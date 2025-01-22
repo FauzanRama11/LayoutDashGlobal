@@ -65,7 +65,6 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>No Urut (Tahun)</th>
                                     <th>Country</th>
                                     <th>University / Institutions</th>
                                     <th>Type of Document</th>
@@ -107,8 +106,10 @@
                                     <th>Email of UNAIR PIC</th>
                                     <th>Telephone / WA of UNAIR PIC</th>
                                     <th>Involved Faculty at UNAIR</th>
-                                    <th>Partnership Badge</th>
+                                    <th>Status Upload Pelaporan</th>
                                     <th>Upload Pelaporan</th>
+                                    <th>Status Upload Pelaporan Lapkerma</th>
+                                    <th>Download Pelaporan</th>
                                     @hasrole('gpc')
                                     <th>Edit</th>
                                     <th>Delete</th>
@@ -119,13 +120,14 @@
                                     @foreach ($merged as $item)
                                     <tr data-start-date={{ $item->mou_start_date }}>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->year_order_no }}</td>
                                         <td>{{ $item->country }}</td>
                                         <td>{{ $item->partner_involved}}</td> <!-- Update for the 'University / Institutions' -->
                                         <td>{{ $item->jenis_naskah }}</td>
                                         <td>{{ $item->title }}</td>
-                                        <td><a href="{{ route('view_naskah.pdf', basename($item->link_download_naskah)) }}" target="_blank">Download</a></td> <!-- Assuming it's a link -->
-                                        <td>{{ $item->mou_start_date }}</td>
+                                        <td>
+                                            <a href="{{ route('view_naskah.pdf', basename($item->link_download_naskah)) }}" target="_blank"  class="btn btn btn-primary"><i class="fa fa-download"></i></a>
+                                            <span style="display: none;">{{ route('view_naskah.pdf', basename($item->link_download_naskah)) }}</span>
+                                        </td> 
                                         <td>@if ($item->mou_end_date != "0000-00-00")
 												{{$item->mou_end_date}}
 											@else
@@ -134,14 +136,22 @@
                                         </td>
                                         <td>
                                         @if ($item->mou_end_date != "0000-00-00" && \Carbon\Carbon::parse($item->mou_end_date)->isPast())
-                                            Expired
+                                            <button type="submit" class="btn btn-danger btn-sm">Expired</button>
                                         @elseif ($item->mou_end_date != "0000-00-00")
-                                            Active
+                                            <button type="submit" class="btn btn-success btn-sm">Active</button>
                                         @else
-                                            Active
+                                            <button type="submit" class="btn btn-success btn-sm">Active</button>
                                         @endif
-                                        </td> <!-- Active/Expired logic -->
-                                        <td>{{ $item->status_lapkerma }}</td>
+                                        </td> 
+                                        <td>
+                                            @if ($item->status_lapkerma == "SUDAH")
+                                                <button type="submit" class="btn btn-success btn-sm">Sudah</button>
+                                            @elseif ($item->status_lapkerma == "BELUM")
+                                                <button type="submit" class="btn btn-danger btn-sm">Belum</button>
+                                            @else
+                                                <button type="submit" class="btn btn-warning btn-sm">Unknown</button>
+                                            @endif
+                                        </td>
                                         <td>{{ $item->category_document }}</td>
                                         <td>{{ $item->skema }}</td>
                                         <td><a href="{{ $item->link_partnership_profile }}" target="_blank">View Profile</a></td>
@@ -174,7 +184,13 @@
                                         <td>{{ $item->pic_fak_email }}</td>
                                         <td>{{ $item->pic_fak_phone }}</td>
                                         <td>{{ $item->faculty_involved }}</td>
-                                        <td>{{ $item->partnership_badge }}</td>
+                                        <th>
+                                            @if (!empty($item->link_pelaporan))
+                                                <button type="submit" class="btn btn-success btn-sm">Sudah</button>
+                                            @else
+                                                <button type="submit" class="btn btn-danger btn-sm">Belum</button>
+                                            @endif
+                                        </th>
                                         <td>
                                         @if ($item->created_by == Auth::user()->id || Auth::user()->hasRole('gpc'))
                                             <form action="{{ route('bukti.upload', ['id' => $item->id]) }}" method="GET">
@@ -187,7 +203,21 @@
                                                 </button>
                                             </form>
                                         @endif
-
+                                        </td>
+                                        <th>
+                                            @if ($item->status_pelaporan_lapkerma == "Sudah")
+                                                <button type="submit" class="btn btn-success btn-sm">Sudah</button>
+                                            @elseif ($item->status_pelaporan_lapkerma == "Belum")
+                                                <button type="submit" class="btn btn-danger btn-sm">Belum</button>
+                                            @else
+                                                <button type="submit" class="btn btn-warning btn-sm">Unknown</button>
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if (!empty($item->link_pelaporan))
+                                                    <a href="{{ route('view_naskah.pdf', basename($item->link_pelaporan)) }}" target="_blank"  class="btn btn btn-primary"><i class="fa fa-download"></i></a>
+                                                   <span style="display: none;">{{ route('view_naskah.pdf', basename($item->link_pelaporan)) }}</span>
+                                            @endif
                                         </td>
                                         @hasrole('gpc')
                                         <td>
@@ -217,7 +247,6 @@
                                 <tfoot>
                                     <tr>
                                         <th>No</th>
-                                        <th>No Urut (Tahun)</th>
                                         <th>Country</th>
                                         <th>University / Institutions</th>
                                         <th>Type of Document</th>
@@ -259,8 +288,10 @@
                                         <th>Email of UNAIR PIC</th>
                                         <th>Telephone / WA of UNAIR PIC</th>
                                         <th>Involved Faculty at UNAIR</th>
-                                        <th>Partnership Badge</th>
+                                        <th>Status Upload Pelaporan</th>
                                         <th>Upload Pelaporan</th>
+                                        <th>Status Upload Pelaporan Lapkerma</th>
+                                        <th>Download Pelaporan</th>
                                         @hasrole('gpc')
                                         <th>Edit</th>
                                         <th>Delete</th>

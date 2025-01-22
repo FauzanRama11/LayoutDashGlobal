@@ -20,10 +20,10 @@
                     <form style="margin: 5px;" action="{{ route('pelaporan.approve', ['id' => $data-> id]) }}" method="POST">
                         @csrf
                         @method('PUT') 
-                        <button type="submit" class="btn btn-primary mr-2">Approved</button>
+                        <button type="submit" class="btn btn-primary mr-2">Approve</button>
                     </form>
 
-                      <button style="margin: 5px;" type="submit" id = "rejectButton" class="btn btn-danger mr-2">Rejected</button>
+                      <button style="margin: 5px;" type="submit" id = "rejectButton" class="btn btn-danger mr-2">Reject</button>
                       <button style="margin: 5px;" type="submit" id = "reviseButton" class="btn btn-warning">Revise</button>
               @endif
           </div>
@@ -78,8 +78,6 @@
         <select class="form-select" id="jenisP" name="jenisP" required>
             <option value="General" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'General' ? 'selected' : '' }}>General</option>
             <option value="Riset" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
-
-
         </select>
       </div>
 
@@ -116,7 +114,7 @@
             @foreach ($univ as $item)
                 <option value="{{ $item->id }}" 
                     {{ in_array($item->id, old('partnerP', $selPartners ?? [])) ? 'selected' : '' }}>
-                    {{ $item->name }} - Rank: {{ $item->ranking }}
+                    {{ $item->name }} - QS WUR By Subject 2024 : {{ $item->rank_value_min }} ({{ $item->subject }})
                 </option>
             @endforeach
         </select>

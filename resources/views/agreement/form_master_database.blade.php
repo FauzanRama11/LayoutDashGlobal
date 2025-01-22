@@ -73,7 +73,7 @@
         <label class="col-form-label" for="partnerP">University Partner</label>
         <select class="js-example-placeholder-multiple col-sm-12" id="partnerP" name="partnerP[]" multiple="multiple">
             @foreach ($univ as $item)
-                <option value="{{ $item->id }}"  {{ in_array($item->id, old('partnerP', $selPartners ?? [])) ? 'selected' : '' }}>{{ $item->name }}- Rank: {{$item->ranking}}</option>
+                <option value="{{ $item->id }}"  {{ in_array($item->id, old('partnerP', $selPartners ?? [])) ? 'selected' : '' }}> {{ $item->name }} - QS WUR By Subject 2024 : {{ $item->rank_value_min }} ({{ $item->subject }})</option>
             @endforeach
         </select>
     </div>
