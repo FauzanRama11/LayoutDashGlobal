@@ -14,20 +14,43 @@ class AmertaController extends Controller
 {
     public function pendaftar()
     {
-        $data = DB::table('age_peserta_inbound')
+            $data = DB::table('age_peserta_inbound')
             ->join('age_amerta', 'age_peserta_inbound.id_period', '=', 'age_amerta.id')
-            ->select('age_peserta_inbound.id as id', '.age_peserta_inbound.type as type', 'age_peserta_inbound.email as email', 'age_peserta_inbound.metadata as metadata', 'age_peserta_inbound.created_date as created_date', 
-             DB::raw('CONCAT(DATE_FORMAT(age_amerta.start_date_program, \'%d %b %Y\'), \' - \', DATE_FORMAT(age_amerta.end_date_program, \'%d %b %Y\')) as date_program'), 'age_peserta_inbound.is_approve as is_approve')
+            ->select(
+                'age_peserta_inbound.id as id',
+                'age_peserta_inbound.type as type', // Perbaikan di sini
+                'age_peserta_inbound.email as email',
+                'age_peserta_inbound.secondary_email as secondary_email',
+                'age_peserta_inbound.metadata as metadata',
+                'age_peserta_inbound.created_date as created_date',
+                DB::raw("CONCAT(TO_CHAR(age_amerta.start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(age_amerta.end_date_program, 'DD Mon YYYY')) as date_program"),
+                'age_peserta_inbound.is_approve as is_approve'
+            )
             ->where('age_peserta_inbound.type', 'amerta')
-            ->limit(500)
             ->get();
+
 
             // dd($data);
         
         // Decode metadata dan tambahkan key dari JSON sebagai properti
         $processedData = $data->map(function ($item) {
             $metadata = json_decode($item->metadata, true); // Decode JSON menjadi array
-        
+            
+            // Debug untuk memastikan metadata ter-decode dengan benar
+            if ($item->email == 'larigemink@gmail.com') {
+                logger([
+                    'raw_metadata' => $item->metadata,
+                    'decoded_metadata' => $metadata,
+                ]);
+
+                // Debug untuk memeriksa apakah fullname ada di metadata
+                if (!isset($metadata['fullname'])) {
+                    logger("Fullname not found in metadata for email: {$item->email}");
+                } else {
+                    logger("Fullname found: {$metadata['fullname']}");
+                }
+            }
+
             return [
                 'id' => $item->id,
                 'type' => $item->type,
@@ -129,14 +152,35 @@ class AmertaController extends Controller
 
     // CRUD Matkul
 
+    // public function nominasi_matkul()
+    // {
+    //     $data = DB::table('age_amerta_matkul')
+    //     ->join('age_amerta', 'age_amerta_matkul.id_age_amerta', '=', 'age_amerta.id')
+    //     ->join('m_prodi', 'age_amerta_matkul.id_prodi', '=', 'm_prodi.id')
+    //     ->select('age_amerta_matkul.id', DB::raw('CONCAT(DATE_FORMAT(age_amerta.start_date_program, \'%d %b %Y\'), \' - \', DATE_FORMAT(age_amerta.end_date_program, \'%d %b %Y\')) as date_program'),
+    //     'm_prodi.name', 'age_amerta_matkul.code', 'age_amerta_matkul.title', 'age_amerta_matkul.semester', 'age_amerta_matkul.sks', 'age_amerta_matkul.created_date', 'age_amerta_matkul.status')
+    //     ->get();
+
+    //     return view('stu_inbound.amerta.nominasi_matkul', compact('data'));
+    // }
+
     public function nominasi_matkul()
     {
         $data = DB::table('age_amerta_matkul')
-        ->join('age_amerta', 'age_amerta_matkul.id_age_amerta', '=', 'age_amerta.id')
-        ->join('m_prodi', 'age_amerta_matkul.id_prodi', '=', 'm_prodi.id')
-        ->select('age_amerta_matkul.id', DB::raw('CONCAT(DATE_FORMAT(age_amerta.start_date_program, \'%d %b %Y\'), \' - \', DATE_FORMAT(age_amerta.end_date_program, \'%d %b %Y\')) as date_program'),
-        'm_prodi.name', 'age_amerta_matkul.code', 'age_amerta_matkul.title', 'age_amerta_matkul.semester', 'age_amerta_matkul.sks', 'age_amerta_matkul.created_date', 'age_amerta_matkul.status')
-        ->get();
+            ->join('age_amerta', 'age_amerta_matkul.id_age_amerta', '=', 'age_amerta.id')
+            ->join('m_prodi', 'age_amerta_matkul.id_prodi', '=', 'm_prodi.id')
+            ->select(
+                'age_amerta_matkul.id',
+                DB::raw("CONCAT(TO_CHAR(age_amerta.start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(age_amerta.end_date_program, 'DD Mon YYYY')) as date_program"),
+                'm_prodi.name',
+                'age_amerta_matkul.code',
+                'age_amerta_matkul.title',
+                'age_amerta_matkul.semester',
+                'age_amerta_matkul.sks',
+                'age_amerta_matkul.created_date',
+                'age_amerta_matkul.status'
+            )
+            ->get();
 
         return view('stu_inbound.amerta.nominasi_matkul', compact('data'));
     }
@@ -146,15 +190,32 @@ class AmertaController extends Controller
         $matkul = $id ? AgeAmertaMatkul::findOrFail($id) : null;
 
         $periode = DB::table('age_amerta')
-        ->select(
-            'id',
-            DB::raw('CONCAT(DATE_FORMAT(start_date_program, "%d %b %Y"), " - ", DATE_FORMAT(end_date_program, "%d %b %Y")) as date_program')
-        )
-        ->get();
+            ->select(
+                'id',
+                DB::raw("CONCAT(TO_CHAR(start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(end_date_program, 'DD Mon YYYY')) as date_program")
+            )
+            ->get();
 
         $prodi = MProdi::all(); // Menampilkan daftar prodi untuk dropdown
         return view('stu_inbound.amerta.form_matkul', compact('matkul', 'prodi', 'periode'));
     }
+
+
+
+    // public function form_matkul($id = null)
+    // {
+    //     $matkul = $id ? AgeAmertaMatkul::findOrFail($id) : null;
+
+    //     $periode = DB::table('age_amerta')
+    //     ->select(
+    //         'id',
+    //         DB::raw('CONCAT(DATE_FORMAT(start_date_program, "%d %b %Y"), " - ", DATE_FORMAT(end_date_program, "%d %b %Y")) as date_program')
+    //     )
+    //     ->get();
+
+    //     $prodi = MProdi::all(); // Menampilkan daftar prodi untuk dropdown
+    //     return view('stu_inbound.amerta.form_matkul', compact('matkul', 'prodi', 'periode'));
+    // }
 
     // Menambah data mata kuliah
     public function tambah_matkul(Request $request, $id = null)

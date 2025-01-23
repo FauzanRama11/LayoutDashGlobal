@@ -2,9 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+    use HasFactory;
 
-class MFakultasUnit extends Model
-{
-    //
+    protected $table = 'm_fakultas_unit';
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'nama_ind',
+        'nama_eng',
+        'kode',
+        'tipe',
+        'wadek3',
+        'staf',
+        'id_cyber',
+        'dekan',
+    ];
+
 }

@@ -11,15 +11,31 @@ class LinguaController extends Controller
 
     public function pendaftar()
     {
-        $data = DB::table('age_peserta_inbound')
+        // $data = DB::table('age_peserta_inbound')
+        //     ->join('age_lingua', 'age_peserta_inbound.id_period', '=', 'age_lingua.id')
+        //     ->select('age_peserta_inbound.id as id', '.age_peserta_inbound.type as type', 'age_peserta_inbound.email as email', 'age_peserta_inbound.metadata as metadata', 'age_peserta_inbound.created_date as created_date', 
+        //      DB::raw('CONCAT(DATE_FORMAT(age_lingua.start_date_program, \'%d %b %Y\'), \' - \', DATE_FORMAT(age_lingua.end_date_program, \'%d %b %Y\')) as date_program'), 'age_peserta_inbound.is_approve as is_approve')
+        //     ->where('age_peserta_inbound.type', 'lingua')
+        //     ->limit(500)
+        //     ->get();
+
+            // dd($data);
+        
+            $data = DB::table('age_peserta_inbound')
             ->join('age_lingua', 'age_peserta_inbound.id_period', '=', 'age_lingua.id')
-            ->select('age_peserta_inbound.id as id', '.age_peserta_inbound.type as type', 'age_peserta_inbound.email as email', 'age_peserta_inbound.metadata as metadata', 'age_peserta_inbound.created_date as created_date', 
-             DB::raw('CONCAT(DATE_FORMAT(age_lingua.start_date_program, \'%d %b %Y\'), \' - \', DATE_FORMAT(age_lingua.end_date_program, \'%d %b %Y\')) as date_program'), 'age_peserta_inbound.is_approve as is_approve')
+            ->select(
+                'age_peserta_inbound.id as id',
+                'age_peserta_inbound.type as type', // Perbaikan di sini
+                'age_peserta_inbound.email as email',
+                'age_peserta_inbound.secondary_email as secondary_email',
+                'age_peserta_inbound.metadata as metadata',
+                'age_peserta_inbound.created_date as created_date',
+                DB::raw("CONCAT(TO_CHAR(age_lingua.start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(age_lingua.end_date_program, 'DD Mon YYYY')) as date_program"),
+                'age_peserta_inbound.is_approve as is_approve'
+            )
             ->where('age_peserta_inbound.type', 'lingua')
             ->limit(500)
             ->get();
-
-            // dd($data);
         
         // Decode metadata dan tambahkan key dari JSON sebagai properti
         $processedData = $data->map(function ($item) {
