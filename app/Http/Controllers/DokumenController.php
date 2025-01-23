@@ -14,12 +14,14 @@ class DokumenController extends Controller
         $filePath = base_path('/' . $fileName);
 
         // Periksa apakah file ada
-        if (!file_exists($filePath)) {
+        if (!Storage::disk('outside')->exists($filePath)) {
             abort(404, 'File not found.');
         }
 
-        // Kirim file sebagai respons PDF
-        return Response::make(file_get_contents($filePath), 200, [
+        // Ambil file dan kirimkan sebagai respons PDF
+        $fileContent = Storage::disk('outside')->get($filePath);
+                
+        return response($fileContent, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $fileName . '"',
         ]);
@@ -44,5 +46,25 @@ public function viewPdfNaskah($fileName)
         'Content-Disposition' => 'inline; filename="' . $fileName . '"',
     ]);
 }
+
+    
+    public function view($fileName)
+    {
+        $fileName = urldecode($fileName);
+
+        $filePath = ltrim(str_replace('repo/', '', $fileName), '/');
+        $filePath= 'inbound/' . $filePath;
+
+        if (!Storage::disk('outside')->exists($filePath)) {
+            abort(404, 'File not found.');
+        }
+
+        $fileContent = Storage::disk('outside')->get($filePath);
+
+        return response($fileContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . basename($fileName) . '"',
+        ]);
+    }
 
 }

@@ -262,9 +262,9 @@ public function store_pelaporan(Request $request, $id = null) {
             DB::table('grie_moa_academic_pelaporan_partner')
                 ->select(
                     'id_moa_academic',
-                    // DB::raw('STRING_AGG(u.name, \', \') AS partner')
+                    DB::raw('STRING_AGG(u.name, \', \') AS partner')
 
-                    DB::raw('GROUP_CONCAT(u.name) AS partner')
+                    // DB::raw('GROUP_CONCAT(u.name) AS partner')
                 )
                 ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_pelaporan_partner.id_partner_university')
                 ->groupBy('id_moa_academic')
@@ -377,14 +377,14 @@ public function store_pelaporan(Request $request, $id = null) {
         $result = DB::table('grie_moa_academic_scope as gs')
                 ->select(
                     'gs.id_moa_academic',
-                    DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'),
-                    DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'),
-                    DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'),
-                    DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope')
-                    // DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'),
-                    // DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'),
-                    // DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'),
-                    // DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope')
+                    DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'),
+                    DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'),
+                    DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'),
+                    DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'),
 
                 )
                 ->leftJoin('grie_moa_academic_prodi as gap', 'gap.id_moa_academic', '=', 'gs.id_moa_academic')

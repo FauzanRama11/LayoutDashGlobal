@@ -6,10 +6,7 @@
                 <div class="card">
                 <div class="card-header pb-0">
                     <h5>Edit Program</h5><span>This is Optional Notes</span></div>
-                    <div class="card-body">
-                        @if($data->is_private_event === "Ya")
-                            <a href="{{ route('stuin_peserta.create', ['ids' => $data->id]) }}"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah Peserta</button></a>
-                        @endif    
+                    <div class="card-body"> 
                     <form action="{{ route('program_stuin.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
@@ -66,7 +63,7 @@
                                         <label class="form-label" for="pic">PIC</label>
                                         <select class="js-example-basic-single col-sm-12" id="pic" name="pic">
                                             @foreach($dosen as $item)
-                                                <option value="{{ $item->id }}" {{ old('pic', $data->pic) == $item->id ? 'selected' : '' }}>{{ $item->nama }}</option>
+                                                <option value="{{ $item->id }}" {{ old('pic', $data->pic) == $item->nama ? 'selected' : '' }}>{{ $item->nama }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -85,9 +82,9 @@
                             
                                     <div class="mb-3">
                                         <label class="form-label" for="type">Type</label>
-                                        <select class="form-select" id="type" name="type" required>
-                                            <option value="Offline" {{ old('type', $data->type) == 'PT' ? 'selected' : '' }}>PT (Part Time)</option>
-                                            <option value="Online" {{ old('type', $data->type) == 'FT' ? 'selected' : '' }}>FT (Full Time)</option>
+                                        <select class="form-select" id="type" name="type" disabled>
+                                            <option value="Offline" {{ old('type', $data->pt_ft) == 'PT' ? 'selected' : '' }}>PT (Part Time)</option>
+                                            <option value="Online" {{ old('type', $data->pt_ft) == 'FT' ? 'selected' : '' }}>FT (Full Time)</option>
                                         </select>
                                     </div>
                             
@@ -132,19 +129,6 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        {{-- <div class="mb-3">
-                                            <label class="form-label" for="programLogo">Logo/Poster</label>
-                                            <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png" >
-                                        </div>
-                                        <div class="mt-3">
-                                            <div class="col-sm-12 border border-3 p-3 d-flex justify-content-center align-items-center" id="previewdiv" style="display: block;">
-                                                @if($data->logo_base64)
-                                                    <img src="{{ $data->logo_base64 }}" alt="Preview" class="img-fluid" style="max-width:100%; height: 300px; object-fit: cover;">
-                                                @else
-                                                    <p>Logo tidak tersedia.</p>
-                                                @endif
-                                            </div>
-                                        </div> --}}
                                         <div class="mt-3">
                                             <label class="form-label" for="url_generate">Link Registrasi</label>
                                             <input class="form-control" id="url_generate" name="url_generate" value="http://127.0.0.1:8000/registrasi-peserta-inbound/{{ old('url_generate', $data->url_generate) }}" readonly>
@@ -169,7 +153,15 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
-							
+                            @if($data->is_private_event === "Ya")
+                                <div class="d-flex justify-content-end my-4">
+                                    <a href="{{ route('stuin_peserta.create', ['prog_id' => $data->id]) }}">
+                                        <button class="btn btn-success btn-sm active" type="button" >
+                                            + Tambah Peserta
+                                        </button>
+                                    </a>
+                                </div>
+                            @endif   
 	                        <table class="display" id="API-2">   
 							<thead>
 	                            <tr>
@@ -194,7 +186,7 @@
 	                            <tbody>
                                     @foreach ($peserta as $item )	    
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{$loop->iteration }}</td>
                                             <td>{{$item->nama}}</td>
                                             <td>{{$item->jenis_kelamin}}</td>
                                             <td>{{$item->tgl_lahir}}</td>
@@ -209,7 +201,8 @@
                                             <td>{{$item->is_approved}}</td>
                                             <td>{{$item->pengajuan_dana_status}}</td>
                                             <td>{{$item->loa_url}}</td>
-                                            <td><form action="" method="GET">
+                                            <td>
+                                                <form  action="{{ route('stuin_peserta.edit', ['item_id' => $item->id, 'prog_id' => $data->id]) }}" method="GET">
                                                     <button type="submit" class="btn btn-primary edit-button">Edit</button>
                                                 </form>
                                             </td>

@@ -22,7 +22,7 @@ class MStuInProgramController extends Controller
             ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
             ->where('host_unit_text', 'like', "%$fa%")
             ->where("is_program_age", "N")
-            ->limit(500)
+            // ->limit(500)
             ->orderBy('created_time', 'desc')
             ->get();
         }
@@ -30,7 +30,7 @@ class MStuInProgramController extends Controller
             $data = DB::table('m_stu_in_programs')
             ->select('id', 'name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
             ->where("is_program_age", "N")
-            ->limit(500)
+            // ->limit(500)
             ->orderBy('created_time', 'desc')
             ->get();
         };
@@ -72,11 +72,6 @@ class MStuInProgramController extends Controller
         $unit = DB::table('m_fakultas_unit')
         ->where('nama_ind', $request->input('hostUnit'))
         ->pluck('id')->first(); 
-        
-        $country = DB::table('m_university')
-        ->join('m_country', 'm_country.id', '=', 'm_university.country')
-        ->where('m_university.name', $request->input('univTujuan'))
-        ->pluck('m_country.name')->first();
 
 
         $cat = DB::table('m_stu_in_program_category')
@@ -95,7 +90,14 @@ class MStuInProgramController extends Controller
         $program->category_text = $cat;
         $program->host_unit = $unit;
         $program->host_unit_text = $request->input('hostUnit');
-        $program->pic = $request->input('pic');
+
+        $pic_name = DB::table('m_dosen')
+        ->where('id', '=', $request->input('pic'))
+        ->pluck('nama')->first();
+
+        // dd($pic_name);
+
+        $program->pic = $pic_name;
         $program->corresponding = $request->input('email');
         $program->website = $request->input('website') ?? null;
         $program->pt_ft = $this->calculateDuration($request->input('startDate'), $request->input('endDate'));
@@ -133,8 +135,7 @@ class MStuInProgramController extends Controller
                 // Simpan file ke folder "penyimpanan"
                 $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
                 $file->move($storagePath, $fileName);
-                $program->logo = 'penyimpanan/' . $fileName;
-                // dd($program);
+                $program->logo = 'repo/' . $fileName;
             }
 
         }
@@ -150,7 +151,7 @@ class MStuInProgramController extends Controller
 
     public function edit(string $id)
     {   
-        $category = DB::table('m_stu_out_program_category')->get();
+        $category = DB::table('m_stu_in_program_category')->get();
         $dosen = DB::table('m_dosen')->get();
         $univ = DB::table('m_university')
             ->whereNot('country', 95)
@@ -158,29 +159,33 @@ class MStuInProgramController extends Controller
 
 
         $data = MStuInProgram::find($id);
-        $cleanPath = ltrim(str_replace('penyimpanan/', '', $data->logo), '/');
+
         
-        $filePath = base_path('../' . $data->logo);
+
+        
+    // cv_url, passport_url, 'photo_url','loa_url',
+    
+        $cleanPath = ltrim(str_replace('penyimpanan/', '', $data->photo_url), '/');
+        
+        $filePath = base_path('../' . $data->photo_url);
         
         if ($data->logo && Storage::disk('outside')->exists($cleanPath)) {
-            // Dapatkan konten file
             
+            // Dapatkan konten file
             $fileContent = Storage::disk('outside')->get($cleanPath);
             $data->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
-            // dd($data->logo_base64);
 
         } else {
             $data->logo_base64 = null;
         }
 
         $peserta = DB::table('m_stu_in_peserta')
-        
         ->select('m_stu_in_peserta.*', 'm_university.name as univ_name', 'm_country.name as country_name')
         ->where("program_id", "=", $id)
         ->leftjoin('m_university', 'm_university.id', '=', 'm_stu_in_peserta.univ')
         ->leftjoin('m_country', 'm_country.id', '=', 'm_stu_in_peserta.kebangsaan')
         ->get();
-        // dd($peserta);
+
         return view("stu_inbound.edit_program", compact("peserta", "data", "category", "dosen", "univ"));
     
     }
@@ -193,16 +198,15 @@ class MStuInProgramController extends Controller
         ->pluck('id')
         ->first();
 
-    $country = DB::table('m_university')
-        ->join('m_country', 'm_country.id', '=', 'm_university.country')
-        ->where('m_university.name', $request->input('univTujuan'))
-        ->pluck('m_country.name')
-        ->first();
-
     $cat = DB::table('m_stu_in_program_category')
         ->where('id', '=', $request->input('progCategory'))
         ->pluck('name')
         ->first();
+
+    $pic_name = DB::table('m_dosen')
+    ->where('id', '=', $request->input('pic'))
+    ->pluck('nama')->first();
+
 
     $program->name = $request->input('nameProg');
     $program->start_date = $request->input('startDate');
@@ -210,8 +214,8 @@ class MStuInProgramController extends Controller
     $program->category = $request->input('progCategory');
     $program->category_text = $cat;
     $program->host_unit = $unit;
-    $program->host_unit_text = $request->input('hostUnit');
-    $program->pic = $request->input('pic');
+    $program->host_unit_text = $request->input('hostUnit');    
+    $program->pic = $pic_name;
     $program->corresponding = $request->input('email');
     $program->website = $request->input('website') ?? null;
     $program->pt_ft = $this->calculateDuration($request->input('startDate'), $request->input('endDate'));
@@ -220,10 +224,8 @@ class MStuInProgramController extends Controller
     if ($request->hasFile('programLogo')) {
         $file = $request->file('programLogo');
         
-        // Tentukan direktori penyimpanan di luar folder Laravel
         $storagePath = base_path('../penyimpanan'); 
 
-        // Pastikan folder "penyimpanan" ada
         if (!file_exists($storagePath)) {
             mkdir($storagePath, 0777, true); 
         }
@@ -241,6 +243,7 @@ class MStuInProgramController extends Controller
         $program->description = $request->input('programDesc') ?? null;
 
         if ($program->url_generate === null) {
+
             // Pembuatan kode generate url
             $kode = DB::table('m_fakultas_unit')
             ->where('nama_ind', $request->input('hostUnit'))
@@ -253,8 +256,6 @@ class MStuInProgramController extends Controller
 
     }
 
-
-    // dd($program);
 
     $program->save();
 
