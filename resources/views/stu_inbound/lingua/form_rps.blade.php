@@ -25,14 +25,14 @@
                                 </div>
                         
                                 <!-- Tampilkan input file untuk mengganti file -->
-                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment">
+                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment" accept=".pdf">
                                 <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                                 @error('url_attachment')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             @else
                                 <!-- Input file jika ID tidak ada -->
-                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment">
+                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment" accept=".pdf">
                                 @error('url_attachment')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

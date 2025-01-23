@@ -45,9 +45,9 @@ class MStuOutPeserta extends Model
     ];
 
     protected $casts = [
-        'tgl_lahir' => 'datetime',
-        'reg_time' => 'datetime',
-        'approved_time' => 'datetime',
+        // 'tgl_lahir' => 'datetime',
+        // 'reg_time' => 'datetime',
+        // 'approved_time' => 'datetime',
         'program_id' => 'integer',
         'kebangsaan' => 'integer',
         'approved_by' => 'integer',

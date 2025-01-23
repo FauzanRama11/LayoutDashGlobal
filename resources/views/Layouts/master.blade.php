@@ -1,4 +1,4 @@
-@vite('resources/assets/scss/style.scss')
+{{-- @vite('resources/assets/scss/style.scss') --}}
 
 <!DOCTYPE html>
 <html lang="en" @if (Route::current()->getName() == 'layout-rtl') dir="rtl" @endif>

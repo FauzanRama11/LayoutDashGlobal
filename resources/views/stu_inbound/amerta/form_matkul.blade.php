@@ -114,7 +114,7 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Schedule</label>
                                                 <textarea class="form-control" name="schedule" 
-                                                          placeholder="Enter Course Schedule" required>{{ old('schedule', $matkul->schedule ?? '') }}</textarea>
+                                                          placeholder="Contoh: Monday (10.30-12.20), Tuesday (07.00-08.40)" required>{{ old('schedule', $matkul->schedule ?? '') }}</textarea>
                                                 <div class="invalid-feedback">This field is required.</div>
                                             </div>
                         

@@ -50,36 +50,20 @@ Route::middleware(['auth', 'verified', 'role:pusba'])->group(function () {
 
 Route::get('/404', function () { return view('admin.authentication.error404');});
 Route::get('/500', function () { return view('admin.authentication.error500');});
-Route::get('/registrasi', function () { return view('pendaftaran.registrasi');});
 
-// Pendaftaran Amerta
-Route::get('/registrasi-peserta-amerta', [PendaftaranController::class, 'amerta'])->name('amerta.registrasi');
-Route::get('/registrasi-peserta-lingua', [PendaftaranController::class, 'lingua'])->name('lingua.registrasi');
-Route::post('/registrasi-peserta-amerta', [PendaftaranController::class, 'storeRegistrationForm'])->name('simpan.registrasi');
+// Form
+
+Route::get('/{type}-registration-form', [PendaftaranController::class, 'view_regist'])->name('amerta.registrasi');
+Route::post('/save-selected-program',  [PendaftaranController::class, 'fetch_program']);
+Route::post('/student-registration-submitted', [PendaftaranController::class, 'storeRegistrationForm'])->name('simpan.registrasi');
+Route::get('/{type}-registration-form-submitted', [PendaftaranController::class, 'view_submisssion'])->name('amerta.submission');
 
 
-// Pendaftaran Amerta
-// Route::get('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
+// Pendaftaran Inbound/Outbound
 Route::get('/registrasi-peserta-inbound/{url_generate}', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
-Route::get('/registrasi-peserta-lingua', [PendaftaranController::class, 'stuout'])->name('stuout.registrasi');
+Route::post('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'Simpan_stuin'])->name('simpan.stuin');
+Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
 
-
-use App\Http\Controllers\outbound\MStuOutprogramController;
-use App\Http\Controllers\outbound\MStuOutPesertaController;
-use App\Http\Controllers\outbound\StudentOutboundController;
-
-Route::get('/tambah-program-fakultas', [MStuOutprogramController::class, 'add_program_fak'])->name('stuout_fak.create');
-Route::post('/store_program_outbound', [MStuOutprogramController::class, 'store_program'])->name('program_fakultas.store');
-Route::delete('/Delete/{id}', [MStuOutprogramController::class, 'destroy_program_fak'])->name('prog_stuout.destroy');
-Route::get('/tambah-program-age', [MStuOutprogramController::class, 'add_program_age']);
-Route::get('/edit-program/{id}', [MStuOutprogramController::class, 'edit'])->name('program_stuout.edit');
-Route::put('/update-program/{id}', [MStuOutprogramController::class, 'update'])->name('program_stuout.update');
-
-Route::get('/edit-program/{ids}/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta'])->name('tambah.peserta');
-Route::post('/store-peserta', [MStuOutPesertaController::class, 'store_peserta'])->name('peserta.store');
-Route::put('/approve-peserta/{id}', [StudentOutboundController::class, 'action_approve'])->name('stuout_peserta.approve');
-
-// Route::get('/tambah-peserta', [MStuOutPesertaController::class, 'add_peserta']);
-
+Route::get('/repo/{fileName}', [DokumenController::class, 'view'])->name('view.dokumen');
 
 require __DIR__.'/auth.php';

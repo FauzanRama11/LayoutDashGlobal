@@ -83,15 +83,6 @@
                   <input class="form-control" id="website" name="website" placeholder="Website" required>
                   <div class="invalid-feedback">Website wajib diisi.</div>
               </div>
-  
-              <div class="mb-3">
-                  <label class="form-label" for="via">Type</label>
-                  <select class="form-select" id="via" name="via" required>
-                      <option value="Offline">PT (Part Time)</option>
-                      <option value="Online">FT (Full Time)</option>
-                  </select>
-              </div>
-      
               <div class="mb-3">
                   <label class="form-label" for="via">Via</label>
                   <select class="form-select" id="via" name="via" required>
