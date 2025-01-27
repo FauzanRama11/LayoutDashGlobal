@@ -96,9 +96,9 @@ Route::post('/store-peserta', [MStuOutPesertaController::class, 'store_peserta']
 Route::put('/approve-peserta/{id}', [StudentOutboundController::class, 'action_approve'])->name('stuout_peserta.approve');
 
 
-use App\Http\Controllers\YourController;  // Import your controller
+// use App\Http\Controllers\YourController;  // Import your controller
 
-Route::get('/try', [TryController::class, 'showDatabase'])->name('your.name');
+Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
 
 
 
