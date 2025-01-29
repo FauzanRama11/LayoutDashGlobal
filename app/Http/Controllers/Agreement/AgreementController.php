@@ -217,6 +217,7 @@ public function store_pelaporan(Request $request, $id = null) {
                 ->select(
                     'id_moa_academic',
                     DB::raw('STRING_AGG(u.name, \', \') AS partner')
+
                     // DB::raw('GROUP_CONCAT(u.name) AS partner')
                 )
                 ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_pelaporan_partner.id_partner_university')
@@ -405,8 +406,123 @@ public function store_pelaporan(Request $request, $id = null) {
         $pelaporan->approval_status = "NEED REVISE";
         $pelaporan->approval_note = $request->input('notes');
         $pelaporan->save();
+      
         // return redirect()->route('view_pelaporan');
         return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
+
+    }
+
+    public function database_agreement(){
+        $data = DB::table('grie_moa_academic as g')
+            ->select('g.*', 'c.name as country', 'f.nama_eng as fakultas', 'dep.nama_eng as department_unair')
+            ->leftJoin('m_country as c', 'c.id', '=', 'g.id_country')
+            ->leftJoin('m_fakultas_unit as f', 'f.id', '=', 'g.id_fakultas')
+            ->leftJoin('m_departemen as dep', 'dep.id', '=', 'g.id_department_unair')
+            ->where(function($query) {
+                $query->where('g.status', '=', 'Completed')
+                      ->orWhere('g.status', '=', 'Progress');
+            })  
+            ->whereNotNull('g.link_download_naskah')  
+            ->where('g.link_download_naskah', '!=', '')  // K
+            ->orderByDesc('lapkerma_archive')
+            ->get();
+
+        $result = DB::table('grie_moa_academic_scope as gs')
+                ->select(
+                    'gs.id_moa_academic',
+                    // DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'),
+                    // DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope')
+                    DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'),
+                    DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'),
+                    DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'),
+                    DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'),
+
+                )
+                ->leftJoin('grie_moa_academic_prodi as gap', 'gap.id_moa_academic', '=', 'gs.id_moa_academic')
+                ->leftJoin('m_prodi as p', 'p.id', '=', 'gap.id_program_study_unair')
+                ->leftJoin('grie_moa_academic_faculty as maf', 'maf.id_moa_academic', '=', 'gs.id_moa_academic')
+                ->leftJoin('m_fakultas_unit as fu', 'fu.id', '=', 'maf.id_faculty')
+                ->leftJoin('grie_moa_academic_partner as gapn', 'gapn.id_moa_academic', '=', 'gs.id_moa_academic')
+                ->leftJoin('m_university as u2', 'u2.id', '=', 'gapn.id_partner_university')
+                ->leftJoin('m_collaboration_scope as cs', 'cs.id', '=', 'gs.id_collaboration_scope')
+                ->groupBy('gs.id_moa_academic')
+                ->orderByDesc('gs.id_moa_academic')
+                ->get();
+
+                $merged = $data->map(function ($item) use ($result) {
+              
+                    $relatedData = $result->firstWhere('id_moa_academic', $item->id);
+
+                    $item->partner_involved = $relatedData ? $relatedData->partner_involved : null;
+                    $item->prodi_involved = $relatedData ? $relatedData->prodi_involved : null;
+                    $item->faculty_involved = $relatedData ? $relatedData->faculty_involved : null;
+                    $item->collaboration_scope = $relatedData ? $relatedData->collaboration_scope : null;
+                
+                    return $item;
+                });
+
+        
+        return view('agreement.view_database', compact( 'merged'));
+    }
+
+    public function destroy_database_agreement($id){
+       
+
+        try {
+            $del = GrieMoaAcademic::where("id", $id)->first();
+            $del->delete();  
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus data.'
+            ]);
+        }
+
+    }
+
+    public function upload_bukti($id){
+
+        $data = GrieMoaAcademic::find($id);
+        return view('agreement.upload_pelaporan', compact('data'));
+
+    }
+
+
+    public function store_bukti(Request $request, $id){
+
+        $agreement = GrieMoaAcademic::find($id);
+
+        if ($request->hasFile('linkPelaporan')) {
+            $file = $request->file('linkPelaporan');
+            $storagePath = '/naskah';
+
+            if (!Storage::disk('outside')->exists($storagePath)) {
+                Storage::disk('outside')->makeDirectory($storagePath);
+            }
+    
+            $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            $file->storeAs($storagePath, $fileName, 'outside');
+    
+            // Perbarui hanya kolom link_pelaporan
+            $agreement->update([
+                'link_pelaporan' => $storagePath . '/' . $fileName,
+            ]);
+        }
+        // dd( $request->input('buktiP'));
+
+        $agreement->update([
+            'status_pelaporan_lapkerma' => $request->input('buktiP')
+        ]);
+
+
+        return redirect()->route('view_database');
     }
 
     public function generate_number(){

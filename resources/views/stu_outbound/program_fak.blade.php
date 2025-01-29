@@ -14,7 +14,7 @@
 							
 	                        <table class="display" id="API-2">
 							@role("fakultas")
-								<a href= "/tambah-program-fakultas"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
+								<a href= "{{ route('stuout_fak.create') }}"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                        @endrole    
 							<thead>
 	                                <tr>
