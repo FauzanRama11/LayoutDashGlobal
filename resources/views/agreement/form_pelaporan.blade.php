@@ -17,31 +17,31 @@
     @hasrole("gpc")
             <div class="d-flex justify-content-start" style="margin-bottom: 15px;">
               @if(isset($data) && isset($data->approval_pelaporan) && $data->approval_pelaporan != 1)
-                    <form style="margin: 5px;" action="{{ route('pelaporan.approve', ['id' => $data-> id]) }}" method="POST">
-                        @csrf
-                        @method('PUT') 
-                        <button type="submit" class="btn btn-primary mr-2">Approve</button>
-                    </form>
-
+              <form id="approveForm{{ $data->id }}" style="margin: 5px;" action="{{ route('pelaporan.approve', ['id' => $data->id]) }}" method="POST">
+                @csrf
+                @method('PUT') 
+                <button type="submit" class="btn btn-primary mr-2" onclick="confirmAction('{{ $data->id }}', 'approve', 'Approve Data', event)">Approve</button>
+            </form>
                       <button style="margin: 5px;" type="submit" id = "rejectButton" class="btn btn-danger mr-2">Reject</button>
                       <button style="margin: 5px;" type="submit" id = "reviseButton" class="btn btn-warning">Revise</button>
               @endif
           </div>
 
           <div id="reNotes">
-            <form action="{{ route('pelaporan.revise', ['id' => $data-> id]) }}" method = "POST">
-              @csrf
-              @method('PUT') 
+          <form id="reviseForm{{ $data->id }}" style="margin: 5px;" action="{{ route('pelaporan.revise', ['id' => $data->id]) }}" method="POST">
+                @csrf
+                @method('PUT') 
                 <div class="mb-3">
-                  <label class="form-label" for="notes">Notes</label>
-                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-                  <div class="invalid-feedback">Notes wajib diisi.</div>
+                    <label class="form-label" for="notes">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
+                    <div class="invalid-feedback">Notes wajib diisi.</div>
                 </div>
-              <button type="submit" id = "reviseButton" class="btn btn-warning">Click to Revise</button>
+                <button type="submit" class="btn btn-warning" onclick="confirmAction('{{ $data->id }}', 'revise', 'Revise Data', event)">Click to Revise</button>
             </form>
           </div>
+          
           <div id="reNotes2">
-            <form action="{{ route('pelaporan.reject', ['id' => $data-> id]) }}" method = "POST">
+            <form id="rejectForm{{ $data->id }}" style="margin: 5px;" action="{{ route('pelaporan.reject', ['id' => $data->id]) }}" method="POST">
               @csrf
               @method('PUT') 
                 <div class="mb-3">
@@ -49,7 +49,7 @@
                   <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
                   <div class="invalid-feedback">Notes wajib diisi.</div>
                 </div>
-              <button type="submit" id = "reviseButton" class="btn btn-danger">Click to Reject</button>
+                <button type="submit" class="btn btn-danger mr-2" onclick="confirmAction('{{ $data->id }}', 'reject', 'Reject Data', event)">Reject</button>
             </form>
           </div>
       @endhasrole
@@ -63,7 +63,7 @@
         @endif
     @endhasrole
         
-    <form class="was-validated" action =  "{{ isset($data) ? route('pelaporan.update', $data->id) :  route('pelaporan.store') }} " method="POST" enctype="multipart/form-data">
+    <form id="pelaporanForm" class="was-validated" action="{{ isset($data) ? route('pelaporan.update', $data->id) : route('pelaporan.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmSubmission(event)">
         @csrf
         @if(isset($data))
             @method('PUT') <!-- Untuk update, menambahkan method PUT -->
@@ -466,6 +466,142 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById('rejectButton').addEventListener('click', openTest);
+</script>
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmAction(itemId, actionType, message, event) {
+    event.preventDefault(); // Prevent default form submission
+    const actionMessages = {
+        approve: 'Apakah Anda yakin ingin mengapprove data?',
+        reject: 'Apakah Anda yakin ingin menolak data?',
+        revise: 'Apakah Anda yakin ingin merevisi data?'
+    };
+
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: actionMessages[actionType],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Lanjutkan!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Execute only after confirmation
+            const form = document.getElementById(`${actionType}Form${itemId}`);
+            if (form) {
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: `Data telah ${actionType}d.`,
+                                icon: 'success',
+                                timer: 4000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = response.redirect;
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: response.message || 'Tidak dapat memproses data.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat memproses data.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Form tidak ditemukan.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    });
+}
+function confirmSubmission(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const form = event.target; // Get the form element
+    const action = form.action.includes('update') ? 'update' : 'store'; // Determine the action
+    const actionMessages = {
+        update: 'Apakah Anda yakin ingin memperbarui data?',
+        store: 'Apakah Anda yakin ingin menyimpan data?'
+    };
+
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: actionMessages[action],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Lanjutkan!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Use AJAX to submit the form
+            $.ajax({
+                url: form.action,
+                type: form.method,
+                data: new FormData(form), // Use FormData to handle file uploads
+                processData: false, // Prevent jQuery from processing data
+                contentType: false, // Prevent jQuery from setting content type
+                success: function (response) {
+                    console.log(response); // Log the response for debugging
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: `Data berhasil ${action === 'update' ? 'diperbaharui' : 'tersimpan'}.`,
+                            icon: 'success',
+                            timer: 4000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirect; // Redirect after showing success message
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: response.message || 'Tidak dapat memproses data.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr); // Log error response for debugging
+                    Swal.fire({
+                        title: 'Error!',
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    });
+}
 </script>
 
 @endsection

@@ -199,7 +199,8 @@ public function store_pelaporan(Request $request, $id = null) {
             ['id_moa_academic' => $pelaporan_id, 'id_program_study_unair' => (int) $programStudyId]
         );
     }
-    return redirect()->route('view_pelaporan');
+    // return redirect()->route('view_pelaporan');
+    return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
 }
 
     public function  view_pelaporan(Request $request){
@@ -384,7 +385,8 @@ public function store_pelaporan(Request $request, $id = null) {
                 );
             }
 
-        return redirect()->route('view_database');
+        // return redirect()->route('view_database');
+        return response()->json(['status' => 'success', 'redirect' => route('view_database')]);
     }
 
     public function reject_pelaporan(Request $request, $id){
@@ -393,7 +395,8 @@ public function store_pelaporan(Request $request, $id = null) {
         $pelaporan->approval_status = "REJECTED";
         $pelaporan->approval_note = $request->input('notes');
         $pelaporan->save();
-        return redirect()->route('view_pelaporan');
+        // return redirect()->route('view_pelaporan');
+        return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
     }
 
     public function revise_pelaporan(Request $request, $id){
@@ -402,7 +405,8 @@ public function store_pelaporan(Request $request, $id = null) {
         $pelaporan->approval_status = "NEED REVISE";
         $pelaporan->approval_note = $request->input('notes');
         $pelaporan->save();
-        return redirect()->route('view_pelaporan');
+        // return redirect()->route('view_pelaporan');
+        return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
     }
 
     public function generate_number(){
@@ -429,11 +433,6 @@ public function store_pelaporan(Request $request, $id = null) {
     }
 
 
-    public function review_agreement(){
-
-    
-        return view('agreement.view_review');
-    }
     public function  completed_agreement(){
 
         return view('agreement.view_completed');

@@ -11,7 +11,7 @@
   </div>
 
     <div class="card-body">
-    <form class="was-validated" action =  "{{ isset($data) ? route('master_database.update', $data->id) :   route('master_database.store')  }} " method="POST" enctype="multipart/form-data">
+          <form id="formMaster" class="was-validated" action="{{ isset($data) ? route('master_database.update', $data->id) : route('master_database.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmSubmission(event)">
         @csrf
         @if(isset($data))
             @method('PUT') <!-- Untuk update, menambahkan method PUT -->
@@ -435,22 +435,75 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 </script>
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-{{-- <script>
-  document.getElementById("reNotes").style.display ="none";
-    function openTest() {
-        document.getElementById("reNotes").style.display = "block";
-    }
-    document.getElementById('reviseButton').addEventListener('click', openTest);
-</script>
-
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.getElementById("reNotes2").style.display ="none";
-    function openTest() {
-        document.getElementById("reNotes2").style.display = "block";
-    }
+function confirmSubmission(event) {
+    event.preventDefault(); // Prevent the default form submission
 
-    document.getElementById('rejectButton').addEventListener('click', openTest);
-</script> --}}
+    const form = event.target; // Get the form element
+    const action = form.action.includes('update') ? 'update' : 'store'; // Determine the action
+    const actionMessages = {
+        update: 'Apakah Anda yakin ingin memperbarui data?',
+        store: 'Apakah Anda yakin ingin menyimpan data?'
+    };
+
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: actionMessages[action],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Lanjutkan!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Use AJAX to submit the form
+            $.ajax({
+                url: form.action,
+                type: form.method,
+                data: new FormData(form), // Use FormData to handle file uploads
+                processData: false, // Prevent jQuery from processing data
+                contentType: false, // Prevent jQuery from setting content type
+                success: function (response) {
+                    console.log(response); // Log the response for debugging
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: `Data berhasil ${action === 'update' ? 'diperbaharui' : 'tersimpan'}.`,
+                            icon: 'success',
+                            timer: 4000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirect; // Redirect after showing success message
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: response.message || 'Tidak dapat memproses data.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr); // Log error response for debugging
+                    Swal.fire({
+                        title: 'Error!',
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    });
+}
+</script>
 @endsection
 

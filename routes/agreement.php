@@ -1,12 +1,16 @@
 <?php
 
+use App\Http\Controllers\agreement\TelaahNaskah;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\agreement\AgreementController;
 use App\Http\Controllers\agreement\UniversityScoringController;
-use App\Http\Controllers\agreement\MasterController;  
+use App\Http\Controllers\agreement\MasterController;
+use App\Http\Controllers\agreement\TelaahNaskahController;
 
 Route::middleware(['auth', 'verified', 'role:gpc|wadek3'])->group(function () {
-    Route::get('/review-agreement', [AgreementController::class, 'review_agreement'])->name('review_agreement');
+    Route::get('/review-agreement', [TelaahNaskahController::class, 'view_telaah_general'])->name('review_agreement');
+    Route::get('/review-agreement-riset', [TelaahNaskahController::class, 'view_telaah_riset'])->name('review_agreement_riset');
+    // Route::get('/review-agreement/{current_role}', [TelaahNaskahController::class, 'view_telaah'])->name('review_agreement_role');
     Route::get('/completed-agreement', [AgreementController::class, 'completed_agreement'])->name('completed_agreement');
 
     Route::get('/form-pelaporan', [AgreementController::class, 'tambah_pelaporan'])->name('tambah_pelaporan');
@@ -30,6 +34,7 @@ Route::middleware(['auth', 'verified', 'role:gpc|wadek3'])->group(function () {
     
     Route::get('/university-score', [UniversityScoringController::class, 'univ_score'])->name('univ_score');
     Route::get('/email', [AgreementController::class, 'email_list'])->name('email_list');
+ 
 
 });
 

@@ -491,7 +491,8 @@ class MasterController extends Controller
         $agreement->status = 'Completed';
         // $agreement->status_lapkerma = 'BELUM';
         $agreement->year = date('Y', strtotime($agreement->mou_start_date));
-        // $agreement->link_pelaporan = 'None';
+        // $agreement->link_pelaporan = '';
+        // $agreement->status_pelaporan_lapkerma = "Belum";
         // $agreement->current_id_status = 0;
     
     
@@ -526,9 +527,12 @@ class MasterController extends Controller
             );
         }
     
-        session()->flash('success', 'Data berhasil disimpan!');
-        return redirect()->route('view_database');
+        // session()->flash('success', 'Data berhasil disimpan!');
+        // return redirect()->route('view_database');
+
+        return response()->json(['status' => 'success', 'redirect' => route('view_database')]);
         }
+
         public function upload_bukti($id){
 
             $data = GrieMoaAcademic::find($id);
