@@ -74,9 +74,11 @@ Route::get('/{type}-registration-form-submitted', [PendaftaranController::class,
 
 // Pendaftaran Inbound/Outbound
 Route::get('/registrasi-peserta-inbound/{url_generate}', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
+
+Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
+
 Route::post('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'Simpan_stuin'])->name('simpan.stuin');
 Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
-
 
 Route::get('/repo/{fileName}', [DokumenController::class, 'view'])->name('view.dokumen');
 
