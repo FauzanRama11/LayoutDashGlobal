@@ -20,8 +20,8 @@ class TelaahNaskahController extends Controller
                 'gs.title',
                 'part.partner as partner',
                 'latest_created_time as last',
-                // DB::raw('EXTRACT(EPOCH FROM (current_date - latest_created_time)) / 86400 AS days') 
-                DB::raw('DATEDIFF(current_date(), latest_created_time) AS days')
+                DB::raw('EXTRACT(EPOCH FROM (current_date - latest_created_time)) / 86400 AS days') 
+                // DB::raw('DATEDIFF(current_date(), latest_created_time) AS days')
             )
             // ->where('gs.current_role', '=',  $request->input('current_role')) 
             ->where('gs.tipe_moa', '=',  'General') 
@@ -33,8 +33,8 @@ class TelaahNaskahController extends Controller
                 DB::table('grie_moa_academic_partner')
                     ->select(
                         'id_moa_academic',
-                        // DB::raw('STRING_AGG(u.name, \', \') AS partner')
-                        DB::raw('GROUP_CONCAT(u.name) AS partner')
+                        DB::raw('STRING_AGG(u.name, \', \') AS partner')
+                        // DB::raw('GROUP_CONCAT(u.name) AS partner')
                     )
                     ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_partner.id_partner_university')
                     ->groupBy('id_moa_academic')
@@ -95,8 +95,8 @@ class TelaahNaskahController extends Controller
             'gs.title',
             'part.partner as partner',
             'latest_created_time as last',
-            // DB::raw('EXTRACT(EPOCH FROM (current_date - latest_created_time)) / 86400 AS days') 
-            DB::raw('DATEDIFF(current_date(), latest_created_time) AS days')
+            DB::raw('EXTRACT(EPOCH FROM (current_date - latest_created_time)) / 86400 AS days') 
+            // DB::raw('DATEDIFF(current_date(), latest_created_time) AS days')
         )
         // ->where('gs.current_role', '=',  $request->input('current_role')) 
         ->where('gs.tipe_moa', '=',  'Riset') 

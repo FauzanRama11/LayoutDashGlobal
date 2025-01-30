@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 
 class AgreementController extends Controller
@@ -97,7 +98,14 @@ public function store_pelaporan(Request $request, $id = null) {
     $dept = DB::table("m_departemen")
         ->where("id", "=", $request->input('deptP'))
         ->pluck("nama_ind")->first();
-    
+        
+        try {
+            $request->validate([
+                'linkDownload' => 'required|file|mimes:pdf|max:2560', 
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
+        }
 
     if ($id) {
         $pelaporan = GrieMoaAcademicPelaporan::findOrFail($id); 
@@ -216,8 +224,8 @@ public function store_pelaporan(Request $request, $id = null) {
             DB::table('grie_moa_academic_pelaporan_partner')
                 ->select(
                     'id_moa_academic',
-                    DB::raw('STRING_AGG(u.name, \', \') AS partner')
-                    // DB::raw('GROUP_CONCAT(u.name) AS partner')
+                    // DB::raw('STRING_AGG(u.name, \', \') AS partner')
+                    DB::raw('GROUP_CONCAT(u.name) AS partner')
                 )
                 ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_pelaporan_partner.id_partner_university')
                 ->groupBy('id_moa_academic')
