@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\agreement;
+use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use App\Models\GrieMoaAcademicPelaporan;
 use App\Models\GrieMoaAcademicPelaporanFaculty;
@@ -16,6 +17,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Arr;
+
 
 class AgreementController extends Controller
 {
@@ -66,57 +69,6 @@ class AgreementController extends Controller
         else{ 
             return view('agreement.form_pelaporan', compact('data',  'univ', 'unit','country', 'scope', 'department', 'prodi'));}
     }
-
-    public function tambah_master_database($id = null){
-
-        $univ = DB::table('m_university')
-        ->leftJoinSub(
-            DB::table('m_univ_ranking')
-                ->selectRaw('univ, MIN(rank_value_min) as rank_value_min, MIN(subject) as subject')
-                ->where('type', 5)
-                ->groupBy('univ'),
-            'r',
-            'r.univ',
-            '=',
-            'm_university.id'
-        )
-        ->select(
-            'm_university.*',
-            DB::raw('r.univ as rank_univ'),
-            DB::raw('r.rank_value_min'),
-            DB::raw('r.subject as subject')
-        )
-        ->get();
-        $unit = DB::table('m_fakultas_unit')
-        ->get(); 
-        $country = DB::table('m_country')
-        ->get();
-        $scope = DB::table('m_collaboration_scope')
-        ->get();
-        $department = DB::table('m_departemen')
-        ->get();
-        $prodi = DB::table('m_prodi')
-        ->get();
-
-        $data = $id ? GrieMoaAcademic::findOrFail($id) : null;
-        if ($data !== null) {
-            $selPartners = GrieMoaAcademicPartner::where('id_moa_academic', $data->id)->get()->toArray();
-            $selPartners = array_column($selPartners, 'id_partner_university'); 
-            $selFaculties = GrieMoaAcademicFaculty::where('id_moa_academic', $data->id)->get()->toArray();
-            $selFaculties = array_column($selFaculties, 'id_faculty'); 
-            $selScopes = GrieMoaAcademicScope::where('id_moa_academic', $data->id)->get()->toArray();
-            $selScopes = array_column($selScopes, 'id_collaboration_scope'); 
-            $selProdis = GrieMoaAcademicProdi::where('id_moa_academic', $data->id)->get()->toArray();
-            $selProdis = array_column($selProdis, column_key: 'id_program_study_unair'); 
-
-            return view('agreement.form_master_database', compact('data', 'selPartners', 'selFaculties', 'selScopes', 'selProdis', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
-        }else{
-                return view('agreement.form_master_database', compact('data', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
-    }
-
-        }
-
-    
 
 
 public function destroy_pelaporan($id){
@@ -247,11 +199,13 @@ public function store_pelaporan(Request $request, $id = null) {
             ['id_moa_academic' => $pelaporan_id, 'id_program_study_unair' => (int) $programStudyId]
         );
     }
-    return redirect()->route('view_pelaporan');
+    // return redirect()->route('view_pelaporan');
+    return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
 }
 
-    public function  view_pelaporan(){
+    public function  view_pelaporan(Request $request){
 
+        if ($request->ajax()) {
         $data = DB::table('grie_moa_academic_pelaporan as t')
         ->select('t.*', 'fac.partner as partner', 'f.nama_ind as fakultas')
         ->where(function ($query) {
@@ -277,11 +231,104 @@ public function store_pelaporan(Request $request, $id = null) {
         ->leftjoin('m_fakultas_unit as f', 'f.id', '=', 't.id_fakultas')
         ->when(!Auth::user()->hasRole('gpc'), function ($query) {
             $query->where('t.created_by', '=', Auth::user()->id);
-        })
-        ->orderBy('created_date', 'desc')
-        ->get();
+        });
 
-        return view('agreement.view_pelaporan', compact('data'));
+        if ($request->has('order')) {
+            foreach ($request->order as $order) {
+                $columnIndex = $order['column']; 
+                $columnDir = $order['dir'];
+                $columnName = $request->columns[$columnIndex]['data']; 
+        
+                if ($columnName === 'approval_pelaporan') {
+                    $data->orderByRaw("
+                        CASE 
+                            WHEN approval_pelaporan = true THEN 1
+                            WHEN approval_pelaporan = false AND approval_status IS NULL THEN 2
+                            WHEN approval_status = 'NEED REVISE' OR approval_status = 'REVISE' THEN 3
+                            WHEN approval_status = 'REJECTED' OR approval_status = 'REJECT' THEN 4
+                            ELSE 5
+                        END $columnDir
+                    ");
+                } else {
+                    $data->orderBy($columnName, $columnDir);
+                }
+            }       
+        } else {
+            $data->orderBy('created_date', 'desc'); 
+        }
+
+        return DataTables::of($data)
+        ->editColumn('mou_end_date', function($item){
+            if($item->mou_end_date && $item->mou_end_date != "0000-00-00"){
+                return $item->mou_end_date;
+              }else{
+                return $item->text_end_date;
+              }
+          })
+          ->editColumn('approval_pelaporan', function($item){
+            if($item->approval_pelaporan || $item->approval_pelaporan == 1){
+                return '<button type="submit" class="btn btn-success btn-sm">APPROVED</button>';
+            }elseif((!$item->approval_pelaporan || $item->approval_pelaporan == 0) && $item->approval_status == null){
+                return '<button type="submit" class="btn btn-dark btn-sm">SUBMITTED</button>';
+            }elseif($item->approval_status == 'NEED REVISE' || $item->approval_status == 'REVISE' ){
+                return '<button type="submit" class="btn btn-warning btn-sm">NEED REVISE</button>';
+            }elseif($item->approval_status == 'REJECTED' || $item->approval_status == 'REJECT'){
+                return '<button type="submit" class="btn btn-danger btn-sm">REJECTED</button>';
+            }
+          })
+          ->addColumn('edit', function ($item) {
+            return '<form action="' . route('pelaporan.edit', ['id' => $item->id]) . '" method="GET" style="display:inline;">
+                        <button class="btn btn-success btn-sm" type="submit" data-toggle="tooltip" data-placement="top" title="Edit">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </form>';
+        })
+        ->addColumn('delete', function ($item) {
+            return '<form id="deleteForm' . $item->id . '" action="' . route('pelaporan.destroy', ['id' => $item->id]) . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(\'' . $item->id . '\', \'Data yang telah dihapus tidak dapat dipulihkan\')">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>';
+        })
+        ->filterColumn('mou_end_date', function($query, $keyword) {
+            $sql = "
+                (CASE 
+                    WHEN mou_end_date IS NOT NULL THEN mou_end_date::TEXT
+                    ELSE text_end_date
+                END) ILIKE ?";
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })        
+        ->filterColumn('approval_pelaporan', function($query, $keyword) {
+            $query->whereRaw("
+                (CASE 
+                    WHEN approval_pelaporan = true THEN 'APPROVED'
+                    WHEN approval_pelaporan = false AND approval_status IS NULL THEN 'SUBMITTED'
+                    WHEN approval_status IN ('NEED REVISE', 'REVISE') THEN 'NEED REVISE'
+                    WHEN approval_status IN ('REJECTED', 'REJECT') THEN 'REJECTED'
+                    ELSE 'UNKNOWN'
+                END) ILIKE ?", ["%{$keyword}%"]);
+        })        
+        ->filter(function ($query) use ($request) {
+            if ($request->has('search') && $request->input('search.value')) {
+                $searchValue = $request->input('search.value');
+                $query->where(function ($q) use ($searchValue) {
+                    $q->where('title', 'like', "%{$searchValue}%")
+                    ->orWhere('partner', 'like', "%{$searchValue}%")
+                    // ->orWhere('approval_pelaporan', 'like', "%{$searchValue}%")
+                    ->orWhere('f.nama_ind', 'like', "%{$searchValue}%")
+                    ->orWhere('jenis_naskah', 'like', "%{$searchValue}%")
+                    ->orWhere('mou_start_date', 'like', "%{$searchValue}%")
+                    ->orWhere('created_date', 'like', "%{$searchValue}%");
+                });
+            }
+        })
+        ->rawColumns(['approval_pelaporan', 'edit', 'delete']) 
+        // ->orderColumns(['mou_started_date', 'mou_end_date'], '-:column $1')
+        ->make(true);
+    }
+        return view('agreement.view_pelaporan');
     }
 
     public function approve_pelaporan(Request $request, $id){
@@ -299,12 +346,14 @@ public function store_pelaporan(Request $request, $id = null) {
         
         $newMoa = new GrieMoaAcademic;
         
-        $newMoa->fill($pelaporan->getAttributes());
+        $newMoa->fill(Arr::except($pelaporan->getAttributes(), ['id']));
         $newMoa->status = 'Completed';
         $newMoa->status_lapkerma = 'BELUM';
         $newMoa->age_archive_sn = GrieMoaAcademic::generateNumber();
         $newMoa->lapkerma_archive = $newMoa->age_archive_sn.'.KSLN';
         $newMoa->year = date('Y', strtotime($newMoa->mou_start_date));
+        $newMoa->link_pelaporan = '';
+        $newMoa->status_pelaporan_lapkerma = 'Belum';
         $new_moa_id = $newMoa->id;
 
         $newMoa->save();
@@ -330,7 +379,6 @@ public function store_pelaporan(Request $request, $id = null) {
                 );
             }
             
-        
             foreach ($programStudyId as $programStudyIds) {
                 GrieMoaAcademicProdi::updateOrCreate(
                     ['id_moa_academic' => $new_moa_id, 'id_program_study_unair' => (int) $programStudyIds['id_program_study_unair']],
@@ -338,7 +386,8 @@ public function store_pelaporan(Request $request, $id = null) {
                 );
             }
 
-        return redirect()->route('view_pelaporan');
+        // return redirect()->route('view_database');
+        return response()->json(['status' => 'success', 'redirect' => route('view_database')]);
     }
 
     public function reject_pelaporan(Request $request, $id){
@@ -347,7 +396,8 @@ public function store_pelaporan(Request $request, $id = null) {
         $pelaporan->approval_status = "REJECTED";
         $pelaporan->approval_note = $request->input('notes');
         $pelaporan->save();
-        return redirect()->route('view_pelaporan');
+        // return redirect()->route('view_pelaporan');
+        return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
     }
 
     public function revise_pelaporan(Request $request, $id){
@@ -356,7 +406,10 @@ public function store_pelaporan(Request $request, $id = null) {
         $pelaporan->approval_status = "NEED REVISE";
         $pelaporan->approval_note = $request->input('notes');
         $pelaporan->save();
-        return redirect()->route('view_pelaporan');
+      
+        // return redirect()->route('view_pelaporan');
+        return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
+
     }
 
     public function database_agreement(){
@@ -470,7 +523,6 @@ public function store_pelaporan(Request $request, $id = null) {
 
 
         return redirect()->route('view_database');
-
     }
 
     public function generate_number(){
@@ -491,140 +543,47 @@ public function store_pelaporan(Request $request, $id = null) {
         return $result;
     }
 
-    public function store_master_database(Request $request, $id = null) {
-
-    $country = DB::table("m_country")
-        ->where("id", "=", $request->input('countryP'))
-        ->pluck("m_country.name")->first();
-
-    $dept = DB::table("m_departemen")
-        ->where("id", "=", $request->input('deptP'))
-        ->pluck("nama_ind")->first();
-    
-
-    if ($id) {
-        $agreement = GrieMoaAcademic::findOrFail($id); 
-        GrieMoaAcademicFaculty::where("id_moa_academic", $id)->delete();
-        GrieMoaAcademicProdi::where("id_moa_academic", $id)->delete();
-        GrieMoaAcademicScope::where("id_moa_academic", $id)->delete();
-        GrieMoaAcademicPartner::where("id_moa_academic", $id)->delete();
-
-    } else {
-        $agreement = new GrieMoaAcademic();
-        $agreement->created_by = Auth::user()->id;
-        if(Auth::user()->hasRole('gpc')){
-            $agreement->current_role = 'KSLN';
-            $agreement->current_iterasi = 1;
-        }
-    }
-    $agreement->current_id_status = 0;
-    $agreement->id_dosen = null;
-    $agreement->created_date = now();
-    $agreement->id_partner_university = null;
-    $agreement->tipe_moa = $request->input('jenisP');
-    $agreement->kategori_tridharma = $request->input('triDharma');
-    $agreement->kategori = $request->input('jenisP');
-    $agreement->id_country = $request->input('countryP');
-    $agreement->text_country = $country;
-    $agreement->id_fakultas = $request->input('unitP');
-    $agreement->text_end_date = "Automatically Renewed";
-    $agreement->jenis_naskah = $request->input('docP');
-    $agreement->title = $request->input('tittleP');
-    if ($request->hasFile('linkDownload')) {
-        $file = $request->file('linkDownload');
-        $storagePath = '/naskah';
-    
-        if (!Storage::disk('outside')->exists($storagePath)) {
-            Storage::disk('outside')->makeDirectory($storagePath);
-        }
-        $fileName = uniqid() . '_' . $file->getClientOriginalName();
-        $file->storeAs($storagePath, $fileName, 'outside');
-        $agreement->link_download_naskah = $storagePath . '/' . $fileName;
-    }
-    $agreement->mou_start_date = $request->input('startDate');
-    $agreement->mou_end_date = $request->input('endDate');
-    $agreement->id_department_unair = $request->input('deptP');
-    $agreement->text_department_unair = $dept;
-    $agreement->department_partner = $request->input('partDept');
-    $agreement->faculty_partner = $request->input('partnerFac');
-    $agreement->program_study_partner = $request->input('partnerStuProg');
-    $agreement->type_institution_partner = $request->input('typeP');
-    $agreement->signatories_unair_name = $request->input('nosUnair');
-    $agreement->signatories_unair_pos = $request->input('nopUnair');
-    $agreement->signatories_partner_name = $request->input('nosPart');
-    $agreement->signatories_partner_pos = $request->input('nopPart');
-    $agreement->pic_mitra_nama = $request->input('namePic');
-    $agreement->pic_mitra_jabatan = $request->input('postPic');
-    $agreement->pic_mitra_email = $request->input('emailPic');
-    $agreement->pic_mitra_phone = $request->input('telpPic');
-    $agreement->pic_fak_nama = $request->input('namePic2');
-    $agreement->pic_fak_jabatan = $request->input('postPic2');
-    $agreement->pic_fak_email = $request->input('emailPic2');
-    $agreement->pic_fak_phone = $request->input('telpPic2');
-    $agreement->is_queue = $request->input('queueP');
-    $agreement->status_lapkerma = $request->input('statusLapkerma');
-    $agreement->category_document = $request->input(key: 'catNaskah');
-    $agreement->skema = $request->input('skema');
-    $agreement->status = 'Completed';
-    $agreement->status_lapkerma = 'BELUM';
-    $agreement->age_archive_sn = GrieMoaAcademic::generateNumber();        
-    $agreement->lapkerma_archive = $agreement->age_archive_sn.'.KSLN';
-    $agreement->year = date('Y', strtotime($agreement->mou_start_date));
-    // $agreement->link_pelaporan = 'None';
-    // $agreement->current_id_status = 0;
-
-
-    $agreement->save();
-    $agreement_id = $agreement->id;
-
-    foreach ($request->input('partnerP', []) as $partnerId) {
-        GrieMoaAcademicPartner::updateOrCreate(
-            ['id_moa_academic' => $agreement_id, 'id_partner_university' => (int) $partnerId],
-            ['id_moa_academic' => $agreement_id, 'id_partner_university' => (int) $partnerId]
-        );
-    }
-
-    foreach ($request->input('scopeP', []) as $scopeId) {
-        GrieMoaAcademicScope::updateOrCreate(
-            ['id_moa_academic' => $agreement_id, 'id_collaboration_scope' => (int) $scopeId],
-            ['id_moa_academic' => $agreement_id, 'id_collaboration_scope' => (int) $scopeId]
-        );
-    }
-
-    foreach ($request->input('FacP', []) as $facultyId) {
-        GrieMoaAcademicFaculty::updateOrCreate(
-            ['id_moa_academic' => $agreement_id, 'id_faculty' => (int) $facultyId],
-            ['id_moa_academic' => $agreement_id, 'id_faculty' => (int) $facultyId]
-        );
-    }
-
-    foreach ($request->input('stuProgP', []) as $programStudyId) {
-        GrieMoaAcademicProdi::updateOrCreate(
-            ['id_moa_academic' => $agreement_id, 'id_program_study_unair' => (int) $programStudyId],
-            ['id_moa_academic' => $agreement_id, 'id_program_study_unair' => (int) $programStudyId]
-        );
-    }
-
-    session()->flash('success', 'Data berhasil disimpan!');
-    return redirect()->route('view_database');
-
-
-    }
     public function email_list(){
         
         return view('agreement.email_list');
     }
 
 
-    public function review_agreement(){
-
-    
-        return view('agreement.view_review');
-    }
     public function  completed_agreement(){
 
         return view('agreement.view_completed');
     }
 
+    public function  view_pelaporan2(){
+
+        $data = DB::table('grie_moa_academic_pelaporan as t')
+        ->select('t.*', 'fac.partner as partner', 'f.nama_ind as fakultas')
+        ->where(function ($query) {
+            $query->where('t.status', '=', 'Completed')
+                  ->orWhere('t.status', '=', 'Progress'); 
+        })
+        ->leftjoinSub(
+            DB::table('grie_moa_academic_pelaporan_partner')
+                ->select(
+                    'id_moa_academic',
+                    // DB::raw('GROUP_CONCAT(u.name) AS partner')
+                    DB::raw('STRING_AGG(u.name, \', \') AS partner')
+                )
+                ->leftjoin('m_university as u', 'u.id', '=', 'grie_moa_academic_pelaporan_partner.id_partner_university')
+                ->groupBy('id_moa_academic')
+                ->orderBy('id_moa_academic', 'DESC'),
+            'fac',
+            'fac.id_moa_academic',
+            '=',
+            't.id'
+        )
+        ->leftjoin('m_fakultas_unit as f', 'f.id', '=', 't.id_fakultas')
+        ->when(!Auth::user()->hasRole('gpc'), function ($query) {
+            $query->where('t.created_by', '=', Auth::user()->id);
+        })
+        ->orderBy('created_date', 'desc')
+        ->get();
+
+        return view('agreement.arsip_view_pelaporan', compact('data'));}
     
 }
