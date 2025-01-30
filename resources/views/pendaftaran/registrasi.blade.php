@@ -1,12 +1,19 @@
 @extends('pendaftaran.master')
 
 @section('content') 
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: "{{ session('error') }}",
+    });
+</script>
+@endif
 
-
-<div class="page-body">
+<div class="page-body px-4 py-5">
 <div class="container-fluid">
     <div class="row">
-
       <div class="col-md-5 d-flex justify-content-center align-items-center" >
         @if($type === 'amerta')
             <img src="{{ asset('assets/images/LogoAmerta.png') }}" alt="Logo Amerta" class="img-fluid"  style="width: 320px; height: auto;">
@@ -43,34 +50,34 @@
             <form class="form-wizard" id="regForm" action="{{ route('simpan.registrasi', ['type' => 'amerta']) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <!-- Step 1 -->
-            <div id="step-1" class="tab setup-content">
-                <input type="hidden" name="step" value="1">
+                <!-- Step 1 -->
+                <div id="step-1" class="tab setup-content">
+                    <input type="hidden" name="step" value="1">
 
-                <div class="title">INSTRUCTION</div>
-                    <ol>
-                        <li>This Application Form must be fully completed in the required format.</li>
-                        <li>Please indicate "NA" if an item is not applicable.</li>
-                        <li>The Application Form consists of three sections:
-                            <ul>
-                            <li>Personal Information</li>
-                            <li>Educational Qualifications</li>
-                            <li>Choice of Subjects</li>
-                            </ul>
-                        </li>
-                    </ol>
-                    <br>
-                    
-                    <p>Please upload the required supporting documents along with this application form:</p>
-                    <ol>
-                        <li>Student Card</li>
-                        <li>Most recent passport-size photo (red/blue/white background)</li>
-                        <li>Official academic transcript in English</li>
-                        <li>Scanned English Proficiency Certificate</li>
-                        <li>Curriculum Vitae (CV)</li>
-                        <li>Motivation Letter</li>
-                    </ol>
-                    <br>
+                    <div class="title">INSTRUCTION</div>
+                        <ol>
+                            <li>This Application Form must be fully completed in the required format.</li>
+                            <li>Please indicate "NA" if an item is not applicable.</li>
+                            <li>The Application Form consists of three sections:
+                                <ul>
+                                <li>Personal Information</li>
+                                <li>Educational Qualifications</li>
+                                <li>Choice of Subjects</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <br>
+                        
+                        <p>Please upload the required supporting documents along with this application form:</p>
+                        <ol>
+                            <li>Student Card</li>
+                            <li>Most recent passport-size photo (red/blue/white background)</li>
+                            <li>Official academic transcript in English</li>
+                            <li>Scanned English Proficiency Certificate</li>
+                            <li>Curriculum Vitae (CV)</li>
+                            <li>Motivation Letter</li>
+                        </ol>
+                        <br>
 
                     <div class="title">NOTE</div>
                     <p>
@@ -79,7 +86,7 @@
                         For any inquiries, please do not hesitate to contact us via email:
                     <br>
                         <a href="mailto:inbound@global.unair.co.id" style="color:blue;">
-                            <i class="fa fa-envelope-o" style="margin-right:5px; color: #222;"></i>inbound@global.unair.co.id
+                            <i class="fa fa-envelope-o" style="margin-right:5px; color: #222; text-decoration:none;"></i>inbound@global.unair.co.id
                         </a>
                     </p>
                     <br>
@@ -129,21 +136,21 @@
                     <!-- Full Name -->
                     <div class="mb-3">
                         <label class="form-label" for="fullname">Full Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Masukkan Nama Lengkap" required>
+                        <input type="text" class="form-control" id="fullname" name="fullname" placeholder="e.g: Rizal Akbar Johar" required>
                         <div class="invalid-feedback">Nama lengkap wajib diisi.</div>
                     </div>
 
                     <!-- First Name -->
                     <div class="mb-3">
                         <label class="form-label" for="firstname">First Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Masukkan Nama Depan" required>
+                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder="e.g: Rizal Akbar" required>
                         <div class="invalid-feedback">Nama depan wajib diisi.</div>
                     </div>
 
                     <!-- Last Name -->
                     <div class="mb-3">
                         <label class="form-label" for="lastname">Last Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Masukkan Nama Belakang" required>
+                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder="e.g: Johar" required>
                         <div class="invalid-feedback">Nama belakang wajib diisi.</div>
                     </div>
 
@@ -153,7 +160,6 @@
                         <select class="form-select" id="sex" name="sex" required>
                             <option value="M">Male</option>
                             <option value="F">Female</option>
-                            <option value="O">Prefer Not to Say</option>
                         </select>
                         <div class="invalid-feedback">Jenis kelamin wajib dipilih.</div>
                     </div>
@@ -161,7 +167,7 @@
                     <!-- Place of Birth -->
                     <div class="mb-3">
                         <label class="form-label" for="pob">Place of Birth <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="pob" name="pob" placeholder="Masukkan Tempat Lahir" required>
+                        <input type="text" class="form-control" id="pob" name="pob" placeholder="e.g: Surabaya, Indonesia" required>
                         <div class="invalid-feedback">Tempat lahir wajib diisi.</div>
                     </div>
 
@@ -186,7 +192,7 @@
                     <!-- Passport Number -->
                     <div class="mb-3">
                         <label class="form-label" for="passport_number">Passport Number <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="passport_number" name="passport_number" placeholder="Masukkan Nomor Paspor" required>
+                        <input type="text" class="form-control" id="passport_number" name="passport_number" placeholder="Enter your Passport nummber here" required>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -207,21 +213,21 @@
                     <!-- Issuing Authority -->
                     <div class="mb-3">
                         <label class="form-label" for="issuing_authority">Issuing Authority <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="issuing_authority" name="issuing_authority" placeholder="Masukkan Otoritas Penerbit Paspor" required>
+                        <input type="text" class="form-control" id="issuing_authority" name="issuing_authority" placeholder="e.g: Immigration Office of Surabaya, Indonesia" required>
                         <div class="invalid-feedback"></div>
                     </div>
 
                     <!-- Telephone Number -->
                     <div class="mb-3">
                         <label class="form-label" for="telephone">Telephone Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="telephone" name="telephone" placeholder="Masukkan Nomor Telepon" required>
+                        <input type="tel" class="form-control" id="telephone" name="telephone" placeholder="e.g: +628 1234567" required>
                         <div class="invalid-feedback">Nomor telepon wajib diisi.</div>
                     </div>
 
                     <!-- Mobile/Cellular Number -->
                     <div class="mb-3">
                         <label class="form-label" for="phone">Mobile/Cellular Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="Masukkan Nomor Ponsel" required>
+                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="e.g: +628 1234567" required>
                         <div class="invalid-feedback">Nomor ponsel wajib diisi.</div>
                     </div>
 
@@ -250,19 +256,19 @@
                     <hr>
                     <div class="mb-3">
                         <label class="form-label" for="kin_name">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="kin_name" name="kin_name" placeholder="Masukkan Nama Kerabat" required>
+                        <input type="text" class="form-control" id="kin_name" name="kin_name" placeholder="e.g: Adi Johan" required>
                         <div class="invalid-feedback">Nama wajib diisi.</div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="kin_relation">Relationship <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="kin_relation" name="kin_relation" placeholder="Supervisor, Father, etc." required>
+                        <input type="text" class="form-control" id="kin_relation" name="kin_relation" placeholder="e.g: Father" required>
                         <div class="invalid-feedback">Hubungan wajib diisi.</div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="kin_address">Address <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="kin_address" name="kin_address" placeholder="Masukkan Alamat" rows="2" required></textarea>
+                        <textarea class="form-control" id="kin_address" name="kin_address" placeholder="Please provide the details such as region, province, country, and postal code" rows="2" required></textarea>
                         <div class="invalid-feedback">Alamat wajib diisi.</div>
                     </div>
 
@@ -274,13 +280,13 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="kin_telephone">Telephone Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="kin_telephone" name="kin_telephone" placeholder="Nomor Telepon Kerabat" required>
+                        <input type="tel" class="form-control" id="kin_telephone" name="kin_telephone" placeholder="e.g: +628 1234567" required>
                         <div class="invalid-feedback">Nomor telepon wajib diisi.</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="kin_homephone">Mobile/Cellular Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="kin_homephone" name="kin_homephone" placeholder="Nomor Ponsel Kerabat">
+                        <label class="form-label" for="kin_phone">Mobile/Cellular Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="kin_phone" name="kin_phone" placeholder="e.g: +628 1234567">
                     </div>
         
                     <!-- Educational Qualification -->
@@ -295,184 +301,205 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="major">Degree Being Taken at University (Major) <span class="text-danger">*</span></label>
+                        <label class="form-label" for="degree">Degree Being Taken at University <span class="text-danger">*</span></label>
+                        <select class="form-select" id="degree" name="degree" required>
+                            <option value="">Select Degree</option>
+                            <option value="Undergraduate">Undergraduate</option>
+                            <option value="Master">Master</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="major">Major <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="major" name="major" placeholder="Biotechnology, etc." required>
                         <div class="invalid-feedback">Program studi wajib diisi.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="gpa">GPA <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="gpa" name="gpa" placeholder="Masukkan GPA (contoh: 3.3)" required>
-                        <div class="invalid-feedback">GPA wajib diisi.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="year_entry">Year of Entry <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="year_entry" name="year_entry" required>
-                        <div class="invalid-feedback">Tahun masuk wajib diisi.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="native">Native Language <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="native" name="native" placeholder="Kazakh, etc." required>
-                        <div class="invalid-feedback">Bahasa asli wajib diisi.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="english_score">English Proficiency Score *</label>
-                        <input type="text" class="form-control" id="english_score" name="english_score" placeholder="Masukkan nilai Bahasa Inggris (contoh: 3.67/4)">
-                        <div class="invalid-feedback">Nilai Bahasa Inggris wajib diisi.</div>
-                    </div>
-
                     
-                    <div class="amerta-internship-form" style="display: none;">
+                    @if($type === 'amerta')
                         <div class="mb-3">
-                            <label class="form-label" for="field_of_study">Field of Study</label>
-                            <input type="text" class="form-control" id="field_of_study" name="field_of_study" placeholder="AMERTA Internship Only">
+                            <label class="form-label" for="gpa">GPA <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="gpa" name="gpa" placeholder="Your GPA/ Max GPA (e.g: 3.3/4.0 or 4.1/55.0)" required>
+                            <div class="invalid-feedback">GPA wajib diisi.</div>
                         </div>
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="year_entry">Year of Entry <span class="text-danger">*</span></label>
+                            <input type="month" class="form-control" id="year_entry" name="year_entry" required>
+                            <div class="invalid-feedback">Tahun masuk wajib diisi.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="native">Native Language <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="native" name="native" placeholder="English, Indonesian" required>
+                            <div class="invalid-feedback">Bahasa asli wajib diisi.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="english_score">English Proficiency Score *</label>
+                            <input type="text" class="form-control" id="english_score" name="english_score" placeholder="Your GPA/ Max GPA (e.g: 3.3/4.0 or 4.1/55.0)">
+                            <div class="invalid-feedback">Nilai Bahasa Inggris wajib diisi.</div>
+                        </div>
+                    @endif
         
                     <!-- Character Reference -->
-                    <h5 class="mt-3">Character Reference</h5>
-                    <hr>
-                    <div class="mb-3">
-                        <label class="form-label" for="referee_name">Name of Referee <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="referee_name" name="referee_name" placeholder="Masukkan Nama Rujukan" required>
-                        <div class="invalid-feedback">Nama rujukan wajib diisi.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="referee_organization">Organization and Position <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="referee_organization" name="referee_organization" placeholder="Father, etc." required>
-                        <div class="invalid-feedback">Organisasi dan jabatan wajib diisi.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="referee_relation">Relationship to Applicant <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="referee_relation" name="referee_relation" placeholder="Masukkan Hubungan" required>
-                        <div class="invalid-feedback">Hubungan dengan rujukan wajib diisi.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="referee_email">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="referee_email" name="referee_email" placeholder="Masukkan Email Rujukan" required>
-                        <div class="invalid-feedback">Email rujukan wajib diisi.</div>
-                    </div>
+                    @if($type === 'amerta')
+                        <h5 class="mt-3">Character Reference</h5>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label" for="referee_name">Name of Referee (as it appears in Identity Card / Passport and BLOCK CAPSE Surname / Family / Paternal Name) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="referee_name" name="referee_name" placeholder="e.g: Adi Johan" required>
+                            <div class="invalid-feedback">Nama rujukan wajib diisi.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="referee_organization">Organization and Position <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="referee_organization" name="referee_organization" placeholder="e.g: Father" required>
+                            <div class="invalid-feedback">Organisasi dan jabatan wajib diisi.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="referee_relation">Relationship to Applicant <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="referee_relation" name="referee_relation" placeholder="e.g: Father" required>
+                            <div class="invalid-feedback">Hubungan dengan rujukan wajib diisi.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="referee_email">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="referee_email" name="referee_email" placeholder="Masukkan Email Rujukan" required>
+                            <div class="invalid-feedback">Email rujukan wajib diisi.</div>
+                        </div>
+                    @endif
         
                     <!-- Contact Person at Home University -->
                     <h5 class="mt-3">Details of The Contact Person at Home University</h5>
                     <div class="mb-3">
-                        <label class="form-label" for="pic_name">Contact Person <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="pic_name" name="pic_name" placeholder="Daryn Korpebayev" required>
+                        <label class="form-label" for="pic_name">Contact Person at your Home University <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="pic_name" name="pic_name" placeholder="e.g: Adi Johan" required>
                         <div class="invalid-feedback">Kontak wajib diisi.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="pic_position">Position <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="pic_position" name="pic_position" placeholder="Academic Mobility Department Manager" required>
+                        <label class="form-label" for="pic_position">Position of the Contact Person at your Home University <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="pic_position" name="pic_position" placeholder="e.g: Head of International Office" required>
                         <div class="invalid-feedback">Jabatan wajib diisi.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="pic_email">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="pic_email" name="pic_email" placeholder="Masukkan Email Kontak" required>
+                        <input type="email" class="form-control" id="pic_email" name="pic_email" placeholder="" required>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="pic_telephone">Telephone Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="pic_telephone" name="pic_telephone" placeholder="Masukkan Nomor Telepon" required>
+                        <input type="tel" class="form-control" id="pic_telephone" name="pic_telephone" placeholder="e.g: +628 1234567" required>
                         <div class="invalid-feedback">Nomor telepon wajib diisi.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="pic_address">Mailing Address <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="pic_address" name="pic_address" placeholder="Masukkan Alamat Surat" rows="2" required></textarea>
+                        <textarea class="form-control" id="pic_address" name="pic_address" placeholder="For Transcript and Certificate shipping" rows="2" required></textarea>
                         <div class="invalid-feedback">Alamat surat wajib diisi.</div>
                     </div>
-        
-                    <!-- Choice of Subjects -->
-                    <h5 class="mt-3">Choice of Subjects</h5>
-                    <hr>
-                    <div class="mb-3">
-                        <label class="form-label" for="course1">Course 1 <span class="text-danger">*</span></label>
-                        <select class="js-example-basic-single col-sm-12" id="course1" name="course1" required>
-                            <option value="" selected>Select Course</option>
-                            @foreach($course as $item)
-                                <option value="{{ $item->code }}">{{ $item->title}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @for ($i = 2; $i <= 6; $i++)
+
+                    {{-- SEPERATED BASED ON EACH CATEGORY --}}
+
+                    {{-- CHOICE OF SUBJECT | AMERTA REGULAR --}}
+                    @if($type === 'amerta')
+                        <div class="amerta-regular-form" style="display: none;">
+                            <h5 class="mt-3">Choice of Subjects</h5>
+                            <hr>
+                            <div class="mb-3">
+                                <label class="form-label" for="course1">Course 1 <span class="text-danger">*</span></label>
+                                <select class="js-example-basic-single col-sm-12" id="course1" name="course1" required>
+                                    <option value="" selected>Select Course</option>
+                                    @foreach($course as $item)
+                                        <option value="{{ $item->code }}">{{ $item->title}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @for ($i = 2; $i <= 6; $i++)
+                                <div class="mb-3">
+                                    <label class="form-label" for="course{{ $i }}">Course{{ $i }}</label>
+                                    <select class="js-example-basic-single col-sm-12" id="course{{ $i }}" name="course[{{ $i }}]">
+                                        <option value="" selected>Select Course</option>
+                                        @foreach($course as $item)
+                                            <option value="{{ $item->code }}">{{ $item->title}}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            @endfor
+
+                            <div class="mb-3 mt-3 d-flex justify-content-between align-content-center">
+                                <label class="form-label d-block">
+                                    Have you ever taken Bahasa Indonesia course? <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex align-items-center">
+                                    <input type="hidden" name="taken_indo" value="No">
+                                    <label class="switch me-2">
+                                        <input type="checkbox" id="taken_indo_checkbox" name="taken_indo" value="yes" onchange="toggleStatus('taken_indo_checkbox', 'taken_indo_status')">
+                                        <span class="switch-state"></span>
+                                    </label>
+                                    <span id="taken_indo_status">No</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 d-flex justify-content-between align-content-center">
+                                <label class="form-label d-block">
+                                    Taking Bahasa Indonesia Course as Complementary Course? <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex align-items-center">
+                                    <input type="hidden" name="take_indo" value="No">
+                                    <label class="switch me-2">
+                                        <input type="checkbox" id="take_indo_checkbox" name="take_indo" value="yes" onchange="toggleStatus('take_indo_checkbox', 'take_indo_status')">
+                                        <span class="switch-state"></span>
+                                    </label>
+                                    <span id="take_indo_status">No</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                   {{-- CHOICE OF SUBJECT | LINGUA REGULAR --}}
+                    @if($type === 'lingua')
+                        <h5 class="mt-3">Choice of Subjects</h5>
+                        <hr>
+                        <div class="mb-3 mt-3 d-flex justify-content-between align-content-center">
+                            <label class="form-label d-block">
+                                Have you ever taken Bahasa Indonesia course? <span class="text-danger">*</span>
+                            </label>
+                            <div class="d-flex align-items-center">
+                                <input type="hidden" name="taken_indo" value="No">
+                                <label class="switch me-2">
+                                    <input type="checkbox" id="taken_indo_checkbox" name="taken_indo" value="yes" onchange="toggleStatus('taken_indo_checkbox', 'taken_indo_status')">
+                                    <span class="switch-state"></span>
+                                </label>
+                                <span id="taken_indo_status">No</span>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label" for="course{{ $i }}">Course{{ $i }}</label>
-                            <select class="js-example-basic-single col-sm-12" id="course{{ $i }}" name="course[{{ $i }}]">
-                                <option value="" selected>Select Course</option>
-                                @foreach($course as $item)
-                                    <option value="{{ $item->code }}">{{ $item->title}}</option>
-                                @endforeach
+                            <label class="form-label" for="joined_lingua">Have you previously joined Lingua <span class="text-danger">*</span></label>
+                            <select class="form-select" id="joined_lingua" name="joined_lingua" required>
+                                <option value="">Select /option>
+                                <option value="a1">Yes, I joined LINGUA A1 class last semester</option>
+                                <option value="a2">Yes, I joined LINGUA A2 class last semester</option>
+                                <option value="b1">Yes, I joined LINGUA B1 class last semester</option>
+                                <option value="b2">Yes, I joined LINGUA B2 class last semester</option>
+                                <option value="no">No, I have not</option>
                             </select>
-                            <div class="invalid-feedback">Nomor telepon wajib diisi.</div>
+                            <div class="invalid-feedback"></div>
                         </div>
-                    @endfor
+                    @endif
 
-                    <div class="mb-3 mt-3 d-flex justify-content-between align-content-center">
-                        <label class="form-label d-block">
-                            Have you ever taken Bahasa Indonesia course? <span class="text-danger">*</span>
-                        </label>
-                        <div class="d-flex align-items-center">
-                            <input type="hidden" name="taken_indo" value="No">
-                            <label class="switch me-2">
-                                <input type="checkbox" id="taken_indo_checkbox" name="taken_indo" value="yes" onchange="toggleStatus('taken_indo_checkbox', 'taken_indo_status')">
-                                <span class="switch-state"></span>
-                            </label>
-                            <span id="taken_indo_status">No</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3 d-flex justify-content-between align-content-center">
-                        <label class="form-label d-block">
-                            Taking Bahasa Indonesia Course as Complementary Course? <span class="text-danger">*</span>
-                        </label>
-                        <div class="d-flex align-items-center">
-                            <input type="hidden" name="take_indo" value="No">
-                            <label class="switch me-2">
-                                <input type="checkbox" id="take_indo_checkbox" name="take_indo" value="yes" onchange="toggleStatus('take_indo_checkbox', 'take_indo_status')">
-                                <span class="switch-state"></span>
-                            </label>
-                            <span id="take_indo_status">No</span>
+                    <!-- SECTION FOR AMERTA INTERNSHIP -->
+                    <div class="amerta-internship-form" style="display: none;">
+                        <h5 class="mt-3">Internship Field</h5>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label" for="field_of_study">Field of Study</label>
+                            <input type="text" class="form-control" id="field_of_study" name="field_of_study" placeholder="AMERTA Internship Only">
+                            <div class="invalid-feedback"></div>
                         </div>
                     </div>
 
-                    <!-- Declaration Section -->
-                    <h5 class="mt-6">Attachment File</h5>
-                    <hr>
-                    <div class="mb-3">
-                        <label class="form-label" for="passport">Passport Identity Page (PDF) <span class="text-danger">*</span></label>
-                        <input class="form-control" type="file" id="passport" name="passport" accept=".pdf" required>
-                        <div class="invalid-feedback"></div>
-                    </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label" for="photo">Most recent passport size photo(red/blue/white background) <span class="text-danger">*</span></label>
-                        <input class="form-control" type="file" id="photo" name="photo" accept=".jpg, .jpeg, .png" required>
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="transcript">Official academic transcript in English (issued by the applicant''s home institution)</label>
-                        <input class="form-control" type="file" id="transcript" name="transcript" accept=".pdf">
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="letter_recom_referee">One (1) Professional Letter of Recomendation signed by the referee (preferably from a professor, invalid if recommendations are made by family members or friends)</label>
-                        <input class="form-control" type="file" id="letter_recom_referee" name="letter_recom_referee" accept=".pdf">
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="cv">Curriculum Vitae <span class="text-danger">*</span></label>
-                        <input class="form-control" type="file" id="cv" name="cv" accept=".pdf" required>
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="motivation_letter">Motivation Letter <span class="text-danger">*</span></label>
-                        <input class="form-control" type="file" id="motivation_letter" name="motivation_letter" accept=".pdf" required>
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    
+                    <!-- ATTACHMENT AMERTA RESEARCH -->
                     <div class="amerta-research-form" style="display: none;">
+                        <h5 class="mt-3">Research Field</h5>
+                        <hr>
                         <div class="mb-3">
                             <label class="form-label" for="research_proposal">Research Proposal</label>
                             <input class="form-control" type="file" id="research_proposal" name="research_proposal" accept=".pdf" required>
@@ -480,19 +507,55 @@
                         </div>
                     </div>
 
+                    <!-- ATTACHMENT FOR AMERTA AND LINGUA -->
+                    <div class="amerta-regular-form" style="display: none;"> 
+                        <h5 class="mt-6">Attachment File</h5>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label" for="passport">Passport Identity Page (PDF) <span class="text-danger">*</span></label>
+                            <input class="form-control" type="file" id="passport" name="passport" accept=".pdf" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="photo">Most recent passport size photo(red/blue/white background) <span class="text-danger">*</span></label>
+                            <input class="form-control" type="file" id="photo" name="photo" accept=".jpg, .jpeg, .png" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="transcript">Official academic transcript in English (issued by the applicant''s home institution)</label>
+                            <input class="form-control" type="file" id="transcript" name="transcript" accept=".pdf">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="letter_recom_referee">One (1) Professional Letter of Recomendation signed by the referee (preferably from a professor, invalid if recommendations are made by family members or friends)</label>
+                            <input class="form-control" type="file" id="letter_recom_referee" name="letter_recom_referee" accept=".pdf">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="cv">Curriculum Vitae <span class="text-danger">*</span></label>
+                            <input class="form-control" type="file" id="cv" name="cv" accept=".pdf" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="motivation_letter">Motivation Letter <span class="text-danger">*</span></label>
+                            <input class="form-control" type="file" id="motivation_letter" name="motivation_letter" accept=".pdf" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+
                     <!-- Declaration Section -->
                     <h5 class="mt-6">Declaration Section</h5>
                     <hr>
-                    <div class="mb-3">
-                        <label class="form-label" for="letter_recom">Recommendation Letter From Home University (PDF) <span class="text-danger">*</span></label>
-                        <input class="form-control" type="file" id="letter_recom" name="letter_recom" accept=".pdf" required>
-                        <div class="invalid-feedback"></div>
-                      </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="program_info">Where did you obtain the information about this program? <span class="text-danger">*</span></label>
                         <select class="form-select" id="program_info" name="program_info" required>
-                            <option value="">Pilih Program</option>
+                            <option value="">Select your source of information?</option>
                             <option value="Website">Website</option>
                             <option value="Instagram">Instagram</option>
                             <option value="Facebook">Facebook</option>
@@ -503,6 +566,8 @@
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
+
+                    {{-- Agreement --}}
 
                     <div class="form-group form-group-sm">
                         <p style="font-size:9pt; border:1px solid #aaa; padding:10px 20px; cursor:default;">
@@ -555,11 +620,9 @@
                 </div>
               
                 <!-- Navigation Buttons -->
-                <div>
-                  <div class="text-end btn-mb">
+                <div class="text-end btn-mb">
                     <button class="btn btn-secondary" id="prevBtn" type="button" onclick="nextPrev(-1)">Previous</button>
                     <button class="btn btn-primary" id="nextBtn" type="button" onclick="nextPrev(1)">Next</button>
-                  </div>
                 </div>
               </form>              
           </div>
@@ -569,6 +632,7 @@
   </div>
 </div>
 
+@endsection
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -626,28 +690,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function toggleStatus(checkboxId, statusId) {
-        console.log(`toggleStatusText dipanggil dengan checkboxId: ${checkboxId}, statusId: ${statusId}`);
-        
-        const checkbox = document.getElementById(checkboxId);
-        const statusText = document.getElementById(statusId);
-
-        if (!checkbox) {
-            console.error(`Checkbox dengan id "${checkboxId}" tidak ditemukan.`);
-            return;
-        }
-        if (!statusText) {
-            console.error(`Status dengan id "${statusId}" tidak ditemukan.`);
-            return;
-        }
-
-        console.log(`Checkbox checked: ${checkbox.checked}`);
-        statusText.textContent = checkbox.checked ? 'Yes' : 'No';
-    }
-
 });
-
 
 </script>
 
-@endsection
+<script>
+    function toggleStatus(checkboxId, statusId) {
+        const checkbox = document.getElementById(checkboxId);
+        const statusText = document.getElementById(statusId);
+        statusText.textContent = checkbox.checked ? 'Yes' : 'No';
+    }
+</script>

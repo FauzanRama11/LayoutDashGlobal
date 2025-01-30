@@ -44,8 +44,8 @@
 											@endif
 										</td>
 										<td>
-											<form action="" method="GET">
-											  <button type="submit" class="btn btn-primary edit-button">Edit</button>
+											<form action="{{route('edit_peserta_inbound', ['id' => $item['id'] ]) }}" method="GET">
+												<button type="submit" class="btn btn-primary edit-button">Edit</button>
 											</form>
 										</td>
 									</tr>

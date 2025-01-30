@@ -72,71 +72,49 @@ class PesertaInboundAGEController extends Controller
         ->where('p.id', $id)
         ->first();
 
-    // Cek apakah data ditemukan
-    if (!$data) {
-        abort(404, 'Data not found');
-    }
+        if (!$data) {
+            abort(404, 'Data not found');
+        }
 
-    // Decode metadata dari JSON menjadi array
-    $metadata = json_decode($data->metadata, true);
+        $metadataFields = [
+            'selected_program', 'mobility', 'fullname', 'firstname', 'lastname', 'sex', 'pob',
+            'dob', 'nationality', 'passport_number', 'passport_date_issue', 'passport_date_exp',
+            'issuing_authority', 'telephone', 'phone', 'address', 'mail_address', 'embassy_address',
+            'kin_name', 'kin_relation', 'kin_address', 'kin_phone', 'kin_telephone', 'kin_email',
+            'university', 'major', 'gpa', 'year_entry', 'native', 'english_score', 'field_of_study',
+            'referee_name', 'referee_organization', 'referee_relation', 'referee_email', 'pic_name',
+            'pic_email', 'pic_position', 'pic_telephone', 'pic_address', 'course1', 'course2', 'course3',
+            'course4', 'course5', 'course6', 'taken_indo', 'take_indo', 'cv', 'passport', 'photo',
+            'transcript', 'letter_recom', 'motivation_letter', 'english_certificate', 'research_proposal', 
+            'program_info',
+        ];
 
-    // dd($metadata);
+        $metadata = json_decode($data->metadata, true);
 
-    // Gabungkan data metadata dengan hasil query
-    $processedData = [
-        'id' => $data->id,
-        'type' => $data->type,
-        'email' => $data->email,
-        'secondary_email' => $data->secondary_email,
-        'created_date' => $data->created_date,
-        'date_program' => $data->date_program ?? null,
-        'is_approve' => $data->is_approve,
-        'full_name' => $metadata['fullname'] ?? '-',
-        'first_name' => $metadata['firstname'] ?? '-',
-        'last_name' => $metadata['lastname'] ?? '-',
-        'dob' => $metadata['dob'] ?? null,
-        'pob' => $metadata['pob'] ?? '-',
-        'gpa' => $metadata['gpa'] ?? null,
-        'sex' => $metadata['sex'] ?? '-',
-        'major' => $metadata['major'] ?? '-',
-        'phone' => $metadata['phone'] ?? '-',
-        'photo' => $metadata['photo'] ?? '-',
-        'native_language' => $metadata['native'] ?? '-',
-        'address' => $metadata['address'] ?? '-',
-        'university' => $metadata['university'] ?? '-',
-        'year_entry' => $metadata['year_entry'] ?? null,
-        'nationality' => $metadata['nationality'] ?? '-',
-        'passport_number' => $metadata['passport_number'] ?? '-',
-        'passport_date_issue' => $metadata['passport_date_issue'] ?? null,
-        'passport_date_exp' => $metadata['passport_date_exp'] ?? null,
-        'issuing_authority' => $metadata['issuing_authority'] ?? '-',
-        'motivation_letter' => $metadata['motivation_letter'] ?? '-',
-        'transcript' => $metadata['transcript'] ?? '-',
-        'letter_recom' => $metadata['letter_recom'] ?? '-',
-        'selected_program' => $metadata['selected_program'] ?? '-',
-        'take_indo' => $metadata['take_indo'] ?? '-',
-        'taken_indo' => $metadata['taken_indo'] ?? '-',
-        'english_certificate' => $metadata['english_certificate'] ?? '-',
-        'english_score' => $metadata['english_score'] ?? '-',
-        'pic_name' => $metadata['pic_name'] ?? '-',
-        'pic_email' => $metadata['pic_email'] ?? '-',
-        'pic_telephone' => $metadata['pic_telephone'] ?? '-',
-        'pic_address' => $metadata['pic_address'] ?? '-',
-        'pic_position' => $metadata['pic_position'] ?? '-',
-        'referee_name' => $metadata['referee_name'] ?? '-',
-        'referee_email' => $metadata['referee_email'] ?? '-',
-        'referee_relation' => $metadata['referee_relation'] ?? '-',
-        'referee_organization' => $metadata['referee_organization'] ?? '-',
-        'kin_name' => $metadata['kin_name'] ?? '-',
-        'kin_email' => $metadata['kin_email'] ?? '-',
-        'kin_phone' => $metadata['kin_phone'] ?? '-',
-        'kin_address' => $metadata['kin_address'] ?? '-',
-        'kin_relation' => $metadata['kin_relation'] ?? '-',
-    ];
+        $processedData = [
+            'id' => $data->id,
+            'type' => $data->type,
+            'email' => $data->email,
+            'created_date' => $data->created_date,
+            'date_program' => $data->date_program,
+            'is_approve' => $data->is_approve,
+        ];
 
-    // dd($processedData);
+        foreach ($metadataFields as $field) {
+            $processedData[$field] = $metadata[$field] ?? '-';
+        }
 
-    // Return view dengan data yang diproses
-    return view('stu_inbound.form_peserta_inbound', compact('processedData'));
+        // dd($processedData);
+
+        $univ = DB::table('m_university')->get();
+        $country = DB::table('m_country')->whereNot('id', 95)->get();
+        $course = DB::table('age_amerta_matkul')->get();
+
+        return view('stu_inbound.form_peserta_inbound', [
+            'processedData' => $processedData,
+            'univ' => $univ,
+            'country' => $country,
+            'course' => $course,
+        ]);
     }
 }

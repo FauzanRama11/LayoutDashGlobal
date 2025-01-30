@@ -37,9 +37,17 @@ return [
             'visibility' => 'public',
         ],  
 
+        'inside' => [
+            'driver' => 'local',
+            'root' => storage_path('app/repo'), 
+            'serve' => true,
+            'throw' => false,
+            'visibility' => 'private', 
+        ],
+
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => storage_path('app/repo'),
             'serve' => true,
             'throw' => false,
         ],

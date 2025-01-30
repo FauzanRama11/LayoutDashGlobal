@@ -47,24 +47,34 @@ public function viewPdfNaskah($fileName)
     ]);
 }
 
+public function view($folderOrFile, $fileName = null)
+{
     
-    public function view($fileName)
-    {
-        $fileName = urldecode($fileName);
-
-        $filePath = ltrim(str_replace('repo/', '', $fileName), '/');
-        $filePath= 'inbound/' . $filePath;
-
-        if (!Storage::disk('outside')->exists($filePath)) {
-            abort(404, 'File not found.');
-        }
-
-        $fileContent = Storage::disk('outside')->get($filePath);
-
-        return response($fileContent, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($fileName) . '"',
-        ]);
+    if (is_null($fileName)) {
+        $fileName = $folderOrFile;
+        $folder = null;
+    } else {
+        $folder = $folderOrFile;
     }
+
+    $filePath = $folder 
+        ? trim($folder, '/') . '/' . ltrim($fileName, '/') 
+        : ltrim($fileName, '/');
+
+    $filePath = str_replace('+', ' ', $filePath);
+
+    if (!Storage::disk('inside')->exists($filePath)) {
+        abort(404, 'File tidak ditemukan.');
+    }
+
+    $fileContent = Storage::disk('inside')->get($filePath);
+    $mimeType = Storage::disk('inside')->mimeType($filePath);
+
+   
+    return response($fileContent, 200, [
+        'Content-Type' => $mimeType,
+        'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+    ]);
+}
 
 }

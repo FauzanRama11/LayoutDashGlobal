@@ -22,7 +22,6 @@ class MStuInProgramController extends Controller
             ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
             ->where('host_unit_text', 'like', "%$fa%")
             ->where("is_program_age", "N")
-            // ->limit(500)
             ->orderBy('created_time', 'desc')
             ->get();
         }
@@ -30,7 +29,6 @@ class MStuInProgramController extends Controller
             $data = DB::table('m_stu_in_programs')
             ->select('id', 'name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
             ->where("is_program_age", "N")
-            // ->limit(500)
             ->orderBy('created_time', 'desc')
             ->get();
         };
@@ -95,8 +93,6 @@ class MStuInProgramController extends Controller
         ->where('id', '=', $request->input('pic'))
         ->pluck('nama')->first();
 
-        // dd($pic_name);
-
         $program->pic = $pic_name;
         $program->corresponding = $request->input('email');
         $program->website = $request->input('website') ?? null;
@@ -104,8 +100,6 @@ class MStuInProgramController extends Controller
         $program->via = $request->input('via');
         $program->created_by = Auth::User()->id;
         $program->created_time = now();
-
-        
 
         if ($request->input('jenisSelect')=== 'Tidak') {
             $program->reg_date_start = $request->input('regOpen');
@@ -122,20 +116,22 @@ class MStuInProgramController extends Controller
             $program->url_generate = ($kode.'_'. $namadepan.'_'.uniqid());
 
             if ($request->hasFile('programLogo')) {
+
                 $file = $request->file('programLogo');
-        
-                // Tentukan direktori penyimpanan di luar folder Laravel
-                $storagePath = base_path('../penyimpanan'); 
-        
-                // Pastikan folder "penyimpanan" ada
-                if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0777, true); 
+                $folder = 'inbound';
+
+                if (!Storage::disk('inside')->exists($folder)) {
+                    Storage::disk('inside')->makeDirectory($folder);
                 }
-        
-                // Simpan file ke folder "penyimpanan"
-                $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
-                $file->move($storagePath, $fileName);
-                $program->logo = 'repo/' . $fileName;
+
+                $fileName = uniqid() . '_' . $file->getClientOriginalName();
+                $filePath = Storage::disk('inside')->putFileAs($folder, $file, $fileName);
+
+                // dd($filePath);
+            
+                // Simpan path relatif ke database
+                $program->logo = 'repo/' . $filePath;
+
             }
 
         }
@@ -160,21 +156,23 @@ class MStuInProgramController extends Controller
 
         $data = MStuInProgram::find($id);
 
+        $cleanPathRoot = ltrim(str_replace('repo/inbound/', '', $data->logo), '/');
+        $cleanPathInbound = ltrim(str_replace('repo/', '', $data->logo), '/');
         
 
-        
-    // cv_url, passport_url, 'photo_url','loa_url',
-    
-        $cleanPath = ltrim(str_replace('penyimpanan/', '', $data->photo_url), '/');
-        
-        $filePath = base_path('../' . $data->photo_url);
-        
-        if ($data->logo && Storage::disk('outside')->exists($cleanPath)) {
-            
-            // Dapatkan konten file
-            $fileContent = Storage::disk('outside')->get($cleanPath);
+        // Pencarian file dalam repo
+        if (Storage::disk('inside')->exists($cleanPathInbound)) {
+            $filePath = $cleanPathInbound;
+        } elseif (Storage::disk('inside')->exists($cleanPathRoot)) {
+            $filePath = $cleanPathRoot;
+        } else {
+            $filePath = null;
+        }        
+
+        // Jika file ditemukan, ambil konten file dalam format base64
+        if ($filePath) {
+            $fileContent = Storage::disk('inside')->get($filePath);
             $data->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
-
         } else {
             $data->logo_base64 = null;
         }
@@ -221,20 +219,7 @@ class MStuInProgramController extends Controller
     $program->pt_ft = $this->calculateDuration($request->input('startDate'), $request->input('endDate'));
     $program->via = $request->input('via');
 
-    if ($request->hasFile('programLogo')) {
-        $file = $request->file('programLogo');
-        
-        $storagePath = base_path('../penyimpanan'); 
-
-        if (!file_exists($storagePath)) {
-            mkdir($storagePath, 0777, true); 
-        }
-
-        // Simpan file ke folder "penyimpanan"
-        $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
-        $file->move($storagePath, $fileName);
-        $program->logo = 'penyimpanan/' . $fileName;
-    }
+    
 
     if ($request->input('jenisSelect') === 'Registrasi') {
         $program->reg_date_start = $request->input('regOpen');
@@ -252,6 +237,31 @@ class MStuInProgramController extends Controller
             $namadepan = explode(' ', $program->name)[0];
             
             $program->url_generate = ($kode.'_'. $namadepan.'_'.uniqid());
+        }
+
+        if ($request->hasFile('programLogo')) {
+            
+            $file = $request->file('programLogo');
+            $folder = 'inbound';
+
+            // Hapus file lama jika ada
+            if ($program->logo) {
+                $oldFilePath = str_replace('repo/', '', $program->logo); // Konversi path ke relative
+                if (Storage::disk('inside')->exists($oldFilePath)) {
+                    Storage::disk('inside')->delete($oldFilePath); // Hapus file lama
+                }
+            }
+
+            if (!Storage::disk('inside')->exists($folder)) {
+                Storage::disk('inside')->makeDirectory($folder);
+            }
+
+            $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            $filePath = Storage::disk('inside')->putFileAs($folder, $file, $fileName);
+        
+            // Simpan path relatif ke database
+            $program->logo = 'repo/' . $filePath;
+
         }
 
     }
@@ -292,7 +302,7 @@ class MStuInProgramController extends Controller
         $end = Carbon::parse($endDate);
         $duration = $start->diffInDays($end);
 
-        if ($duration > 90) {
+        if ($duration > 150) {
             $pt_ft = "FT"; 
         } else {
             $pt_ft = "PT";  

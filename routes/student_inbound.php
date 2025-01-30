@@ -87,7 +87,12 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::get('/view-peserta', [VTStudenInboundController::class, 'index'])->name('stuin_view_peserta');
 
         Route::get('/approval-dana', [StudentInboundController::class, 'approval_dana'])->name('stuin_approval_dana');
+        Route::post('/ajukan-bantuan-dana', [MStuInPesertaController::class, 'BantuanDana'])->name('ajukan.bantuan.dana');
+        Route::post('/approve-dana/{id}', [StudentInboundController::class, 'approveDana'])->name('stuin.approve.dana');
+        Route::get('/pdf-pengajuan-dana/{id}/{tipe}', [StudentInboundController::class, 'pdfPengajuanInbound'])->name('stuin.pengajuan.dana');
+
         Route::get('/approval-pelaporan', [StudentInboundController::class, 'approval_pelaporan'])->name('stuin_approval_pelaporan');
+        Route::post('/approve/{id}', [StudentInboundController::class, 'actionPesertaApprove'])->name('stuin.approve');
 
         Route::get('/target', [MStuInTargetController::class, 'index'])->name('stuin_target');
         
@@ -112,7 +117,6 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::put('/update-peserta', [MStuInPesertaController::class, 'update_peserta'])->name('stuin_peserta.update');
         Route::put('/approve-peserta/{id}', [StudentInboundController::class, 'action_approve'])->name('stuin_peserta.approve');
 
-        
 
     });
 
