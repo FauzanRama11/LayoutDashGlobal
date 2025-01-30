@@ -1,19 +1,57 @@
 @extends('layouts.master')
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(document).ready(function () {
-    // Klik tombol RKAT
-    $('#generatePdfRkat').click(function () {
-        window.open("{{ route('stuin.pengajuan.dana', ['id' => $data->id, 'tipe' => 'RKAT']) }}", "_blank");
-    });
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    // Klik tombol DPAT
-    $('#generatePdfDpat').click(function () {
-        window.open("{{ route('stuin.pengajuan.dana', ['id' => $data->id, 'tipe' => 'DPAT']) }}", "_blank");
+<script>
+    $(document).ready(function () {
+        function generatePdf(tipe) {
+            let pesertaRKATCount = {{ $pesertaRKAT->count() }};
+            let pesertaDPATCount = {{ $pesertaDPAT->count() }};
+    
+            if ((tipe === 'RKAT' && pesertaRKATCount > 0) || (tipe === 'DPAT' && pesertaDPATCount > 0)) {
+                let url = "{{ route('stuin.pengajuan.dana', ['id' => '__ID__', 'tipe' => '__TIPE__']) }}";
+                url = url.replace('__ID__', "{{ $data->id }}").replace('__TIPE__', tipe);
+                window.open(url, "_blank");
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Pemberitahuan",
+                    text: "Tidak ada peserta dengan sumber dana " + tipe + ".",
+                    confirmButtonColor: "#007bff"
+                });
+            }
+        }
+    
+        // Klik tombol RKAT
+        $('#generatePdfRkat').click(function () {
+            generatePdf('RKAT');
+        });
+    
+        // Klik tombol DPAT
+        $('#generatePdfDpat').click(function () {
+            generatePdf('DPAT');
+        });
     });
-});
 </script>
+    
+
+@php										
+function getFileUrl($fileUrl) {
+												
+	if (empty($fileUrl)) return null;
+
+		$filePath = ltrim(str_replace('repo/', '', $fileUrl), '/');
+		$segments = explode('/', $filePath);
+		$fileName = array_pop($segments);
+		$folder = implode('/', $segments);
+
+	return !empty($folder)
+		? route('view.dokumen', ['folder' => $folder, 'fileName' => $fileName]) 
+		: route('view.dokumen', ['folder' => $fileName]);	
+}
+
+@endphp
 
 @section('content')
     <div class="container-fluid">
@@ -236,20 +274,40 @@ $(document).ready(function () {
                                                     <button class="btn btn-success btn-sm" disabled>Approved</button>
                                                 @elseif ($item->is_approved === -1)
                                                     <button class="btn btn-danger btn-sm" disabled>Rejected</button>
+                                                    @if (!empty($item->revision_note)) 
+                                                        <!-- Tombol untuk melihat revisi -->
+                                                        <button type="button" class="btn btn-warning btn-sm viewRevisionButton"
+                                                            data-revision="{{ $item->revision_note }}">
+                                                            <i class="fa fa-eye"></i> 
+                                                        </button>
+                                                    @endif
                                                 @else
                                                     <button class="btn btn-info btn-sm" disabled>Processed</button>
+                                                    @if (!empty($item->revision_note)) 
+                                                        <!-- Tombol untuk melihat revisi -->
+                                                        <button type="button" class="btn btn-warning btn-sm viewRevisionButton"
+                                                            data-revision="{{ $item->revision_note }}">
+                                                            <i class="fa fa-eye"></i> 
+                                                        </button>
+                                                    @endif
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($item->pengajuan_dana_status === 'APPROVED')
-                                                    <button class="btn btn-success btn-sm" disabled>Approved</button>
+                                                    <button class="btn btn-success btn-sm" disabled>Approved  [ {{ $item->sumber_dana ?? ''}}]</button>
                                                 @elseif ($item->pengajuan_dana_status === 'REQUESTED')
                                                     <button class="btn btn-warning btn-sm" disabled>Requesting</button>
                                                 @else
                                                     <button class="btn btn-info btn-sm" disabled>Not Requesting</button>
                                                 @endif
                                             </td>
-                                            <td>{{$item->loa_url}}</td>
+                                            <td>
+                                                @if ($url = getFileUrl($item->loa_url))
+                                                    <a href="{{ $url }}" target="_blank" class="btn btn-primary">
+                                                        <i class="fa fa-download"></i>
+                                                    </a>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <form  action="{{ route('stuin_peserta.edit', ['item_id' => $item->id, 'prog_id' => $data->id]) }}" method="GET">
                                                     <button type="submit" class="btn btn-primary edit-button">Edit</button>
@@ -321,4 +379,23 @@ $(document).ready(function () {
             if (noLogoMessage) noLogoMessage.style.display = 'block';
         }
     }
+</script>
+
+<script>
+
+$(document).ready(function () {
+    $(document).on("click", ".viewRevisionButton", function () {
+        let revisionNote = $(this).data("revision"); // Ambil data revisi dari tombol
+        console.log("Isi revisi:", revisionNote); // Debugging
+
+        Swal.fire({
+            title: 'Revisi',
+            text: revisionNote,
+            icon: 'info',
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: "#007bff"
+        });
+    });
+});
+
 </script>

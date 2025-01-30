@@ -60,8 +60,14 @@ public function view($folderOrFile, $fileName = null)
     $filePath = $folder 
         ? trim($folder, '/') . '/' . ltrim($fileName, '/') 
         : ltrim($fileName, '/');
+        
 
     $filePath = str_replace('+', ' ', $filePath);
+
+    // dd([
+    //     'filePath' => $filePath,
+    //     'exists_in_storage' => Storage::disk('inside')->exists($filePath),
+    // ]);
 
     if (!Storage::disk('inside')->exists($filePath)) {
         abort(404, 'File tidak ditemukan.');
