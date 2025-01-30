@@ -45,6 +45,6 @@ class MStuInPeserta extends Model
     ];
     public function program()
     {
-        return $this->belongsTo(MStuOutProgram::class, 'program_id');
+        return $this->belongsTo(MStuInProgram::class, 'program_id');
     }
 }

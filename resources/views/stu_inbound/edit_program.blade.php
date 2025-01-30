@@ -1,11 +1,44 @@
 @extends('layouts.master')
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    // Klik tombol RKAT
+    $('#generatePdfRkat').click(function () {
+        window.open("{{ route('stuin.pengajuan.dana', ['id' => $data->id, 'tipe' => 'RKAT']) }}", "_blank");
+    });
+
+    // Klik tombol DPAT
+    $('#generatePdfDpat').click(function () {
+        window.open("{{ route('stuin.pengajuan.dana', ['id' => $data->id, 'tipe' => 'DPAT']) }}", "_blank");
+    });
+});
+</script>
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                <div class="card-header pb-0">
-                    <h5>Edit Program</h5><span>This is Optional Notes</span></div>
+
+                    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Detail Program Student Inbound</h5>
+                            <span>This is Optional Notes</span>
+                        </div>
+                  
+                        @if ($data)
+                          <div class="d-flex">
+                  
+                            <a href="" class="btn btn-info mx-1">Back</a>
+                            <button type="button" id="generatePdfRkat" class="btn btn-secondary mx-1">PDF RKAT</button>
+                            <button type="button" id="generatePdfDpat" class="btn btn-secondary mx-1">PDF DPAT</button>
+                  
+                          </div>
+                        @endif
+                    </div>
+                    <hr>
+
                     <div class="card-body"> 
                     <form action="{{ route('program_stuin.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -131,7 +164,7 @@
                                         </div>
                                         <div class="mt-3">
                                             <label class="form-label" for="url_generate">Link Registrasi</label>
-                                            <input class="form-control" id="url_generate" name="url_generate" value="http://127.0.0.1:8000/registrasi-peserta-inbound/{{ old('url_generate', $data->url_generate) }}" readonly>
+                                            <input class="form-control" id="url_generate" name="url_generate"  value="{{ url('registrasi-peserta-inbound/' . old('url_generate', ($data->url_generate ?? 'invalid'))) }}"  readonly>
                                         </div>
                                     </div>
                                     @endif
@@ -198,8 +231,24 @@
                                             <td>{{$item->univ_name}}</td>
                                             <td>{{$item->country_name}}</td>
                                             <td>{{$item->reg_time}}</td>
-                                            <td>{{$item->is_approved}}</td>
-                                            <td>{{$item->pengajuan_dana_status}}</td>
+                                            <td>  
+                                                @if ($item->is_approved === 1)
+                                                    <button class="btn btn-success btn-sm" disabled>Approved</button>
+                                                @elseif ($item->is_approved === -1)
+                                                    <button class="btn btn-danger btn-sm" disabled>Rejected</button>
+                                                @else
+                                                    <button class="btn btn-info btn-sm" disabled>Processed</button>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($item->pengajuan_dana_status === 'APPROVED')
+                                                    <button class="btn btn-success btn-sm" disabled>Approved</button>
+                                                @elseif ($item->pengajuan_dana_status === 'REQUESTED')
+                                                    <button class="btn btn-warning btn-sm" disabled>Requesting</button>
+                                                @else
+                                                    <button class="btn btn-info btn-sm" disabled>Not Requesting</button>
+                                                @endif
+                                            </td>
                                             <td>{{$item->loa_url}}</td>
                                             <td>
                                                 <form  action="{{ route('stuin_peserta.edit', ['item_id' => $item->id, 'prog_id' => $data->id]) }}" method="GET">

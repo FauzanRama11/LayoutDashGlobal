@@ -2,7 +2,7 @@
 
 @section('content') 
 
-<div class="card">
+<div class="card p-2">
   <div class="card-header pb-0">
     <h5>Form Program {{ Auth::user()->name }}</h5><span>This is Optional Notes</span>
   </div>

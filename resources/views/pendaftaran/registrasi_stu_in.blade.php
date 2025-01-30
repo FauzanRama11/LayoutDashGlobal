@@ -3,7 +3,7 @@
 @section('content') 
 
 
-<div class="page-body">
+<div class="page-body px-4 py-5">
 <div class="container-fluid">
     <div class="row">
 
@@ -39,31 +39,34 @@
               <form class="form-wizard" id="regForm" action="{{ route('simpan.stuin') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
-                
-                {{-- Informasi awal --}}
+                <!-- Step 1 -->
                 <div id="step-1" class="tab setup-content">
-                    
+                    <input type="hidden" name="step" value="1">
+
                     <div class="title">INSTRUCTION</div>
-                    <ol>
-                        <li>This Application Form must be fully completed in the required format.</li>
-                        <li>Please indicate "NA" if an item is not applicable.</li>
-                        <li>The Application Form consists of three sections:
-                            <ul>
-                            <li>Personal Information</li>
-                            <li>Educational Qualifications</li>
-                            <li>Choice of Subjects</li>
-                            </ul>
-                        </li>
-                    </ol>
-                    <br>
-                    
-                    <p>Please upload the required supporting documents along with this application form:</p>
-                    <ol>
-                        <li>Most recent passport-size photo (red/blue/white background)</li>
-                        <li>Curriculum Vitae (CV)</li>
-                        <li>Passport</li>
-                    </ol>
-                    <br>
+                        <ol>
+                            <li>This Application Form must be fully completed in the required format.</li>
+                            <li>Please indicate "NA" if an item is not applicable.</li>
+                            <li>The Application Form consists of three sections:
+                                <ul>
+                                <li>Personal Information</li>
+                                <li>Educational Qualifications</li>
+                                <li>Choice of Subjects</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <br>
+                        
+                        <p>Please upload the required supporting documents along with this application form:</p>
+                        <ol>
+                            <li>Student Card</li>
+                            <li>Most recent passport-size photo (red/blue/white background)</li>
+                            <li>Official academic transcript in English</li>
+                            <li>Scanned English Proficiency Certificate</li>
+                            <li>Curriculum Vitae (CV)</li>
+                            <li>Motivation Letter</li>
+                        </ol>
+                        <br>
 
                     <div class="title">NOTE</div>
                     <p>
@@ -72,14 +75,16 @@
                         For any inquiries, please do not hesitate to contact us via email:
                     <br>
                         <a href="mailto:inbound@global.unair.co.id" style="color:blue;">
-                            <i class="fa fa-envelope-o" style="margin-right:5px; color: #222;"></i>inbound@global.unair.co.id
+                            <i class="fa fa-envelope-o" style="margin-right:5px; color: #222; text-decoration:none;"></i>inbound@global.unair.co.id
                         </a>
                     </p>
                     <br>
                 </div>
-                <!-- Step 3 -->
+              
+                <!-- Step 2 -->
                 <div id="step-2" class="tab setup-content">
-
+                    <input type="hidden" name="step" value="2">
+                    
                     <input type="hidden" name="program_id" value="{{ $program->id }}">
                     
                     <!-- Full Name -->
@@ -99,7 +104,7 @@
                     <!-- Email -->
                     <div class="mb-3">
                         <label class="form-label" for="email">Email</label>
-                        <input class="form-control" id="email" name="email" required>
+                        <input type="email" class="form-control" id="email" name="email" required>
                         <div class="invalid-feedback">Email field can not be empty.</div>
                     </div>
 
@@ -196,20 +201,20 @@
                     <div class="mb-3">
                         <label class="form-label" for="program_info">Where did you first get information about this program?</label>
                         <select class="form-select" id="program_info" name="program_info" required>
-                            <option value="Airlangga Global Engagement Website" selected>Airlangga Global Engagement Website</option>
+                            <option value="" selected>Select your source of information?</option>
+                            <option value="Airlangga Global Engagement Website">Airlangga Global Engagement Website</option>
                             <option value="UNAIR Newsletter Email">UNAIR Newsletter Email</option>
                             <option value="UNAIR Social Media (Instagram)">UNAIR Social Media (Instagram)</option>
                             <option value="Airlangga Hubs">Airlangga Hubs</option>
                         </select>
                         <div class="invalid-feedback">Jenis kelamin wajib dipilih.</div>
-                    </div>
-                                  
+                    </div>             
+                </div>
+              
                 <!-- Navigation Buttons -->
-                <div>
-                  <div class="text-end btn-mb">
+                <div class="text-end btn-mb">
                     <button class="btn btn-secondary" id="prevBtn" type="button" onclick="nextPrev(-1)">Previous</button>
                     <button class="btn btn-primary" id="nextBtn" type="button" onclick="nextPrev(1)">Next</button>
-                  </div>
                 </div>
               </form>              
           </div>
@@ -219,3 +224,4 @@
   </div>
 </div>
 @endsection
+

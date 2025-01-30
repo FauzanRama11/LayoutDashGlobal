@@ -29,27 +29,10 @@ class AmertaController extends Controller
             ->where('age_peserta_inbound.type', 'amerta')
             ->get();
 
-
-            // dd($data);
         
         // Decode metadata dan tambahkan key dari JSON sebagai properti
         $processedData = $data->map(function ($item) {
             $metadata = json_decode($item->metadata, true); // Decode JSON menjadi array
-            
-            // Debug untuk memastikan metadata ter-decode dengan benar
-            if ($item->email == 'larigemink@gmail.com') {
-                logger([
-                    'raw_metadata' => $item->metadata,
-                    'decoded_metadata' => $metadata,
-                ]);
-
-                // Debug untuk memeriksa apakah fullname ada di metadata
-                if (!isset($metadata['fullname'])) {
-                    logger("Fullname not found in metadata for email: {$item->email}");
-                } else {
-                    logger("Fullname found: {$metadata['fullname']}");
-                }
-            }
 
             return [
                 'id' => $item->id,

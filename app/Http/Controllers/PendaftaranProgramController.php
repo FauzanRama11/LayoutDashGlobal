@@ -15,14 +15,23 @@ class PendaftaranProgramController extends Controller
         {
             
             $program =  MStuInProgram::where('url_generate', $url_generate)->first();
-
-            $cleanPath = ltrim(str_replace('penyimpanan/', '', $program->logo), '/');
             
-            // Mengambil logo di penyimpanan eksternal di luar Laravel
-            if ($program->logo && Storage::disk('outside')->exists($cleanPath)) {
-                $fileContent = Storage::disk('outside')->get($cleanPath);
+            $cleanPathRoot = ltrim(str_replace('repo/inbound/', '', $program->logo), '/');
+            $cleanPathInbound = ltrim(str_replace('repo/', '', $program->logo), '/');
+
+            // Pencarian file dalam repo
+            if (Storage::disk('inside')->exists($cleanPathInbound)) {
+                $filePath = $cleanPathInbound;
+            } elseif (Storage::disk('inside')->exists($cleanPathRoot)) {
+                $filePath = $cleanPathRoot;
+            } else {
+                $filePath = null;
+            }        
+
+            // Jika file ditemukan, ambil konten file dalam format base64
+            if ($filePath) {
+                $fileContent = Storage::disk('inside')->get($filePath);
                 $program->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
-    
             } else {
                 $program->logo_base64 = null;
             }
@@ -70,34 +79,22 @@ class PendaftaranProgramController extends Controller
             'program_info' => 'nullable|string|max:255',
             'program_id' => 'required',
         ]);
-            
-        $storagePath = base_path('../penyimpanan'); 
-        
-        if (!file_exists($storagePath)) {
-            mkdir($storagePath, 0777, true); 
-        }
 
-        
-        // Handle each file upload
-        if ($request->hasFile('photo_url')) {
-            $file = $request->file('photo_url');
-            $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
-            $file->move($storagePath, $fileName);
-            $validated['photo_url'] = 'penyimpanan/' . $fileName;
-        }
+        $fileFields = [
+            'photo_url' => 'photo_url',
+            'passport_url' => 'passport_url',
+            'cv_url' => 'cv_url',
+        ];
 
-        if ($request->hasFile('cv_url')) {
-            $file = $request->file('cv_url');
-            $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
-            $file->move($storagePath, $fileName);
-            $validated['cv_url'] = 'penyimpanan/' . $fileName;
-        }
+        foreach ($fileFields as $field => $attribute) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
 
-        if ($request->hasFile('passport_url')) {
-            $file = $request->file('passport_url');
-            $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
-            $file->move($storagePath, $fileName);
-            $validated['passport_url'] = 'penyimpanan/' . $fileName;
+                // Simpan file dan tambahkan ke array $uploadedFiles
+                $filePath = $this->storeFile($file, 'inbound');
+                $validated[$attribute] = $filePath;
+                $uploadedFiles[] = $filePath;
+            }
         }
 
         $validated['reg_time'] = now();
@@ -108,5 +105,19 @@ class PendaftaranProgramController extends Controller
         MStuInPeserta::create($validated);
 
         return redirect('/');
+    }
+
+    private function storeFile($file, $subfolder = null)
+    {
+        $folder = $subfolder ? "/{$subfolder}" : '';
+
+        if (!Storage::disk('inside')->exists($folder)) {
+            Storage::disk('inside')->makeDirectory($folder);
+        }
+
+        $fileName = uniqid() . '_' . $file->getClientOriginalName();
+        $file->storeAs($folder, $fileName, 'inside');
+
+        return $subfolder ? "repo/{$subfolder}/{$fileName}" : "repo/{$fileName}";
     }
 }
