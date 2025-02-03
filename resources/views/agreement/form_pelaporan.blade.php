@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function validateFileSize(input) {
                 const file = input.files[0];
                 if (file) {
-                    const maxSize = 1 * 1024 * 1024; // 1 MB
+                    const maxSize = 2.5 * 1024 * 1024; // 1 MB
                     if (file.size > maxSize) {
                         Swal.fire({
                             title: 'File too large!',
