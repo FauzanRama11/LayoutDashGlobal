@@ -45,7 +45,7 @@
 										<td>{{ $item->unit ?? '-' }}</td>
 										<td>{{ $item->pt_ft ?? '-' }}</td>
 										<td>{{ $item->peserta ?? '-' }}</td>
-										<td>{{ $item->is_private_event ?? '-' }}</td>
+										<td>{{ $item->is_private_event === 'Tidak' ? 'registrasi' : 'Pelaporan' }}</td>
 										<td>{{ $item->created_time ?? '-' }}</td>                                    
 										<td>
 											<form  action="{{ route('program_stuin.edit', ['id' => $item->id]) }}" method="GET">

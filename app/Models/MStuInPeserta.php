@@ -41,10 +41,10 @@ class MStuInPeserta extends Model
         'cv_url',
         'pengajuan_dana_status',
         'revision_note',
+        'program_info'
     ];
-    
     public function program()
     {
-        return $this->belongsTo(MStuOutProgram::class, 'program_id');
+        return $this->belongsTo(MStuInProgram::class, 'program_id');
     }
 }

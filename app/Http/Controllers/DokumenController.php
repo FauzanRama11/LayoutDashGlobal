@@ -14,12 +14,14 @@ class DokumenController extends Controller
         $filePath = base_path('/' . $fileName);
 
         // Periksa apakah file ada
-        if (!file_exists($filePath)) {
+        if (!Storage::disk('outside')->exists($filePath)) {
             abort(404, 'File not found.');
         }
 
-        // Kirim file sebagai respons PDF
-        return Response::make(file_get_contents($filePath), 200, [
+        // Ambil file dan kirimkan sebagai respons PDF
+        $fileContent = Storage::disk('outside')->get($filePath);
+                
+        return response($fileContent, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $fileName . '"',
         ]);
@@ -41,6 +43,36 @@ public function viewPdfNaskah($fileName)
     
     return response($fileContent, 200, [
         'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+    ]);
+}
+
+public function view($folderOrFile, $fileName = null)
+{
+    
+    if (is_null($fileName)) {
+        $fileName = $folderOrFile;
+        $folder = null;
+    } else {
+        $folder = $folderOrFile;
+    }
+
+    $filePath = $folder 
+        ? trim($folder, '/') . '/' . ltrim($fileName, '/') 
+        : ltrim($fileName, '/');
+
+    $filePath = str_replace('+', ' ', $filePath);
+
+    if (!Storage::disk('inside')->exists($filePath)) {
+        abort(404, 'File tidak ditemukan.');
+    }
+
+    $fileContent = Storage::disk('inside')->get($filePath);
+    $mimeType = Storage::disk('inside')->mimeType($filePath);
+
+   
+    return response($fileContent, 200, [
+        'Content-Type' => $mimeType,
         'Content-Disposition' => 'inline; filename="' . $fileName . '"',
     ]);
 }

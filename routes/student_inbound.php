@@ -14,7 +14,7 @@ use App\Http\Controllers\inbound\MStuInTargetController;
 use App\Http\Controllers\inbound\VTStudenInboundController;
 use App\Http\Controllers\inbound\StudentInboundController;
 use App\Http\Controllers\inbound\MStuInPesertaController;
-use App\Http\Controllers\inbound\PendaftaranController;
+use App\Http\Controllers\inbound\PesertaInboundAGEController;
 
 // Student Inbound
 Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function () {
@@ -78,17 +78,30 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
           Route::delete('/hapus-matkul/{id}', [LinguaController::class, 'hapus_matkul'])->name('li_hapus_matkul');
     });
         
-        Route::get('/edit-peserta/{id}', [PendaftaranController::class, 'edit'])->name('edit_peserta_inbound');
-        Route::put('/approval-peserta/{id}', [PendaftaranController::class, 'approve'])->name('approve_peserta_inbound');
-        Route::put('/rejection-peserta/{id}', [PendaftaranController::class, 'reject'])->name('reject_peserta_inbound');
+        Route::get('/edit-peserta/{id}', [PesertaInboundAGEController::class, 'edit'])->name('edit_peserta_inbound');
+        Route::put('/approval-peserta/{id}', [PesertaInboundAGEController::class, 'approve'])->name('approve_peserta_inbound');
+        Route::put('/rejection-peserta/{id}', [PesertaInboundAGEController::class, 'reject'])->name('reject_peserta_inbound');
 
         Route::get('/program-age', [MStuInProgramController::class, 'program_age'])->name('stuin_program_age');
         Route::get('/program-fak', [MStuInProgramController::class, 'program_fak'])->name('stuin_program_fak');
         Route::get('/view-peserta', [VTStudenInboundController::class, 'index'])->name('stuin_view_peserta');
 
         Route::get('/approval-dana', [StudentInboundController::class, 'approval_dana'])->name('stuin_approval_dana');
+        Route::post('/ajukan-bantuan-dana', [MStuInPesertaController::class, 'BantuanDana'])->name('ajukan.bantuan.dana');
+        Route::post('/approve-dana/{id}', [StudentInboundController::class, 'approveDana'])->name('stuin.approve.dana');
+        Route::get('/pdf-pengajuan-dana/{id}/{tipe}', [StudentInboundController::class, 'pdfPengajuanInbound'])->name('stuin.pengajuan.dana');
+
         Route::get('/approval-pelaporan', [StudentInboundController::class, 'approval_pelaporan'])->name('stuin_approval_pelaporan');
+        Route::post('/approve/{id}', [StudentInboundController::class, 'actionPesertaApprove'])->name('stuin.approve');
+
         Route::get('/target', [MStuInTargetController::class, 'index'])->name('stuin_target');
+        
+        // form target
+        Route::get('/form-target', [MStuInTargetController::class, 'form_target'])->name('form_target.create');
+        Route::get('/form-target/{id}', [MStuInTargetController::class, 'form_target'])->name('form_target.edit');
+        Route::post('/tambah-target', [MStuInTargetController::class, 'tambah_target'])->name('tambah_target');
+        Route::put('/tambah-target/{id}', [MStuInTargetController::class, 'tambah_target'])->name('update_target');
+        Route::delete('/hapus-target/{id}', [MStuInTargetController::class, 'hapus_target'])->name('hapus_target');
 
         // form
         Route::get('/tambah-program-fakultas', [MStuInProgramController::class, 'add_program_fak'])->name('stuin_fak.create');
@@ -98,11 +111,12 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::put('/update-program/{id}', [MStuInProgramController::class, 'update'])->name('program_stuin.update');
         Route::delete('/Delete/{id}', [MStuInProgramController::class, 'destroy_program_fak'])->name('program_stuin.destroy');
 
-        Route::get('/edit-program/{ids}/tambah-peserta', [MStuInPesertaController::class, 'add_peserta'])->name('stuin_peserta.create');
+        Route::get('/edit-program/{prog_id}/tambah-peserta', [MStuInPesertaController::class, 'peserta'])->name('stuin_peserta.create');
+        Route::get('/edit-program/{prog_id}/edit-peserta/{item_id}', [MStuInPesertaController::class, 'peserta'])->name('stuin_peserta.edit');
         Route::post('/store-peserta', [MStuInPesertaController::class, 'store_peserta'])->name('stuin_peserta.store');
+        Route::put('/update-peserta', [MStuInPesertaController::class, 'update_peserta'])->name('stuin_peserta.update');
         Route::put('/approve-peserta/{id}', [StudentInboundController::class, 'action_approve'])->name('stuin_peserta.approve');
 
-        
 
     });
 

@@ -19,6 +19,7 @@ class AgeAmertaRps extends Model
         'is_active',
         'url_attachment',
         'created_by',
+        'created_date', 
     ];
 
 }

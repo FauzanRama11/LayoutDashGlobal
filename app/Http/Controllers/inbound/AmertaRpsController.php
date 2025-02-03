@@ -59,35 +59,39 @@ class AmertaRpsController extends Controller
 
             // Cek apakah sudah ada data lain dengan status aktif
             $isAnotherActive = AgeAmertaRps::where('is_active', 'Y')
-            ->where('id', '!=', $id) 
-            ->exists();
+                ->where('id', '!=', $id) // Mengecualikan data yang sedang diperbarui
+                ->exists();
 
-            if ($request->is_active === 'Y' && $isAnotherActive) {
-                return redirect()->back()->withErrors([
-                    'is_active' => 'Mohon nonaktifkan template yang masih aktif sebelum mengaktifkan template ini.',
-                ]);
+            if ($request->is_active === 'Y') {
+                if ($isAnotherActive) {
+                    // Nonaktifkan semua data lain yang aktif
+                    AgeAmertaRps::where('is_active', 'Y')
+                        ->where('id', '!=', $id) // Mengecualikan data yang sedang diperbarui
+                        ->update(['is_active' => 'N']);
+                }
             }
 
+            // Jika tidak ada file yang diunggah
             if (!$request->hasFile('url_attachment')) {
-                
                 $rps->is_active = $request->is_active === 'Y' ? 'Y' : 'N';
                 $rps->save();
-
             } else {
+                // Proses file yang diunggah
                 $file = $request->file('url_attachment');
-        
+
                 // Tentukan direktori penyimpanan di luar folder Laravel
-                $storagePath = base_path('../penyimpanan'); 
-        
+                $storagePath = base_path('../penyimpanan');
+
                 // Pastikan folder "penyimpanan" ada
                 if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0777, true); 
+                    mkdir($storagePath, 0777, true);
                 }
-        
+
                 // Simpan file ke folder "penyimpanan"
-                $fileName = uniqid() . '_' . $file->getClientOriginalName(); 
+                $fileName = uniqid() . '_' . $file->getClientOriginalName();
                 $file->move($storagePath, $fileName);
-        
+
+                // Perbarui data
                 $rps->update([
                     'is_active' => $request->is_active === 'Y' ? 'Y' : 'N',
                     'url_attachment' => 'penyimpanan/' . $fileName,

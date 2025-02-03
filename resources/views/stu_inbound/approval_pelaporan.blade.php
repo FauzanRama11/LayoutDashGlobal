@@ -4,6 +4,25 @@
 @endsection
 
 @section('content') 
+
+@php										
+function getFileUrl($fileUrl) {
+												
+	if (empty($fileUrl)) return null;
+
+		$filePath = ltrim(str_replace('repo/', '', $fileUrl), '/');
+		$segments = explode('/', $filePath);
+		$fileName = array_pop($segments);
+		$folder = implode('/', $segments);
+
+	return !empty($folder)
+		? route('view.dokumen', ['folder' => $folder, 'fileName' => $fileName]) 
+		: route('view.dokumen', ['folder' => $fileName]);	
+}
+
+@endphp
+
+
     <h2>Student Inbound</h2>
     <p>This is Approval Pelaporan.</p>
     <div class="container-fluid">
@@ -39,23 +58,71 @@
 	                            <tbody>
                                 @foreach ($data as $item)
 									<tr>
-                                        <td>{{ $item->id ?? '-' }}</td>
-										<td>{{ $item->nama ?? '-' }}</td>
-										<td>{{ $item->host_unit ?? '-' }}</td>
-										<td>{{ $item->program ?? '-' }}</td>
-										<td>{{ $item->tipe ?? '-' }}</td>
-										<td>{{ $item->univ_name ?? '-' }}</td>
-										<td>{{ $item->start_date ?? '-' }}</td>
-										<td>{{ $item->end_date ?? '-' }}</td>
-										<td>{{ $item->via ?? '-' }}</td>
-										<td>{{ $item->country_name ?? '-' }}</td>
-										<td>{{ $item->photo_url ?? '-' }}</td>
-										<td>{{ $item->passport_url ?? '-' }}</td>
-										<td>{{ $item->student_id_url ?? '-' }}</td>
-										<td>{{ $item->loa_url ?? '-' }}</td>
-										<td>{{ $item->cv_url ?? '-' }}</td>
-										<td>{{ $item->is_approve ?? '-' }}</td>
-										<td><form action="" method="GET">
+                                        <td>{{ $item->id ?? '' }}</td>
+										<td>{{ $item->nama ?? '' }}</td>
+										<td>{{ $item->host_unit ?? '' }}</td>
+										<td>{{ $item->program ?? '' }}</td>
+										<td>{{ $item->tipe ?? '' }}</td>
+										<td>{{ $item->univ_name ?? '' }}</td>
+										<td>{{ $item->start_date ?? '' }}</td>
+										<td>{{ $item->end_date ?? '' }}</td>
+										<td>{{ $item->via ?? '' }}</td>
+										<td>{{ $item->country_name ?? '' }}</td>
+
+										
+								
+										<td>
+											@if ($url = getFileUrl($item->photo_url))
+												<a href="{{ $url }}" target="_blank" class="btn btn-primary">
+													<i class="fa fa-download"></i> 
+												</a>
+											@endif
+										</td>
+								
+										<td>
+											@if ($url = getFileUrl($item->passport_url))
+												<a href="{{ $url }}" target="_blank" class="btn btn-primary">
+													<i class="fa fa-download"></i> 
+												</a>
+											@endif
+										</td>
+								
+										<td>
+											@if ($url = getFileUrl($item->student_id_url))
+												<a href="{{ $url }}" target="_blank" class="btn btn-primary">
+													<i class="fa fa-download"></i> 
+												</a>
+											@endif
+										</td>
+								
+										<td>
+											@if ($url = getFileUrl($item->loa_url))
+												<a href="{{ $url }}" target="_blank" class="btn btn-primary">
+													<i class="fa fa-download"></i>
+												</a>
+											@endif
+										</td>
+
+										<td>
+											@if ($url = getFileUrl($item->cv_url))
+												<a href="{{ $url }}" target="_blank" class="btn btn-primary">
+													<i class="fa fa-download"></i>
+												</a>
+											@endif
+										</td>
+										
+										<td>
+											@if ($item->is_approved === 1)
+												<button class="btn btn-success btn-sm" disabled>Approved</button>
+											@elseif ($item->is_approved === -1)
+												<button class="btn btn-danger btn-sm" disabled>Rejected</button>
+											@else
+												<button class="btn btn-info btn-sm" disabled>Processed</button>
+											@endif
+										</td>
+										<td>
+											<form action="{{ route('stuin.approve', $item->id) }}" method="POST">
+												@csrf
 												<button type="submit" class="btn btn-primary edit-button">Approve</button>
 											</form>
 										</td>

@@ -25,14 +25,14 @@
                                 </div>
                         
                                 <!-- Tampilkan input file untuk mengganti file -->
-                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment">
+                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment"  accept=".pdf">
                                 <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                                 @error('url_attachment')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             @else
                                 <!-- Input file jika ID tidak ada -->
-                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment">
+                                <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment"  accept=".pdf">
                                 @error('url_attachment')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -43,18 +43,13 @@
                         <div class="media mb-3 align-items-center">
                             <label class="col-form-label me-3">Status</label>
                             <div class="media-body text-end icon-state d-flex align-items-center">
-                                <!-- Input hidden sebagai fallback -->
                                 <input type="hidden" name="is_active" value="N">
-                            
-                                <!-- Checkbox -->
                                 <label class="switch me-2">
                                     <input type="checkbox" id="is_active_checkbox" name="is_active" value="Y" 
                                            {{ old('is_active', $rps->is_active ?? '') === 'Y' ? 'checked' : '' }}
                                            onchange="toggleStatusText()">
                                     <span class="switch-state"></span>
                                 </label>
-                            
-                                <!-- Status Text -->
                                 <span id="status_text">{{ old('is_active', $rps->is_active ?? '') === 'Y' ? 'Aktif' : 'Tidak Aktif' }}</span>
                             </div>
                         </div>

@@ -41,25 +41,25 @@
                             <tbody>
                                 @foreach ($data as $item)
                                 <tr>
-                                    <td>{{ $item->nama ?? '-' }}</td>
-                                    <td>{{ $item->unit_kerja_text ?? '-' }}</td>
-                                    <td>{{ $item->jenjang ?? '-' }}</td>
-                                    <td>{{ $item->prodi_asal ?? '-' }}</td>
-                                    <td>{{ $item->fakultas_asal ?? '-' }}</td>
-                                    <td>{{ $item->jenis_kelamin ?? '-' }}</td>
-                                    <td>{{ $item->via ?? '-' }}</td>
-                                    <td>{{ $item->tipe_text ?? '-' }}</td>
-                                    <td>{{ $item->tujuan_fakultas_unit_text ?? '-' }}</td>
-                                    <td>{{ $item->tujuan_prodi_text ?? '-' }}</td>
-                                    <td>{{ $item->univ_asal_text ?? '-' }}</td>
-                                    <td>{{ $item->negara_asal_text ?? '-' }}</td>
-                                    <td>{{ $item->program_text ?? '-' }}</td>
-                                    <td>{{ $item->jenis_kegiatan_text ?? '-' }}</td>
-                                    <td>{{ $item->created_date ?? '-' }}</td>
-                                    <td>{{ $item->foto ?? '-' }}</td>
-                                    <td>{{ $item->passport ?? '-' }}</td>
-                                    <td>{{ $item->student_id ?? '-' }}</td>
-                                    <td>{{ $item->loa ?? '-' }}</td>
+                                    <td>{{ $item->nama ?? '' }}</td>
+                                    <td>{{ $item->unit_kerja ?? '' }}</td>
+                                    <td>{{ $item->jenjang ?? '' }}</td>
+                                    <td>{{ $item->prodi_asal ?? '' }}</td>
+                                    <td>{{ $item->fakultas_asal ?? '' }}</td>
+                                    <td>{{ $item->jenis_kelamin ?? '' }}</td>
+                                    <td>{{ $item->via ?? '' }}</td>
+                                    <td>{{ $item->tipe_text ?? '' }}</td>
+                                    <td>{{ $item->fak_ind ?? '' }}</td>
+                                    <td>{{ $item->tujuan_p ?? '' }}</td>
+                                    <td>{{ $item->nama_univ ?? '' }}</td>
+                                    <td>{{ $item->negara_asal_text ?? '' }}</td>
+                                    <td>{{ $item->nama_prog ?? '' }}</td>
+                                    <td>{{ $item->jenis_kegiatan_text ?? '' }}</td>
+                                    <td>{{ $item->created_date ?? '' }}</td>
+                                    <td>{{ $item->foto ?? '' }}</td>
+                                    <td>{{ $item->passport ?? '' }}</td>
+                                    <td>{{ $item->student_id ?? '' }}</td>
+                                    <td>{{ $item->loa ?? '' }}</td>
                                     <td><form action="" method="GET">
                                             <button type="submit" class="btn btn-primary edit-button">Edit</button>
                                         </form>
