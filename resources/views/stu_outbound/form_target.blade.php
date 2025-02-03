@@ -7,7 +7,7 @@
                     <span>This is Optional Notes</span>
                 </div>
                 <div class="card-body">
-                    <form class="was-validated" method="POST" action="{{ isset($target) ? route('update_target', $target->id) : route('tambah_target') }}">
+                    <form class="was-validated" method="POST" action="{{ isset($target) ? route('update_target_out', $target->id) : route('tambah_target_out') }}">
                         @csrf
                         @if(isset($target))
                             @method('PUT')
@@ -16,11 +16,14 @@
                         <div class="row">
                             <!-- Kolom kiri -->
                             <div class="col-md-6">
-                                <div class="mb-2">
+                            <div class="mb-2">
                                     <label class="form-label" for="fakultas">Fakultas</label>
                                     <select class="form-select js-example-basic-single" id="fakultas" name="fakultas" required>
                                         @foreach($unit as $item)
-                                            <option value="{{ $item->id }}" {{ old('fakultas', $target->id_fakultas) == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
+                                            <option value="{{ $item->id }}" 
+                                                {{ old('fakultas', $target->id_fakultas ?? null) == $item->id ? 'selected' : '' }}>
+                                                {{ $item->nama_ind }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\MailingController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\inbound\PendaftaranController;
 use App\Http\Controllers\PendaftaranProgramController;
+use App\Http\Controllers\staff_inbound\PendaftaranInboundController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthenticationController::class, "index"])->name('login');
@@ -65,7 +67,7 @@ Route::middleware(['auth', 'verified', 'role:pusba'])->group(function () {
 Route::get('/404', function () { return view('admin.authentication.error404');});
 Route::get('/500', function () { return view('admin.authentication.error500');});
 
-// Form
+// Form 
 
 Route::get('/{type}-registration-form', [PendaftaranController::class, 'view_regist'])->name('registrasi');
 Route::post('/save-selected-program',  [PendaftaranController::class, 'fetch_program']);
@@ -74,15 +76,20 @@ Route::get('/{type}-registration-submitted', [PendaftaranController::class, 'res
 
 // Pendaftaran Inbound/Outbound
 Route::get('/registrasi-peserta-inbound/{url_generate}', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
+Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
 
-Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
+// Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
 
+Route::post('/registrasi-peserta-outbound', [PendaftaranProgramController::class, 'Simpan_stuout'])->name('simpan.stuout');
 Route::post('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'Simpan_stuin'])->name('simpan.stuin');
 Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
 
+Route::get('/inbound-staff-registration-form', action: [PendaftaranInboundController::class, 'external_sta_in'])->name('stain.registrasi');
 
 // Route jika ada folder
 Route::get('/repo/{folder}/{fileName?}', [DokumenController::class, 'view'])->name('view.dokumen')->where('folder', '.*');
 
+	
+Route::get('/kirimemail',[MailingController::class, "index"]);
 
 require __DIR__.'/auth.php';

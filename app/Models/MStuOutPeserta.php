@@ -50,8 +50,8 @@ class MStuOutPeserta extends Model
         // 'approved_time' => 'datetime',
         'program_id' => 'integer',
         'kebangsaan' => 'integer',
-        'approved_by' => 'integer',
-        'is_approved' => 'boolean',
+        // 'approved_by' => 'integer',
+        // 'is_approved' => 'boolean',
     ];
     
     public function program()
