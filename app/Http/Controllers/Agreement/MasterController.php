@@ -12,6 +12,7 @@ use App\Models\GrieMoaAcademicPartner;
 use App\Models\GrieMoaAcademicProdi;
 use App\Models\GrieMoaAcademicScope;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class MasterController extends Controller
 {
@@ -224,8 +225,8 @@ class MasterController extends Controller
             })
                 ->addColumn('partner_involved', function ($item) {
                     $result = DB::table('grie_moa_academic_partner as gs')
-                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'))
-                        ->select(DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'))
+                        ->select(DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'))
+                        // ->select(DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'))
                         ->leftJoin('m_university as u2', 'u2.id', '=', 'gs.id_partner_university')
                         ->where('gs.id_moa_academic', operator: $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -235,8 +236,8 @@ class MasterController extends Controller
                 })
                 ->addColumn('prodi_involved', function ($item) {
                     $result = DB::table('grie_moa_academic_prodi as gs')
-                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'))
-                        ->select(DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'))
+                        ->select(DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'))
+                        // ->select(DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'))
                         ->leftJoin('m_prodi as p', 'p.id', '=', 'gs.id_program_study_unair')
                         ->where('gs.id_moa_academic', $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -246,8 +247,8 @@ class MasterController extends Controller
                 })
                 ->addColumn('faculty_involved', function ($item) {
                     $result = DB::table('grie_moa_academic_faculty as gs')
-                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'))
-                        ->select(DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'))
+                        ->select(DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'))
+                        // ->select(DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'))
                         ->leftJoin('m_fakultas_unit as fu', 'fu.id', '=', 'gs.id_faculty')
                         ->where('gs.id_moa_academic', $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -257,8 +258,8 @@ class MasterController extends Controller
                 })
                 ->addColumn('collaboration_scope', function ($item) {
                     $result = DB::table('grie_moa_academic_scope as gs')
-                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope'))
-                        ->select(DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'))
+                        ->select(DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope'))
+                        // ->select(DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'))
                         ->leftJoin('m_collaboration_scope as cs', 'cs.id', '=', 'gs.id_collaboration_scope')
                         ->where('gs.id_moa_academic', $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -422,7 +423,14 @@ class MasterController extends Controller
         $dept = DB::table("m_departemen")
             ->where("id", "=", $request->input('deptP'))
             ->pluck("nama_ind")->first();
-        
+            try {
+                $request->validate([
+                    'linkDownload' => 'required|file|mimes:pdf|max:2560', 
+                ]);
+            } catch (ValidationException $e) {
+                return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
+            }
+            
         if ($id) {
             $agreement = GrieMoaAcademic::findOrFail($id); 
             GrieMoaAcademicFaculty::where("id_moa_academic", $id)->delete();
@@ -491,9 +499,9 @@ class MasterController extends Controller
         $agreement->status = 'Completed';
         // $agreement->status_lapkerma = 'BELUM';
         $agreement->year = date('Y', strtotime($agreement->mou_start_date));
-        // $agreement->link_pelaporan = '';
-        // $agreement->status_pelaporan_lapkerma = "Belum";
-        // $agreement->current_id_status = 0;
+        $agreement->link_pelaporan = '';
+        $agreement->status_pelaporan_lapkerma = "Belum";
+        $agreement->current_id_status = 0;
     
     
         $agreement->save();
@@ -543,6 +551,14 @@ class MasterController extends Controller
         public function store_bukti(Request $request, $id){
     
             $agreement = GrieMoaAcademic::find($id);
+
+            try {
+                $request->validate([
+                    'linkDownload' => 'required|file|mimes:pdf|max:1000', 
+                ]);
+            } catch (ValidationException $e) {
+                return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 1 MB!'], 500);
+            }
     
             if ($request->hasFile('linkPelaporan')) {
                 $file = $request->file('linkPelaporan');

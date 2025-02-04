@@ -50,16 +50,8 @@
 
     <!-- jQuery -->
     <script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const submitButton = document.getElementById('submitButton');
-            const form = document.getElementById('buktiForm');
-            const fileInput = document.querySelector('input[name="linkPelaporan"]');
-            let isFileValid = true; // Status validasi file
-
-            // Fungsi validasi ukuran file
-            function validateFileSize(input) {
+<script>
+        function validateFileSize(input) {
                 const file = input.files[0];
                 if (file) {
                     const maxSize = 1 * 1024 * 1024; // 1 MB
@@ -77,46 +69,82 @@
                     }
                 }
             }
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const submitButton = document.getElementById('submitButton');
+            const form = document.getElementById('buktiForm');
+            const fileInput = document.querySelector('input[name="linkPelaporan"]');
+            let isFileValid = true; // Status validasi file
 
-            // Tambahkan event listener untuk validasi ukuran file
-            if (fileInput) {
-                fileInput.addEventListener('change', function () {
-                    validateFileSize(this);
+            if (submitButton) {
+        submitButton.addEventListener('click', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Check file validation before opening SweetAlert
+            if (!isFileValid) {
+                Swal.fire({
+                    title: 'Invalid File!',
+                    text: 'Please upload a valid PDF file (max 2.5 MB) before submitting.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
                 });
+                return; // Stop the process if the file is invalid
             }
 
-            // Event listener tombol submit
-            if (submitButton) {
-                submitButton.addEventListener('click', function (e) {
-                    e.preventDefault(); // Cegah pengiriman form default
-
-                    // Periksa validasi file sebelum membuka SweetAlert
-                    if (!isFileValid) {
-                        Swal.fire({
-                            title: 'Invalid File!',
-                            text: 'Please upload a valid file before submitting.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                        return; // Hentikan proses jika file tidak valid
-                    }
-
-                    // SweetAlert untuk konfirmasi pengiriman formulir
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "Do you want to submit the form?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, submit it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit(); // Submit form jika konfirmasi diberikan
+            // SweetAlert for form submission confirmation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to submit the form?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, submit it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Use AJAX to submit the form
+                    $.ajax({
+                        url: form.action,
+                        type: form.method,
+                        data: new FormData(form),
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            console.log(response); // Log the response for debugging
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: `Data berhasil ${action === 'update' ? 'diperbaharui' : 'tersimpan'}.`,
+                                    icon: 'success',
+                                    timer: 4000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.href = response.redirect; // Redirect after showing success message
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: response.message || 'Tidak dapat memproses data.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error(xhr); // Log error response for debugging
+                            Swal.fire({
+                                title: 'Error!',
+                                text: xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses data.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
                         }
                     });
-                });
-            }
+                }
+            });
+        });
+    }
         });
     </script>
 
