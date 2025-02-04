@@ -98,7 +98,7 @@
         }
     });
 
-    function initializeDataTable(tableId) {
+function initializeDataTable(tableId) {
         if ($(tableId).length && !$.fn.DataTable.isDataTable(tableId)) {
     var columnsToExport = ':visible';     
   

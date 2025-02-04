@@ -15,6 +15,7 @@ use App\Http\Controllers\inbound\VTStudenInboundController;
 use App\Http\Controllers\inbound\StudentInboundController;
 use App\Http\Controllers\inbound\MStuInPesertaController;
 use App\Http\Controllers\inbound\PesertaInboundAGEController;
+use App\Http\Controllers\staff_inbound\PendaftaranInboundController;
 
 // Student Inbound
 Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function () {
@@ -114,6 +115,7 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::post('/tambah-target', [MStuInTargetController::class, 'tambah_target'])->name('tambah_target');
         Route::put('/tambah-target/{id}', [MStuInTargetController::class, 'tambah_target'])->name('update_target');
         Route::delete('/hapus-target/{id}', [MStuInTargetController::class, 'hapus_target'])->name('hapus_target');
+    
 
         // form
         Route::get('/tambah-program-fakultas', [MStuInProgramController::class, 'add_program_fak'])->name('stuin_fak.create');

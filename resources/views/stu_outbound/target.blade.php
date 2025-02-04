@@ -12,6 +12,9 @@
 	                <div class="card-body">
 	                    <div class="table-responsive">
 	                        <table class="display" id="API-2">
+							<a href="{{ route('form_target_out.create') }}">
+									<button class="btn btn-success btn-sm active" type="button" style="width: 20%; margin:15px">+ Tambah</button>
+								</a>
 	                            <thead>
 	                                <tr>
 	                                    <th>No.</th>
@@ -24,21 +27,26 @@
 	                                </tr>
 	                            </thead>
 	                            <tbody>
-									@foreach ($data as $item)
+									@foreach ($data as $index => $item)
 									<tr>
-										<td>{{ $item->id ?? '-' }}</td>
+										<td>{{ $index + 1 }}</td>
 										<td>{{ $item->year ?? '-' }}</td>
 										<td>{{ $item->fakultas_name ?? '-' }}</td>
 										<td>{{ $item->target_pt ?? '-' }}</td>
 										<td>{{ $item->target_ft ?? '-' }}</td>                                
-										<td><form action="" method="GET">
-												<button type="submit" class="btn btn-primary edit-button">Edit</button>
+										<td>
+											<form  action="{{ route('form_target_out.edit', ['id' => $item->id]) }}" method="GET">
+												<button type="submit" class="btn btn-success edit-button">Edit</button>
 											</form>
 										</td>
-										<td><form action="" method="GET">
-												<button type="submit" class="btn btn-primary delete-button">Delete</button>
+										<td>
+											<form action="{{ route('hapus_target_out', ['id' => $item->id]) }}" method="POST">
+												@csrf
+												@method('DELETE')
+												<button type="submit" class="btn btn-danger">Delete</button>
 											</form>
 										</td>
+
 
 									</tr>
 									@endforeach

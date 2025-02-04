@@ -48,17 +48,17 @@
 										<td>{{ $item->universitas_tujuan ?? '-' }}</td>
 										<td>{{ $item->negara_tujuan ?? '-' }}</td>
 										<td>{{ $item->pt_ft ?? '-' }}</td>                                    
-										<td>{{ $item->is_private_event ?? '-' }}</td>
+										<td>{{ $item->is_private_event === 'Ya' ? 'Pelaporan' : 'Registrasi' }}</td>
                                         <td>{{ $item->created_time ?? '-' }}</td>
                                         <td><form action="{{ route('program_stuout.edit', ['id' => $item->id]) }}" method="GET">
-												<button type="submit" class="btn btn-primary edit-button">Edit</button>
+												<button type="submit" class="btn btn-success edit-button">Edit</button>
 											</form>
 										</td>
 
 										<td><form action="{{ route('prog_stuout.destroy', ['id' => $item-> id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan')">
 										@csrf
 										@method('DELETE')
-												<button type="submit" class="btn btn-primary delete-button">Delete</button>
+												<button type="submit" class="btn btn-danger delete-button">Delete</button>
 											</form>
 										</td>
 							

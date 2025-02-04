@@ -32,26 +32,31 @@ class MStuOutPesertaController extends Controller
     
         if ($item_id) {
             $data = MStuOutPeserta::find($item_id);
-            $photoPath = 'inbound/' .  ltrim(str_replace('repo/', '', $data->photo_url), '/');
-            $idPath = 'inbound/' .  ltrim(str_replace('repo/', '', $data->student_id_url), '/');
-            
-            // Student ID
-            if ($data->student_id_url && Storage::disk('outside')->exists($idPath)) {
-                $fileContent = Storage::disk('outside')->get($idPath);
-                $data->id_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
-                
-            } else {
-                $data->id_base64 = null;
-            }
 
-            // Proflie photo
-            if ($data->photo_url && Storage::disk('outside')->exists($photoPath)) {
-                $fileContent = Storage::disk('outside')->get($photoPath);
-                $data->photo_base64 = 'data:image/png;base64,' . base64_encode($fileContent);
-            } else {
-                $data->photo_base64 = null;
+            if ($data && $data->tujuan_fakultas_unit) {
+                $fakultasNama = DB::table('m_fakultas_unit')
+                    ->where('id', $data->tujuan_fakultas_unit) 
+                    ->value('nama_ind'); 
+
+                $data->tujuan_fakultas_unit = $fakultasNama;  
             }
+            
+            $studentIdPaths = [
+                'outbound/' . ltrim(str_replace('repo/outbound/', '', $data->student_id_url), '/'),
+                ltrim(str_replace('repo/', '', $data->student_id_url), '/')
+            ];
+            $idFilePath = $this->getFilePath('inside', $studentIdPaths); 
+            $data->id_base64 = $this->getFileBase64('inside', $idFilePath, 'image/jpeg');
+            
+            $photoPaths = [
+                'outbound/' . ltrim(str_replace('repo/outbound/', '', $data->photo_url), '/'),
+                ltrim(str_replace('repo/', '', $data->photo_url), '/')
+            ];
+
+            $photoFilePath = $this->getFilePath('inside', $photoPaths); 
+            $data->photo_base64 = $this->getFileBase64('inside', $photoFilePath, 'image/png');
         }
+        // dd($data);
     
         return view('stu_outbound.form_peserta', compact('prog_id', 'data', 'country', 'fakultas', 'univ',  'prodi'));
     }   
@@ -104,17 +109,17 @@ class MStuOutPesertaController extends Controller
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
 
-                $storagePath = '/inbound';
-                if (!Storage::disk('outside')->exists($storagePath)) {
-                        Storage::disk('outside')->makeDirectory($storagePath);
+                $storagePath = '/outbound';
+                if (!Storage::disk('inside')->exists($storagePath)) {
+                        Storage::disk('inside')->makeDirectory($storagePath);
                 }
     
                 // Buat nama file unik
                 $fileName = uniqid() . '_' . $file->getClientOriginalName();
-                $file->storeAs($storagePath, $fileName, 'outside');
+                $file->storeAs($storagePath, $fileName, 'inside');
     
                 // Simpan path ke dalam atribut model
-                $filePaths[$attribute] = 'repo/' . $fileName;
+                $filePaths[$attribute] = 'repo/outbound/' . $fileName;
             }
         }
         
@@ -133,6 +138,11 @@ class MStuOutPesertaController extends Controller
 
     public function update_peserta(Request $request)
     {
+        $country = DB::table('m_university')
+        ->where('m_university.id', '=', $request->input('univTujuanPeserta'))
+        ->join('m_country', 'm_country.id', '=', 'm_university.country')
+        ->pluck('m_country.id')->first();
+
         // Ambil data peserta berdasarkan ID jika ada
         $peserta = MStuOutPeserta::findOrFail($request->input('peserta_id'));
 
@@ -146,16 +156,16 @@ class MStuOutPesertaController extends Controller
         $peserta->reg_time = now();
 
         $peserta->jenjang = $request->input('jenjangPeserta');
-        $peserta->prodi_asal = $request->input('prodi_asal');
-        $peserta->fakultas_asal = $request->input('fakultas_asal');
-        $peserta->univ = $request->input('univ_asal');
-        $peserta->negara_asal_univ = $request->input('negara_asal');
-        $peserta->kebangsaan = $request->input('kebangsaan');
-        $peserta->tujuan_fakultas_unit = $request->input('tfakultasPeserta');
-        $peserta->tujuan_prodi = $request->input('tprodiPeserta');
+        $peserta->prodi_asal = $request->input('tProdiPeserta');
+        $peserta->fakultas_asal = $request->input('tFakultasPeserta');
+        $peserta->univ = $request->input('univTujuanPeserta');
+        $peserta->kebangsaan = $country;
+        // $peserta->kebangsaan = $request->input('kebangsaan');
+        $peserta->tujuan_fakultas_unit = $request->input('fakultasPeserta');
+        $peserta->tujuan_prodi = $request->input('prodiPeserta');
         $peserta->passport_no = $request->input('noPassPeserta');
         $peserta->home_address = $request->input('homePeserta');
-        $peserta->is_approved = 0;
+        // $peserta->is_approved = 0;
 
         // Array field file dan atribut model yang bersesuaian
         $fileFields = [
@@ -170,17 +180,17 @@ class MStuOutPesertaController extends Controller
                 $file = $request->file($field);
 
                 // Tentukan path penyimpanan
-                $storagePath = '/inbound';
-                if (!Storage::disk('outside')->exists($storagePath)) {
-                    Storage::disk('outside')->makeDirectory($storagePath);
+                $storagePath = '/outbound';
+                if (!Storage::disk(name: 'inside')->exists($storagePath)) {
+                    Storage::disk('inside')->makeDirectory($storagePath);
                 }
 
                 // Buat nama file unik
                 $fileName = uniqid() . '_' . $file->getClientOriginalName();
-                $file->storeAs($storagePath, $fileName, 'outside');
+                $file->storeAs($storagePath, $fileName, 'inside');
 
                 // Perbarui atribut model dengan path file baru
-                $peserta->{$attribute} = 'repo/' . $fileName;
+                $peserta->{$attribute} = 'repo/outbound/' . $fileName;
                 // dd($peserta->{$attribute});
             }
         }
@@ -190,6 +200,43 @@ class MStuOutPesertaController extends Controller
         // Simpan perubahan pada model
         $peserta->save();
 
-        return redirect()->route('program_stuin.edit', ['id' => $request->input('progId')]);
+        return redirect()->route('program_stuout.edit', ['id' => $request->input('progId')]);
     }
+    public function BantuanDana(Request $request) {
+        $request->validate([
+            'id' => 'required|integer',
+            'tipe' => 'required|string|in:RKAT,DAPT'
+        ]);
+    
+        $model = MStuOutPeserta::find($request->id);
+        
+        if (!$model) {
+            return response()->json(['message' => 'Data tidak ditemukan!'], 404);
+        }
+    
+        $model->pengajuan_dana_status = 'REQUESTED';
+        $model->sumber_dana = $request->tipe;
+        $model->save();
+    
+        return response()->json(['message' => 'Pengajuan Bantuan Dana berhasil diajukan.']);
+    }
+    private function getFilePath($disk, $paths)
+    {
+        foreach ($paths as $path) {
+            if (Storage::disk($disk)->exists($path)) {
+                return $path;
+            }
+        }
+        return null;
+    }
+
+    private function getFileBase64($disk, $filePath, $mimeType)
+    {
+        if ($filePath && Storage::disk($disk)->exists($filePath)) {
+            $fileContent = Storage::disk($disk)->get($filePath);
+            return 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
+        }
+        return null;
+    }
+
 }
