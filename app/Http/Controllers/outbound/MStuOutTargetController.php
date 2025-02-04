@@ -15,5 +15,69 @@ class MStuOutTargetController extends Controller
                     ->get();
             
         return view('stu_outbound.target', compact('data'));
+
+    }
+
+        public function form_target(Request $request, $id = null)
+        {
+            $target = null;
+            $unit = DB::table('m_fakultas_unit')->get();
+    
+            if ($id) {
+                $target = DB::table('m_stu_out_target')->where('id', $id)->first(); 
+                if (!$target) {
+                    return redirect()->route('stuout_target')->with('error', 'Data tidak ditemukan.');
+                }
+            }
+    
+            return view('stu_outbound.form_target', compact('target','unit'));
+        }
+    
+        public function tambah_target(Request $request, $id = null)
+        {
+            
+            $request->validate([
+                'fakultas' => 'required|int',
+                'year' => 'required|int',
+                'target_pt' => 'required|int',
+                'target_ft' => 'required|int',
+            ]);
+    
+            if ($id) {
+                // Update data
+                DB::table('m_stu_out_target')->where('id', $id)->update([
+                    'id_fakultas' => $request->fakultas,
+                    'year' => $request->year,
+                    'target_pt' => $request->target_pt,
+                    'target_ft' => $request->target_ft,
+                ]);
+    
+                return redirect()->route('stuout_target')->with('success', 'Data berhasil diupdate.');
+            } else {
+                // Simpan data baru
+                DB::table('m_stu_out_target')->insert([
+                    'id_fakultas' => $request->fakultas,
+                    'year' => $request->year,
+                    'target_pt' => $request->target_pt,
+                    'target_ft' => $request->target_ft,
+                ]);
+    
+                return redirect()->route('stuout_target')->with('success', 'Data berhasil ditambahkan.');
+            }
+        }
+    
+    
+        public function hapus_target($id)
+        {
+            $target = DB::table('m_stu_out_target')->where('id', $id)->first();
+    
+            if (!$target) {
+                return redirect()->back()->with('error', 'Data tidak ditemukan.');
+            }
+    
+            DB::table('m_stu_out_target')->where('id', $id)->delete();
+    
+            return redirect()->route('stuout_target')->with('success', 'Data berhasil dihapus.');
+        }
 }
-}
+

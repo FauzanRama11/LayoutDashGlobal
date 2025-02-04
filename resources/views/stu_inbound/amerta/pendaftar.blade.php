@@ -25,23 +25,27 @@
 	                                    <th>Full Name</th>
 										<th>Email</th>
 	                                    <th>Periode Program</th>
+	                                    <th>Program</th>
 	                                    <th>Tgl Daftar</th>
 	                                    <th>Status</th>
 										<th>Edit</th>
+										<th>Approve</th>
+										<th>Reject</th>
 	                                </tr>
 	                            </thead>
 	                            <tbody>
 									@foreach ($processedData as $item)
 									<tr>
-										<td>{{ $item['full_name'] ?? '-' }}</td>
-										<td>{{ $item['email'] ?? '-' }}</td>
-										<td>{{ $item['date_program'] ?? '-' }}</td>
-										<td>{{ \Carbon\Carbon::parse($item['created_date'])->format('d M Y - H:i') ?? '-' }}</td>
+										<td>{{ $item['full_name'] ?? $item['fullname'] }}</td>
+										<td>{{ $item['email'] ?? '' }}</td>
+										<td>{{ $item['date_program'] ?? '' }}</td>
+										<td>{{ $item['selected_program'] === 'AMERTA' ? 'Amerta' : $item['selected_program']  }}</td>
+										<td>{{ $item['created_date'] ?? '' }}</td>
 										<td>
-											@if ($item['is_approve'] === 't')
+											@if ($item['is_approve'] === true)
 												<span class="badge badge-primary">Approved</span>
-											@elseif ($item['is_approve'] === 'f')
-												<span class="badge badge-danger">Not Approved</span>
+											@elseif ($item['is_approve'] === false)
+												<span class="badge badge-danger">Rejected</span>
 											@else
 												<span class="badge badge-info">Belum diproses</span>
 											@endif
@@ -49,6 +53,30 @@
 										<td>
 											<form action="{{route('edit_peserta_inbound', ['id' => $item['id'] ]) }}" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Edit</button>
+											</form>
+										</td>
+										<td> 
+											@if ($item['loaPeserta'])
+												@if ($item['is_approve'] == true)
+													<form action="{{ route('unapprove_peserta_inbound', ['id' => $item['id'] ]) }}" method="POST">
+														@csrf
+														@method('PUT')
+														<button type="submit" class="btn btn-primary edit-button">Unapprove</button>
+													</form>
+												@else
+													<form action="{{ route('approve_peserta_inbound', ['id' => $item['id'] ]) }}" method="POST">
+														@csrf
+														@method('PUT')
+														<button type="submit" class="btn btn-primary edit-button">Approve</button>
+													</form>
+												@endif
+											@endif
+										</td>
+										<td>
+											<form action="{{ route('reject_peserta_inbound', ['id' => $item['id'] ]) }}" method="POST">
+												@csrf
+												@method('PUT')
+												<button type="submit" class="btn btn-danger edit-button">Reject</button>
 											</form>
 										</td>
 									</tr>
@@ -59,9 +87,12 @@
                                         <th>Full Name</th>
 										<th>Email</th>
 	                                    <th>Periode Program</th>
+	                                    <th>Program</th>
 	                                    <th>Tgl Daftar</th>
 	                                    <th>Status</th>
 										<th>Edit</th>
+										<th>Approve</th>
+										<th>Reject</th>
 	                                </tr>
 	                            </tfoot>
 	                        </table>

@@ -15,16 +15,15 @@ use App\Http\Controllers\inbound\VTStudenInboundController;
 use App\Http\Controllers\inbound\StudentInboundController;
 use App\Http\Controllers\inbound\MStuInPesertaController;
 use App\Http\Controllers\inbound\PesertaInboundAGEController;
+use App\Http\Controllers\staff_inbound\PendaftaranInboundController;
 
 // Student Inbound
 Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function () {
 
     Route::prefix('amerta')->group(function () {
-        Route::get('/materi-promosi', [AmertaPromotionController::class, 'index'])->name('am_materi_promosi');
         Route::get('/template-rps', [AmertaRpsController::class, 'index'])->name('am_template_rps');
         Route::get('/pendaftar', [AmertaController::class, 'pendaftar'])->name('am_pendaftar');
         Route::get('/periode', [AmertaController::class, 'periode'])->name('am_periode');
-        Route::get('/synced-data', [AmertaController::class, 'synced_data'])->name('am_synced_data');
         Route::get('/nominasi-matkul', [AmertaController::class, 'nominasi_matkul'])->name('am_nominasi_matkul');
 
         // form period
@@ -34,13 +33,6 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::put('/tambah-periode/{id}', [AmertaController::class, 'tambah_periode'])->name('am_update_periode');
         Route::delete('/hapus-periode/{id}', [AmertaController::class, 'hapus_periode'])->name('am_hapus_periode');
 
-        // form RPS
-        Route::get('/form-rps', [AmertaRpsController::class, 'form_rps'])->name('am_form_rps.create');
-        Route::get('/form-rps/{id}', [AmertaRpsController::class, 'form_rps'])->name('am_form_rps.edit');
-        Route::post('/tambah-rps', [AmertaRpsController::class, 'tambah_rps'])->name('am_tambah_rps');
-        Route::put('/tambah-rps/{id}', [AmertaRpsController::class, 'tambah_rps'])->name('am_update_rps');
-        Route::delete('/hapus-rps/{id}', [AmertaRpsController::class, 'hapus_rps'])->name('am_hapus_rps');
-
         // form Mata Kuliah
         Route::get('/form-matkul', [AmertaController::class, 'form_matkul'])->name('am_form_matkul.create');
         Route::get('/form-matkul/{id}', [AmertaController::class, 'form_matkul'])->name('am_form_matkul.edit');
@@ -48,10 +40,19 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::put('/tambah-matkul/{id}', [AmertaController::class, 'tambah_matkul'])->name('am_update_matkul');
         Route::delete('/hapus-matkul/{id}', [AmertaController::class, 'hapus_matkul'])->name('am_hapus_matkul');
 
+        // Route::get('/materi-promosi', [AmertaPromotionController::class, 'index'])->name('am_materi_promosi');
+        // Route::get('/synced-data', [AmertaController::class, 'synced_data'])->name('am_synced_data');
+
+        // form RPS
+        // Route::get('/form-rps', [AmertaRpsController::class, 'form_rps'])->name('am_form_rps.create');
+        // Route::get('/form-rps/{id}', [AmertaRpsController::class, 'form_rps'])->name('am_form_rps.edit');
+        // Route::post('/tambah-rps', [AmertaRpsController::class, 'tambah_rps'])->name('am_tambah_rps');
+        // Route::put('/tambah-rps/{id}', [AmertaRpsController::class, 'tambah_rps'])->name('am_update_rps');
+        // Route::delete('/hapus-rps/{id}', [AmertaRpsController::class, 'hapus_rps'])->name('am_hapus_rps');
+
     });
 
     Route::prefix('lingua')->group(function () {
-        Route::get('/materi-promosi', [LinguaPromotionController::class, 'index'])->name('li_materi_promosi');
         Route::get('/pendaftar', [LinguaController::class, 'pendaftar'])->name('li_pendaftar');
         Route::get('/periode', [LinguaController::class, 'periode'])->name('li_periode');
         Route::get('/template-rps', [LinguaRpsController::class, 'index'])->name('li_template_rps');
@@ -69,30 +70,42 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
           Route::post('/tambah-rps', [LinguaRpsController::class, 'tambah_rps'])->name('li_tambah_rps');
           Route::put('/tambah-rps/{id}', [LinguaRpsController::class, 'tambah_rps'])->name('li_update_rps');
           Route::delete('/hapus-rps/{id}', [LinguaRpsController::class, 'hapus_rps'])->name('li_hapus_rps');
+
+          
+        // Route::get('/materi-promosi', [LinguaPromotionController::class, 'index'])->name('li_materi_promosi');
   
-          // form Mata Kuliah
-          Route::get('/form-matkul', [LinguaController::class, 'form_matkul'])->name('li_form_matkul.create');
-          Route::get('/form-matkul/{id}', [LinguaController::class, 'form_matkul'])->name('li_form_matkul.edit');
-          Route::post('/tambah-matkul', [LinguaController::class, 'tambah_matkul'])->name('li_tambah_matkul');
-          Route::put('/tambah-matkul/{id}', [LinguaController::class, 'tambah_matkul'])->name('li_update_matkul');
-          Route::delete('/hapus-matkul/{id}', [LinguaController::class, 'hapus_matkul'])->name('li_hapus_matkul');
+        // form Mata Kuliah
+        //   Route::get('/form-matkul', [LinguaController::class, 'form_matkul'])->name('li_form_matkul.create');
+        //   Route::get('/form-matkul/{id}', [LinguaController::class, 'form_matkul'])->name('li_form_matkul.edit');
+        //   Route::post('/tambah-matkul', [LinguaController::class, 'tambah_matkul'])->name('li_tambah_matkul');
+        //   Route::put('/tambah-matkul/{id}', [LinguaController::class, 'tambah_matkul'])->name('li_update_matkul');
+        //   Route::delete('/hapus-matkul/{id}', [LinguaController::class, 'hapus_matkul'])->name('li_hapus_matkul');
+
     });
-        
+
+        // Peserta
         Route::get('/edit-peserta/{id}', [PesertaInboundAGEController::class, 'edit'])->name('edit_peserta_inbound');
+        Route::put('/update-data-peserta/{id}', [PesertaInboundAGEController::class, 'updateForm'])->name('update_peserta_inbound');
         Route::put('/approval-peserta/{id}', [PesertaInboundAGEController::class, 'approve'])->name('approve_peserta_inbound');
+        Route::put('/Unapprove-peserta/{id}', [PesertaInboundAGEController::class, 'unapprove'])->name('unapprove_peserta_inbound');
         Route::put('/rejection-peserta/{id}', [PesertaInboundAGEController::class, 'reject'])->name('reject_peserta_inbound');
 
         Route::get('/program-age', [MStuInProgramController::class, 'program_age'])->name('stuin_program_age');
         Route::get('/program-fak', [MStuInProgramController::class, 'program_fak'])->name('stuin_program_fak');
         Route::get('/view-peserta', [VTStudenInboundController::class, 'index'])->name('stuin_view_peserta');
 
+        // Approval Dana
         Route::get('/approval-dana', [StudentInboundController::class, 'approval_dana'])->name('stuin_approval_dana');
         Route::post('/ajukan-bantuan-dana', [MStuInPesertaController::class, 'BantuanDana'])->name('ajukan.bantuan.dana');
         Route::post('/approve-dana/{id}', [StudentInboundController::class, 'approveDana'])->name('stuin.approve.dana');
         Route::get('/pdf-pengajuan-dana/{id}/{tipe}', [StudentInboundController::class, 'pdfPengajuanInbound'])->name('stuin.pengajuan.dana');
 
+        // Approval Peserta
         Route::get('/approval-pelaporan', [StudentInboundController::class, 'approval_pelaporan'])->name('stuin_approval_pelaporan');
-        Route::post('/approve/{id}', [StudentInboundController::class, 'actionPesertaApprove'])->name('stuin.approve');
+        Route::post('/approve/{id}', [StudentInboundController::class, 'pesertaApprove'])->name('stuin.approve');
+        Route::post('/unapprove/{id}', [StudentInboundController::class, 'pesertaUnapprove'])->name('stuin.unapprove');
+        Route::post('/reject/{id}', [StudentInboundController::class, 'pesertaReject'])->name('stuin.reject');
+        Route::post('/save-revision/{id}', [StudentInboundController::class, 'saveRevision'])->name('stuin.revision');
 
         Route::get('/target', [MStuInTargetController::class, 'index'])->name('stuin_target');
         
@@ -102,6 +115,7 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::post('/tambah-target', [MStuInTargetController::class, 'tambah_target'])->name('tambah_target');
         Route::put('/tambah-target/{id}', [MStuInTargetController::class, 'tambah_target'])->name('update_target');
         Route::delete('/hapus-target/{id}', [MStuInTargetController::class, 'hapus_target'])->name('hapus_target');
+    
 
         // form
         Route::get('/tambah-program-fakultas', [MStuInProgramController::class, 'add_program_fak'])->name('stuin_fak.create');

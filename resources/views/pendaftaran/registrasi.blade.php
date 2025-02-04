@@ -47,7 +47,7 @@
                 </div>
             </div>
               
-            <form class="form-wizard" id="regForm" action="{{ route('simpan.registrasi', ['type' => 'amerta']) }}" method="POST" enctype="multipart/form-data">
+            <form class="form-wizard" id="regForm" action="{{ route('simpan.registrasi', ['type' => $type ]) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
                 <!-- Step 1 -->
@@ -58,11 +58,14 @@
                         <ol>
                             <li>This Application Form must be fully completed in the required format.</li>
                             <li>Please indicate "NA" if an item is not applicable.</li>
-                            <li>The Application Form consists of three sections:
+                            <li>The Application Form consists of two sections:
                                 <ul>
                                 <li>Personal Information</li>
+                                <li>Particulars of Next-of-Kin</li>
                                 <li>Educational Qualifications</li>
-                                <li>Choice of Subjects</li>
+                                <li>Details of The Contact Person at Home University</li>
+                                <li>Program fields</li>
+                                <li>Document Attachments</li>
                                 </ul>
                             </li>
                         </ol>
@@ -70,8 +73,9 @@
                         
                         <p>Please upload the required supporting documents along with this application form:</p>
                         <ol>
-                            <li>Student Card</li>
+                            <li>Paaport Identity Page</li>
                             <li>Most recent passport-size photo (red/blue/white background)</li>
+                            <li>Recommendation Letter by Home University</li>
                             <li>Official academic transcript in English</li>
                             <li>Scanned English Proficiency Certificate</li>
                             <li>Curriculum Vitae (CV)</li>
@@ -114,10 +118,10 @@
                     @if($type === 'amerta')
                         <!-- Dropdown -->
                         <div class="mb-3">
-                            <label class="form-label" for="selected_program">Pilih Jenis <span class="text-danger">*</span></label>
+                            <label class="form-label" for="selected_program">Selected Program <span class="text-danger">*</span></label>
                             <select class="form-select" id="selected_program" name="selected_program" required>
-                                <option value="">Pilih Program</option>
-                                <option value="Amerta Regular">Amerta Regular</option>
+                                <option value="">Selected Program</option>
+                                <option value="AMERTA">Amerta Regular</option>
                                 <option value="Amerta Internship">Amerta Internship</option>
                                 <option value="Amerta Research">Amerta Research</option>
                             </select>
@@ -293,7 +297,7 @@
                     <h5 class="mt-3">Educational Qualification</h5>
                     <hr>
                     <div class="mb-2">
-                        <label class="form-label" for="university">Home University <span class="text-danger">*</span></label>
+                        <label class="form-label" for="university">Home University (non-Indonesian University) <span class="text-danger">*</span></label>
                         <select class="form-select js-example-basic-single" id="university" name="university">
                         @foreach($univ as $item)
                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -304,16 +308,22 @@
                         <label class="form-label" for="degree">Degree Being Taken at University <span class="text-danger">*</span></label>
                         <select class="form-select" id="degree" name="degree" required>
                             <option value="">Select Degree</option>
-                            <option value="Undergraduate">Undergraduate</option>
+                            <option value="Bachelor">Bachelor</option>
                             <option value="Master">Master</option>
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="major">Major <span class="text-danger">*</span></label>
+                        <label class="form-label" for="faculty">Faculty (Home University) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="faculty" name="faculty" placeholder="Science, etc." required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="major">Major (Home University) <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="major" name="major" placeholder="Biotechnology, etc." required>
-                        <div class="invalid-feedback">Program studi wajib diisi.</div>
+                        <div class="invalid-feedback"></div>
                     </div>
                     
                     @if($type === 'amerta')
@@ -327,24 +337,25 @@
                             <input type="month" class="form-control" id="year_entry" name="year_entry" required>
                             <div class="invalid-feedback">Tahun masuk wajib diisi.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="native">Native Language <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="native" name="native" placeholder="English, Indonesian" required>
-                            <div class="invalid-feedback">Bahasa asli wajib diisi.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="english_score">English Proficiency Score *</label>
-                            <input type="text" class="form-control" id="english_score" name="english_score" placeholder="Your GPA/ Max GPA (e.g: 3.3/4.0 or 4.1/55.0)">
-                            <div class="invalid-feedback">Nilai Bahasa Inggris wajib diisi.</div>
-                        </div>
                     @endif
+
+                    <div class="mb-3">
+                        <label class="form-label" for="native">Medium of Instruction in Home University <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="native" name="native" placeholder="English, Indonesian" required>
+                        <div class="invalid-feedback">Bahasa asli wajib diisi.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="english_score">English Proficiency Score <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="english_score" name="english_score" placeholder="Your GPA/ Max GPA (e.g: 3.3/4.0 or 4.1/55.0)">
+                        <div class="invalid-feedback">Nilai Bahasa Inggris wajib diisi.</div>
+                    </div>
         
                     <!-- Character Reference -->
                     @if($type === 'amerta')
                         <h5 class="mt-3">Character Reference</h5>
                         <hr>
                         <div class="mb-3">
-                            <label class="form-label" for="referee_name">Name of Referee (as it appears in Identity Card / Passport and BLOCK CAPSE Surname / Family / Paternal Name) <span class="text-danger">*</span></label>
+                            <label class="form-label" for="referee_name">Name of Referee (with Salutation) <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="referee_name" name="referee_name" placeholder="e.g: Adi Johan" required>
                             <div class="invalid-feedback">Nama rujukan wajib diisi.</div>
                         </div>
@@ -368,12 +379,12 @@
                     <!-- Contact Person at Home University -->
                     <h5 class="mt-3">Details of The Contact Person at Home University</h5>
                     <div class="mb-3">
-                        <label class="form-label" for="pic_name">Contact Person at your Home University <span class="text-danger">*</span></label>
+                        <label class="form-label" for="pic_name">Name of the Contact Person <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="pic_name" name="pic_name" placeholder="e.g: Adi Johan" required>
                         <div class="invalid-feedback">Kontak wajib diisi.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="pic_position">Position of the Contact Person at your Home University <span class="text-danger">*</span></label>
+                        <label class="form-label" for="pic_position">Position of the Contact Person at Home University <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="pic_position" name="pic_position" placeholder="e.g: Head of International Office" required>
                         <div class="invalid-feedback">Jabatan wajib diisi.</div>
                     </div>
@@ -398,6 +409,10 @@
                     {{-- CHOICE OF SUBJECT | AMERTA REGULAR --}}
                     @if($type === 'amerta')
                         <div class="amerta-regular-form" style="display: none;">
+
+                            <input type="hidden" name="progCategory" value="Semester Program">
+                            <input type="hidden" name="via" value="Offline">
+
                             <h5 class="mt-3">Choice of Subjects</h5>
                             <hr>
                             <div class="mb-3">
@@ -408,11 +423,12 @@
                                         <option value="{{ $item->code }}">{{ $item->title}}</option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback"></div>
                             </div>
                             @for ($i = 2; $i <= 6; $i++)
                                 <div class="mb-3">
                                     <label class="form-label" for="course{{ $i }}">Course{{ $i }}</label>
-                                    <select class="js-example-basic-single col-sm-12" id="course{{ $i }}" name="course[{{ $i }}]">
+                                    <select class="js-example-basic-single col-sm-12" id="course{{ $i }}" name="course{{ $i }}">
                                         <option value="" selected>Select Course</option>
                                         @foreach($course as $item)
                                             <option value="{{ $item->code }}">{{ $item->title}}</option>
@@ -422,7 +438,7 @@
                                 </div>
                             @endfor
 
-                            <div class="mb-3 mt-3 d-flex justify-content-between align-content-center">
+                            {{-- <div class="mb-3 mt-3 d-flex justify-content-between align-content-center">
                                 <label class="form-label d-block">
                                     Have you ever taken Bahasa Indonesia course? <span class="text-danger">*</span>
                                 </label>
@@ -434,11 +450,11 @@
                                     </label>
                                     <span id="taken_indo_status">No</span>
                                 </div>
-                            </div>
+                            </div> --}}
                             
                             <div class="mb-3 d-flex justify-content-between align-content-center">
                                 <label class="form-label d-block">
-                                    Taking Bahasa Indonesia Course as Complementary Course? <span class="text-danger">*</span>
+                                    Interested in taking Bahasa Indonesia Course as Complementary Course? <span class="text-danger">*</span>
                                 </label>
                                 <div class="d-flex align-items-center">
                                     <input type="hidden" name="take_indo" value="No">
@@ -450,12 +466,98 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- SECTION FOR AMERTA INTERNSHIP -->
+                        <div class="amerta-internship-form" style="display: none;">
+                            <h5 class="mt-3">Internship Preferences</h5>
+                            <hr>
+
+                            <input type="hidden" name="progCategory" value="Internship">
+                            <input type="hidden" name="via" value="Offline">
+
+                            <div class="mb-3">
+                                <label class="form-label" for="field_of_study">Preferred field of internship</label>
+                                <input type="text" class="form-control" id="field_of_study" name="field_of_study" placeholder="e.g., Tourism, Business, Health, etc.">
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- Starting Date of Internship -->
+                            <div class="mb-3">
+                                <label class="form-label" for="start_date_prog">Starting Date of Internship <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="start_date_prog" name="start_date_prog" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- End Date of Internship -->
+                            <div class="mb-3">
+                                <label class="form-label" for="end_date_prog">End Date of Internship <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="end_date_prog" name="end_date_prog" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="outcome">Expected Learning Outcomes <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="outcome" name="outcome" placeholder="e.g., Logbook, etc.">
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="experience">Work or volunteer experience (if any) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="experience" name="experience" placeholder="experience">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- ATTACHMENT AMERTA RESEARCH -->
+                        <div class="amerta-research-form" style="display: none;">
+                            <h5 class="mt-3">Research Study</h5>
+                            <hr>
+                            
+                            <input type="hidden" name="progCategory" value="Research">
+                            <input type="hidden" name="via" value="Offline">
+                            
+                            <div class="mb-3">
+                                <label class="form-label" for="research_proposal">Research Proposal <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="research_proposal" name="research_proposal" accept=".pdf" onchange="validateFileSize(this)" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- Starting Date of Research Study -->
+                            <div class="mb-3">
+                                <label class="form-label" for="start_date_prog">Starting Date of Research Study <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="start_date_prog" name="start_date_prog" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- End Date of Research Study -->
+                            <div class="mb-3">
+                                <label class="form-label" for="end_date_prog">End Date of Research Study <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="end_date_prog" name="end_date_prog" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="outcome">Expected Research Outcomes <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="outcome" name="outcome" placeholder="e.g., Logbook, etc.">
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="supervisor">Preferred Supervisor in Universitas Airlangga (if any) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="supervisor" name="supervisor" placeholder="supervisor in Universitas Airlangga">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
                     @endif
 
                    {{-- CHOICE OF SUBJECT | LINGUA REGULAR --}}
                     @if($type === 'lingua')
-                        <h5 class="mt-3">Choice of Subjects</h5>
+                        <h5 class="mt-3">LINGUA</h5>
                         <hr>
+
+                        <input type="hidden" name="progCategory" value="Short Program">
+                        <input type="hidden" name="via" value="Offline">
+                        
                         <div class="mb-3 mt-3 d-flex justify-content-between align-content-center">
                             <label class="form-label d-block">
                                 Have you ever taken Bahasa Indonesia course? <span class="text-danger">*</span>
@@ -473,7 +575,7 @@
                         <div class="mb-3">
                             <label class="form-label" for="joined_lingua">Have you previously joined Lingua <span class="text-danger">*</span></label>
                             <select class="form-select" id="joined_lingua" name="joined_lingua" required>
-                                <option value="">Select /option>
+                                <option value="">Select option</option>
                                 <option value="a1">Yes, I joined LINGUA A1 class last semester</option>
                                 <option value="a2">Yes, I joined LINGUA A2 class last semester</option>
                                 <option value="b1">Yes, I joined LINGUA B1 class last semester</option>
@@ -484,69 +586,51 @@
                         </div>
                     @endif
 
-                    <!-- SECTION FOR AMERTA INTERNSHIP -->
-                    <div class="amerta-internship-form" style="display: none;">
-                        <h5 class="mt-3">Internship Field</h5>
-                        <hr>
-                        <div class="mb-3">
-                            <label class="form-label" for="field_of_study">Field of Study</label>
-                            <input type="text" class="form-control" id="field_of_study" name="field_of_study" placeholder="AMERTA Internship Only">
-                            <div class="invalid-feedback"></div>
-                        </div>
-                    </div>
-
-                    
-                    <!-- ATTACHMENT AMERTA RESEARCH -->
-                    <div class="amerta-research-form" style="display: none;">
-                        <h5 class="mt-3">Research Field</h5>
-                        <hr>
-                        <div class="mb-3">
-                            <label class="form-label" for="research_proposal">Research Proposal</label>
-                            <input class="form-control" type="file" id="research_proposal" name="research_proposal" accept=".pdf" required>
-                            <div class="invalid-feedback"></div>
-                        </div>
-                    </div>
-
-                    <!-- ATTACHMENT FOR AMERTA AND LINGUA -->
-                    <div class="amerta-regular-form" style="display: none;"> 
-                        <h5 class="mt-6">Attachment File</h5>
-                        <hr>
+                    <!-- ATTACHMENT --> 
+                    <h5 class="mt-6">Attachment File</h5>
+                    <hr>
                         <div class="mb-3">
                             <label class="form-label" for="passport">Passport Identity Page (PDF) <span class="text-danger">*</span></label>
-                            <input class="form-control" type="file" id="passport" name="passport" accept=".pdf" required>
+                            <input class="form-control" type="file" id="passport" name="passport" accept=".pdf" onchange="validateFileSize(this)" required>
                             <div class="invalid-feedback"></div>
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label" for="photo">Most recent passport size photo(red/blue/white background) <span class="text-danger">*</span></label>
-                            <input class="form-control" type="file" id="photo" name="photo" accept=".jpg, .jpeg, .png" required>
+                            <input class="form-control" type="file" id="photo" name="photo" accept=".jpg, .jpeg, .png" onchange="validateFileSize(this)" required>
                             <div class="invalid-feedback"></div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label" for="transcript">Official academic transcript in English (issued by the applicant''s home institution)</label>
-                            <input class="form-control" type="file" id="transcript" name="transcript" accept=".pdf">
+                            <label class="form-label" for="transcript">Official academic transcript in English (issued by the applicant's home institution)</label>
+                            <input class="form-control" type="file" id="transcript" name="transcript" accept=".pdf" onchange="validateFileSize(this)" required>
                             <div class="invalid-feedback"></div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label" for="letter_recom_referee">One (1) Professional Letter of Recomendation signed by the referee (preferably from a professor, invalid if recommendations are made by family members or friends)</label>
-                            <input class="form-control" type="file" id="letter_recom_referee" name="letter_recom_referee" accept=".pdf">
+                            <label class="form-label" for="letter_recom">One (1) Professional Letter of Recomendation signed by the referee (preferably from a professor, invalid if recommendations are made by family members or friends)</label>
+                            <input class="form-control" type="file" id="letter_recom" name="letter_recom" accept=".pdf" onchange="validateFileSize(this)" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="english_certificate">Scanned English Proficiency Certificate <span class="text-danger">*</span></label>
+                            <input class="form-control" type="file" id="english_certificate" name="english_certificate" accept=".pdf" onchange="validateFileSize(this)" required>
                             <div class="invalid-feedback"></div>
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label" for="cv">Curriculum Vitae <span class="text-danger">*</span></label>
-                            <input class="form-control" type="file" id="cv" name="cv" accept=".pdf" required>
+                            <input class="form-control" type="file" id="cv" name="cv" accept=".pdf" onchange="validateFileSize(this)" required>
                             <div class="invalid-feedback"></div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label" for="motivation_letter">Motivation Letter <span class="text-danger">*</span></label>
-                            <input class="form-control" type="file" id="motivation_letter" name="motivation_letter" accept=".pdf" required>
+                            <label class="form-label" for="motivation_letter">Motivation Letter</label>
+                            <input class="form-control" type="file" id="motivation_letter" name="motivation_letter" onchange="validateFileSize(this)" accept=".pdf">
                             <div class="invalid-feedback"></div>
                         </div>
-                    </div>
+                    
 
                     <!-- Declaration Section -->
                     <h5 class="mt-6">Declaration Section</h5>
@@ -574,7 +658,7 @@
                             I hereby declare that the information provided in this application is correct and complete. 
                             Any provision of inaccurate or false information or omission of information will render this 
                             application invalid and that, if selected on the basis of such information, I can be required 
-                            to withdraw from the LINGUA Program and reimburse any funds provided or expended on my behalf.
+                            to withdraw from the  {{ $tipe }}  Program and reimburse any funds provided or expended on my behalf.
 
                             I authorize the Universities/Institutions to obtain official records, if necessary, from any
                             educational institution attended by me. I am medically fit and free from any medical problem 
@@ -634,6 +718,87 @@
 
 @endsection
 
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    
+    let isFileValid = true; // Variabel global untuk melacak status validasi file
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const fileInputs = document.querySelectorAll("input[type='file']");
+        console.log('percobaan');
+
+        fileInputs.forEach(input => {
+            input.addEventListener("change", function () {
+                console.log(fileInputs);
+                validateFileSize(this); // Jalankan validasi saat file dipilih
+            });
+        });
+    });
+
+    function validateFileSize(input) {
+        const file = input.files[0]; // Ambil file pertama dari input
+        if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    title: 'File too large!',
+                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; // Kosongkan input file jika tidak valid
+                isFileValid = false; // Tandai file tidak valid
+            } else {
+                isFileValid = true; // Tandai file valid
+            }
+        }
+    }
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    @if(session('file_errors'))
+        let errorMessages = "";
+        @foreach(session('file_errors') as $error)
+            errorMessages += "• {{ $error }}\n";
+        @endforeach
+        Swal.fire({
+            title: 'Validation Failed!',
+            text: errorMessages,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            title: 'Success!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            timer: 4000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            title: 'Error!',
+            text: "{{ session('error') }}",
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    @endif
+});
+</script>
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const selected_program = document.getElementById('selected_program');
@@ -652,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideForms(researchForms);
 
         // Tampilkan form yang sesuai dengan pilihan
-        if (selectedValue === 'Amerta Regular') {
+        if (selectedValue === 'AMERTA') {
             showForms(regularForms);
         } else if (selectedValue === 'Amerta Internship') {
             showForms(internshipForms);
@@ -677,18 +842,30 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Fungsi untuk mengaktifkan/menonaktifkan input dalam form
+   // Fungsi untuk mengaktifkan/menonaktifkan input dalam form
     function toggleInputs(form, isDisabled) {
         const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             input.disabled = isDisabled;
-            if (isDisabled) {
-                input.removeAttribute('required');
+
+            // Cek apakah elemen awalnya memiliki required
+            if (!isDisabled) {
+                if (input.dataset.originalRequired === "true") {
+                    input.setAttribute('required', true);
+                }
             } else {
-                input.setAttribute('required', true);
+                // Simpan status required sebelum dinonaktifkan
+                if (input.hasAttribute('required')) {
+                    input.dataset.originalRequired = "true"; // Tandai bahwa awalnya required
+                } else {
+                    input.dataset.originalRequired = "false"; // Tandai bahwa awalnya tidak required
+                }
+
+                input.removeAttribute('required');
             }
         });
     }
+
 
 });
 

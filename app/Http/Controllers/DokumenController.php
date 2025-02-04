@@ -60,6 +60,7 @@ public function view($folderOrFile, $fileName = null)
     $filePath = $folder 
         ? trim($folder, '/') . '/' . ltrim($fileName, '/') 
         : ltrim($fileName, '/');
+        
 
     $filePath = str_replace('+', ' ', $filePath);
 
