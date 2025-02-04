@@ -440,6 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 </script>
+
 <script>
         function validateFileSize(input) {
                 const file = input.files[0];

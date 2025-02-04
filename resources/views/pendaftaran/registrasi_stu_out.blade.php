@@ -36,7 +36,7 @@
                     </div>
                   </div>
               
-              <form class="form-wizard" id="regForm" action="{{ route('simpan.stuin') }}" method="POST" enctype="multipart/form-data">
+              <form class="form-wizard" id="regForm" action="{{ route('simpan.stuout') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmSubmission(event)">
                 @csrf
                 
                 <!-- Step 1 -->
@@ -47,14 +47,21 @@
                         <ol>
                             <li>This Application Form must be fully completed in the required format.</li>
                             <li>Please indicate "NA" if an item is not applicable.</li>
+                            <li>The Application Form consists of three sections:
+                                <ul>
+                                <li>Personal Information</li>
+                                <li>Educational Qualifications</li>
+                                <li>Choice of Subjects</li>
+                                </ul>
+                            </li>
                         </ol>
                         <br>
                         
                         <p>Please upload the required supporting documents along with this application form:</p>
                         <ol>
+                            <li>Student Card</li>
                             <li>Most recent passport-size photo (red/blue/white background)</li>
                             <li>Curriculum Vitae (CV)</li>
-                            <li>Passport identity page</li>
                         </ol>
                         <br>
 
@@ -64,8 +71,8 @@
                         <br>
                         For any inquiries, please do not hesitate to contact us via email:
                     <br>
-                        <a href="mailto:inbound@global.unair.co.id" style="color:blue;">
-                            <i class="fa fa-envelope-o" style="margin-right:5px; color: #222; text-decoration:none;"></i>inbound@global.unair.co.id
+                        <a href="mailto:outbound@global.unair.co.id" style="color:blue;">
+                            <i class="fa fa-envelope-o" style="margin-right:5px; color: #222; text-decoration:none;"></i>outbound@global.unair.co.id
                         </a>
                     </p>
                     <br>
@@ -82,6 +89,13 @@
                         <label class="form-label" for="nama">Full Name *</label>
                         <input type="text" class="form-control" id="nama" name="nama" placeholder="Masukkan Nama Lengkap" required>
                         <div class="invalid-feedback">Fullname field can not be empty.</div>
+                    </div>
+
+                       <!-- Telephone Number -->
+                       <div class="mb-3">
+                        <label class="form-label" for="nim">NIM *</label>
+                        <input type="tel" class="form-control" id="nim" name="nim" placeholder="Masukkan NIM" required>
+                        <div class="invalid-feedback">Nomor field can not be empty.</div>
                     </div>
 
                      <!-- Telephone Number -->
@@ -125,6 +139,30 @@
                           <option value="doctor">Doctor</option>
                         </select>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="tujuan_fakultas_unit">Fakultas</label>
+                        <select class="js-example-basic-single col-sm-12" id="tujuan_fakultas_unit" name="tujuan_fakultas_unit">
+                        @foreach($fakultas as $item)
+                                    <option value="{{ $item->id }}" 
+                                        {{ old('tujuan_fakultas_unit', isset($data) ? $data->tujuan_fakultas_unit : '') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->nama_ind }}
+                                    </option>
+                        @endforeach
+                        </select>
+                        </div>
+
+                        <div class="mb-3">
+                        <label class="form-label" for="tujuan_prodi">Prodi</label>
+                        <select class="js-example-basic-single col-sm-12" id="tujuan_prodi" name="tujuan_prodi">
+                        @foreach($prodi as $item)
+                                    <option value="{{ $item->id }}" 
+                                        {{ old('tujuan_prodi', isset($data) ? $data->tujuan_prodi : '') == $item->id ? 'selected' : '' }}>
+                                        {{ $item->level }} {{ $item->name }}
+                                    </option>
+                        @endforeach
+                        </select>
+                        </div>
 
               
                     <div class="mb-3">
@@ -149,7 +187,7 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label class="form-label" for="negara_asal_univ">Host University's Country*</label>
                         <select class="form-select js-example-basic-single" id="negara_asal_univ" name="negara_asal_univ" required>
                             @foreach($country as $item)
@@ -157,7 +195,7 @@
                             @endforeach
                         </select>
                         <div class="invalid-feedback">Kewarganegaraan wajib dipilih.</div>
-                    </div>
+                    </div> -->
 
                     <div class="mb-3">
                         <label class="form-label" for="kebangsaan">Nationality*</label>
@@ -170,22 +208,23 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="photo_url">Photo</label>
-                        <input class="form-control" type="file" id="photo_url" name="photo_url"  accept=".jpg, .jpeg, .png"  required>
+                        <label class="form-label" for="photo_url">Formal Photo</label>
+                        <input class="form-control" type="file" id="photo_url" name="photo_url"  accept=".jpg, .jpeg, .png"  onchange="validateFileSize(this)" required>
                         <div class="invalid-feedback">Foto wajib diisi.</div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="cv_url">CV</label>
-                        <input class="form-control" type="file" id="cv_url" name="cv_url"  accept=".pdf"  required>
+                        <input class="form-control" type="file" id="cv_url" name="cv_url"  accept=".pdf" onchange="validateFileSize(this)" required>
                         <div class="invalid-feedback">CV wajib diisi.</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="passport_url">Passport Identity Page</label>
-                        <input class="form-control" type="file" id="passport_url" name="passport_url"   accept=".pdf"  required>
+                        <label class="form-label" for="student_id_url">Student ID</label>
+                        <input class="form-control" type="file" id="student_id_url" name="student_id_url" onchange="validateFileSize(this)" accept=".pdf .jpg, .jpeg, .png"  required>
                         <div class="invalid-feedback">Passport wajib diisi.</div>
                     </div>
+
                     
                     <div class="mb-3">
                         <label class="form-label" for="program_info">Where did you first get information about this program?</label>
@@ -212,86 +251,101 @@
     </div>
   </div>
 </div>
-@endsection
-
-
-<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
-
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    
-    let isFileValid = true; // Variabel global untuk melacak status validasi file
+        function validateFileSize(input) {
+                const file = input.files[0];
+                if (file) {
+                    const maxSize = 1 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        Swal.fire({
+                            title: 'File too large!',
+                            text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        input.value = ""; // Clear the input
+                        isFileValid = false; // Tandai file tidak valid
+                    } else {
+                        isFileValid = true; // Tandai file valid
+                    }
+                }
+            }
+            document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("regForm").addEventListener("submit", confirmSubmission);
+});
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const fileInputs = document.querySelectorAll("input[type='file']");
-        console.log('percobaan');
+function confirmSubmission(event) {
+    event.preventDefault(); // Mencegah submit default
 
-        fileInputs.forEach(input => {
-            input.addEventListener("change", function () {
-                console.log(fileInputs);
-                validateFileSize(this); // Jalankan validasi saat file dipilih
-            });
-        });
-    });
+    const form = event.target; // Form elemen
+    const action = form.action.includes('update') ? 'update' : 'store'; // Tentukan aksi
+    const actionMessages = {
+        update: 'Are you sure you want to update the data?',
+        store: 'Are you sure you want to save the data?'
+    };
 
-    function validateFileSize(input) {
-        const file = input.files[0]; // Ambil file pertama dari input
-        if (file) {
-            const maxSize = 2 * 1024 * 1024; // 2MB
-            if (file.size > maxSize) {
+    Swal.fire({
+        title: 'Confirmation',
+        text: actionMessages[action],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, proceed!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Kirim form via AJAX
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: `Data has been ${action === 'update' ? 'updated' : 'saved'}.`,
+                        icon: 'success',
+                        timer: 4000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = data.redirect; // Redirect setelah sukses
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Failed!',
+                        text: data.message || 'Unable to process data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error(error);
                 Swal.fire({
-                    title: 'File too large!',
-                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    title: 'Error!',
+                    text: 'An error occurred while processing the data.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-                input.value = ""; // Kosongkan input file jika tidak valid
-                isFileValid = false; // Tandai file tidak valid
-            } else {
-                isFileValid = true; // Tandai file valid
-            }
+            });
         }
-    }
+    });
+}
 
 </script>
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+<!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    @if(session('file_errors'))
-        let errorMessages = "";
-        @foreach(session('file_errors') as $error)
-            errorMessages += "• {{ $error }}\n";
-        @endforeach
-        Swal.fire({
-            title: 'Validation Failed!',
-            text: errorMessages,
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    @endif
-
-    @if(session('success'))
-        Swal.fire({
-            title: 'Success!',
-            text: "{{ session('success') }}",
-            icon: 'success',
-            timer: 4000,
-            showConfirmButton: false
-        });
-    @endif
-
-    @if(session('error'))
-        Swal.fire({
-            title: 'Error!',
-            text: "{{ session('error') }}",
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    @endif
-});
-</script>
+@endsection
 

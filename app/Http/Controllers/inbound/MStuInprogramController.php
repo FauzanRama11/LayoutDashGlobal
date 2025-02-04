@@ -19,7 +19,8 @@ class MStuInProgramController extends Controller
             $fa = $user->name;
             
             $data = DB::table('m_stu_in_programs')
-            ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
+            ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
+                        DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
             ->where('host_unit_text', 'like', "%$fa%")
             ->where("is_program_age", "N")
             ->orderBy('created_time', 'desc')
@@ -27,7 +28,8 @@ class MStuInProgramController extends Controller
         }
         else{
             $data = DB::table('m_stu_in_programs')
-            ->select('id', 'name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
+            ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
+                        DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
             ->where("is_program_age", "N")
             ->orderBy('created_time', 'desc')
             ->get();
@@ -38,10 +40,10 @@ class MStuInProgramController extends Controller
     public function program_age()
     {
         $data = $data = DB::table('m_stu_in_programs')
-        ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time')
+        ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
+            DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
         ->where("is_program_age", "Y")
         ->orWhere('host_unit_text', 'Airlangga Global Engagement')
-        ->limit(500)
         ->orderBy('created_time', 'desc')
         ->get();
         return view('stu_inbound.program_age', compact('data'));
@@ -147,6 +149,24 @@ class MStuInProgramController extends Controller
 
     public function edit(string $id)
     {   
+       // Ambil data peserta dengan sumber dana RKAT
+        $pesertaRKAT = DB::table('m_stu_in_peserta')
+            ->join('m_prodi', 'm_stu_in_peserta.tujuan_prodi', '=', 'm_prodi.id')
+            ->where('m_stu_in_peserta.program_id', $id)
+            ->where('m_stu_in_peserta.pengajuan_dana_status', 'APPROVED')
+            ->where('m_stu_in_peserta.sumber_dana', 'RKAT') // Filter RKAT langsung
+            ->select('m_stu_in_peserta.nama', 'm_prodi.level', 'm_prodi.name')
+            ->get();
+
+        // Ambil data peserta dengan sumber dana DPAT
+        $pesertaDPAT = DB::table('m_stu_in_peserta')
+            ->join('m_prodi', 'm_stu_in_peserta.tujuan_prodi', '=', 'm_prodi.id')
+            ->where('m_stu_in_peserta.program_id', $id)
+            ->where('m_stu_in_peserta.pengajuan_dana_status', 'APPROVED')
+            ->where('m_stu_in_peserta.sumber_dana', 'DPAT') // Filter DPAT langsung
+            ->select('m_stu_in_peserta.nama', 'm_prodi.level', 'm_prodi.name')
+            ->get();
+
         $category = DB::table('m_stu_in_program_category')->get();
         $dosen = DB::table('m_dosen')->get();
         $univ = DB::table('m_university')
@@ -184,7 +204,7 @@ class MStuInProgramController extends Controller
         ->leftjoin('m_country', 'm_country.id', '=', 'm_stu_in_peserta.kebangsaan')
         ->get();
 
-        return view("stu_inbound.edit_program", compact("peserta", "data", "category", "dosen", "univ"));
+        return view("stu_inbound.edit_program", compact("peserta", "pesertaRKAT", "pesertaDPAT", "data", "category", "dosen", "univ"));
     
     }
 

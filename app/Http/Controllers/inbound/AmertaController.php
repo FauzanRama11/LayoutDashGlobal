@@ -14,7 +14,7 @@ class AmertaController extends Controller
 {
     public function pendaftar()
     {
-            $data = DB::table('age_peserta_inbound')
+        $data = DB::table('age_peserta_inbound')
             ->join('age_amerta', 'age_peserta_inbound.id_period', '=', 'age_amerta.id')
             ->select(
                 'age_peserta_inbound.id as id',
@@ -27,6 +27,7 @@ class AmertaController extends Controller
                 'age_peserta_inbound.is_approve as is_approve'
             )
             ->where('age_peserta_inbound.type', 'amerta')
+            ->orderByDesc('age_peserta_inbound.created_date')
             ->get();
 
         
@@ -39,26 +40,28 @@ class AmertaController extends Controller
                 'type' => $item->type,
                 'email' => $item->email,
                 'created_date' => $item->created_date,
-                'date_program' => $item->date_program,
+                'date_program' => $item->date_program ?? '',
                 'is_approve' => $item->is_approve,
-                'full_name' => $metadata['fullname'] ?? '-', 
+                'full_name' => $metadata['fullname'] ?? '', 
+                'selected_program' => $metadata['selected_program'] ?? '',
+                'loaPeserta' => $metadata['loaPeserta'] ?? '',
             ];
         });
+
+        // dd($processedData);
         
         return view('stu_inbound.amerta.pendaftar', compact('processedData'));
     }
 
-    
+    // public function synced_data()
+    // {
+    //     $data = $data = DB::table('v_stu_in_synced')
+    //     ->select('nama','surel', 'nim', 'kode_mk', 'nm_fakultas', 'nm_program_studi', 'nm_jenjang', 'semester')
+    //     ->limit(500)
+    //     ->get();
 
-    public function synced_data()
-    {
-        $data = $data = DB::table('v_stu_in_synced')
-        ->select('nama','surel', 'nim', 'kode_mk', 'nm_fakultas', 'nm_program_studi', 'nm_jenjang', 'semester')
-        ->limit(500)
-        ->get();
-
-        return view('stu_inbound.amerta.synced_data', compact('data'));
-    }
+    //     return view('stu_inbound.amerta.synced_data', compact('data'));
+    // }
 
     // CRUD Periode Amerta
 
@@ -149,13 +152,22 @@ class AmertaController extends Controller
 
     public function nominasi_matkul()
     {
-        $data = DB::table('age_amerta_matkul')
+        
+        $user = Auth::user();
+
+        if ($user->hasRole('kps')) {
+            $kps = $user->id;
+
+            $data = DB::table('age_amerta_matkul')
             ->join('age_amerta', 'age_amerta_matkul.id_age_amerta', '=', 'age_amerta.id')
             ->join('m_prodi', 'age_amerta_matkul.id_prodi', '=', 'm_prodi.id')
+            ->leftJoin('m_fakultas_unit', 'm_fakultas_unit.id', '=', 'm_prodi.id_fakultas_unit')
+            ->where('created_by', '=', "$kps")
             ->select(
                 'age_amerta_matkul.id',
                 DB::raw("CONCAT(TO_CHAR(age_amerta.start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(age_amerta.end_date_program, 'DD Mon YYYY')) as date_program"),
                 'm_prodi.name',
+                'm_fakultas_unit.nama_ind',
                 'age_amerta_matkul.code',
                 'age_amerta_matkul.title',
                 'age_amerta_matkul.semester',
@@ -164,6 +176,30 @@ class AmertaController extends Controller
                 'age_amerta_matkul.status'
             )
             ->get();
+            // dd($kps);
+
+        }
+        else if($user->hasRole('gmp|dirpen')) {
+
+            $data = DB::table('age_amerta_matkul')
+            ->join('age_amerta', 'age_amerta_matkul.id_age_amerta', '=', 'age_amerta.id')
+            ->join('m_prodi', 'age_amerta_matkul.id_prodi', '=', 'm_prodi.id')
+            ->leftJoin('m_fakultas_unit', 'm_fakultas_unit.id', '=', 'm_prodi.id_fakultas_unit')
+            ->select(
+                'age_amerta_matkul.id',
+                DB::raw("CONCAT(TO_CHAR(age_amerta.start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(age_amerta.end_date_program, 'DD Mon YYYY')) as date_program"),
+                'm_prodi.name',
+                'm_fakultas_unit.nama_ind',
+                'age_amerta_matkul.code',
+                'age_amerta_matkul.title',
+                'age_amerta_matkul.semester',
+                'age_amerta_matkul.sks',
+                'age_amerta_matkul.created_date',
+                'age_amerta_matkul.status'
+            )
+            ->get();
+
+        };
 
         return view('stu_inbound.amerta.nominasi_matkul', compact('data'));
     }

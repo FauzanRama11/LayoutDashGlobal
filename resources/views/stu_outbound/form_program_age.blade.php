@@ -7,9 +7,12 @@
   </div>
 
   <div class="card-body">
-    <form class="was-validated" action="{{ url('/store_program_outbound') }}" method="post" enctype="multipart/form-data">
+    <form class="was-validated" action="{{ route('program_stuout.store') }}" method="post" enctype="multipart/form-data">
       @csrf
-
+    <div class="row">
+    <div class="row">
+          <!-- Kolom Kiri -->
+          <div class="col-md-6">
       <div class="mb-3" style="display: none;">
         <label class="form-label" for="progAge"></label>
         <input class="form-control" id="progAge" name="progAge" value="Y">
@@ -43,50 +46,26 @@
         <div class="invalid-feedback">Tanggal berakhir wajib diisi.</div>
       </div>
 
-      <div class="reg" style="display: none;">
-        <div class="card-header pb-0">
-          <h5>Detail Registrasi</h5><span>Detail Registrasi Program</span>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label" for="regOpen">Tanggal Registrasi Buka</label>
-            <input type="date" class="form-control" id="regOpen" name="regOpen">
-          </div>
-          <div class="mb-3">
-            <label class="form-label" for="regClose">Tanggal Registrasi Tutup</label>
-            <input type="date" class="form-control" id="regClose" name="regClose">
-          </div>
-          <div class="mb-3">
-            <label class="form-label" for="programDesc">Deskripsi Program</label>
-            <textarea class="form-control" id="programDesc" name="programDesc" placeholder="Deskripsi Program"></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label" for="programLogo">Logo/Poster</label>
-            <input class="form-control" type="file" id="programLogo" name="programLogo">
-          </div>
-        </div>
-      </div>
-
       <div class="mb-2">
         <label class="form-label" for="progCategory">Kategori</label>
         <select class="js-example-basic-single col-sm-12" id="progCategory" name="progCategory" required>
-          @foreach($category as $item)
-            <option value="{{ $item->id }}">{{ $item->name }}</option>
-          @endforeach
+            @foreach($category as $item)
+                <option value="{{ $item->id }}">{{ $item->name }}</option>
+            @endforeach
         </select>
         <div class="invalid-feedback">Pilih kategori.</div>
-      </div>
+    </div>
 
-      <div class="mbkm" style="display: none;">
-        <div class="mb-3">
-          <label class="form-label" for="subMbkm">Jenis</label>
-          <select class="form-select" id="subMbkm" name="subMbkm">
+<div class="mbkm" style="display: none;">
+    <div class="mb-3">
+        <label class="form-label" for="subMbkm">Jenis</label>
+        <select class="form-select" id="subMbkm" name="subMbkm">
             <option value="KKN">Kuliah Kerja Nyata</option>
             <option value="PKL">Praktik Kerja Lapangan</option>
             <option value="Magang">Magang</option>
-          </select>
-        </div>
-      </div>
+        </select>
+    </div>
+</div>
 
       <div class="mb-3">
         <label class="form-label" for="hostUnit">Unit Penyelenggara</label>
@@ -131,10 +110,45 @@
           <option value="Hybrid">Hybrid</option>
         </select>
       </div>
+    </div>
 
-      <div class="col-12">
-        <button class="btn btn-primary" type="submit">Submit</button>
+    <div class="col-md-6">
+      <div class="reg" style="display: none;">
+        <div class="card-header pb-0">
+          <h5>Detail Registrasi</h5><span>Detail Registrasi Program</span>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label" for="regOpen">Tanggal Registrasi Buka</label>
+            <input type="date" class="form-control" id="regOpen" name="regOpen">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="regClose">Tanggal Registrasi Tutup</label>
+            <input type="date" class="form-control" id="regClose" name="regClose">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="programDesc">Deskripsi Program</label>
+            <textarea class="form-control" id="programDesc" name="programDesc" placeholder="Deskripsi Program"></textarea>
+          </div>
+          <div class="mb-3">
+              <label class="form-label" for="programLogo">Logo/Poster</label>
+              <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png" onchange="previewImage(event)">
+          </div>
+                 
+          <div class="mt-3">
+              <div class="col-sm-12 border border-3 p-3 d-flex justify-content-center align-items-center" id="previewdiv" style="display: none;">
+                <img id="preview" src="" alt="Preview" class="img-fluid" style="width: 300px; height: 300px; object-fit: cover; display: none;">
+              </div>
+          </div>
+        </div>
       </div>
+    </div>
+  
+
+        <div class="text-end mt-4">
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+    </div>
     </form>
   </div>
 </div>
@@ -155,11 +169,54 @@ document.addEventListener('DOMContentLoaded', function () {
       regInputs.forEach(input => input.removeAttribute('required')); 
     }
   });
-
-  const progCategory = document.getElementById('progCategory');
-  const mbkmSection = document.querySelector('.mbkm');
-  progCategory.addEventListener('change', function () {
-    mbkmSection.style.display = this.value === "12" ? 'block' : 'none';
-  });
 });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const progCategory = document.getElementById('progCategory');
+    const mbkmSection = document.querySelector('.mbkm');
+
+    progCategory.addEventListener('change', function () {
+        const selectedValue = this.value;
+        console.log("Selected Value:", selectedValue); 
+        if (selectedValue == '12') { 
+            mbkmSection.style.display = 'block'; 
+            console.log("Showing mbkm section"); 
+        } else {
+            mbkmSection.style.display = 'none'; 
+            console.log("Hiding mbkm section"); 
+        }
+    });
+});
+</script>
+
+<script>
+    function previewImage(event) {
+        const input = event.target; // Input elemen file
+        const previewDiv = document.getElementById('previewdiv'); // Div container untuk preview
+        const previewImg = document.getElementById('preview'); // Elemen img untuk menampilkan gambar
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0]; // File yang diunggah
+            const reader = new FileReader(); // FileReader untuk membaca file
+
+            // Hanya menampilkan file dengan tipe yang valid
+            if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result; // Isi src gambar
+                    previewImg.style.display = 'block'; // Tampilkan elemen img
+                    previewDiv.style.display = 'flex'; // Tampilkan div container
+                };
+                reader.readAsDataURL(file); // Membaca file sebagai data URL
+            } else {
+                alert('File yang diunggah harus berupa gambar (JPG, JPEG, atau PNG).');
+                input.value = ''; // Reset input file
+                previewDiv.style.display = 'none'; // Sembunyikan container
+            }
+        } else {
+            // Sembunyikan preview jika tidak ada file
+            previewDiv.style.display = 'none';
+            previewImg.style.display = 'none';
+        }
+    }
 </script>

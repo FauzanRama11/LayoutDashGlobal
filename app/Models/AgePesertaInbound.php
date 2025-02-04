@@ -129,6 +129,23 @@ class AgePesertaInbound extends Model
                  'metadata->>english_certificate as English_Certificate',
                  'metadata->>passport_date_issue as Passport_Date_Issue',
                  'metadata->>referee_organization as Referee_Organization',
+                 'metadata->>degree as Degree',
+                 'metadata->>end_date_prog as End_Date_Prog',
+                'metadata->>experience as Experience',
+                'metadata->>faculty as Faculty',
+                'metadata->>field_of_study as Field_Of_Study',
+                'metadata->>fullname as Fullname',
+                'metadata->>joined_lingua as Joined_Lingua',
+                'metadata->>loaPeserta as LoA_Peserta',
+                'metadata->>outcome as Outcome',
+                'metadata->>progCategory as Program_Category',
+                'metadata->>program_info as Program_Info',
+                'metadata->>research_proposal as Research_Proposal',
+                'metadata->>start_date_prog as Start_Date_Prog',
+                'metadata->>supervisor as Supervisor',
+                'metadata->>tFakultasPeserta as Target_Faculty',
+                'metadata->>tProdiPeserta as Target_Prodi',
+                'metadata->>via as Via',
                  'is_approve'
              ])
              ->orderByDesc('created_date')

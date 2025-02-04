@@ -129,8 +129,13 @@
               </div>
               <div class="mb-3">
                 <label class="form-label" for="programLogo">Logo/Poster</label>
-                <input class="form-control" type="file" id="programLogo" name="programLogo">
+                <input class="form-control" type="file" id="programLogo" name="programLogo"  accept=".jpg, .jpeg, .png" onchange="previewImage(event)">
               </div>
+               <div class="mt-3">
+                    <div class="col-sm-12 border border-3 p-3 d-flex justify-content-center align-items-center" id="previewdiv" style="display: none;">
+                        <img id="preview" src="" alt="Preview" class="img-fluid" style="width: 300px; height: 300px; object-fit: cover; display: none;">
+                    </div>
+                </div>
             </div>
           </div>
         </div>
@@ -179,4 +184,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+</script>
+
+<script>
+    function previewImage(event) {
+        const input = event.target; // Input elemen file
+        const previewDiv = document.getElementById('previewdiv'); // Div container untuk preview
+        const previewImg = document.getElementById('preview'); // Elemen img untuk menampilkan gambar
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0]; // File yang diunggah
+            const reader = new FileReader(); // FileReader untuk membaca file
+
+            // Hanya menampilkan file dengan tipe yang valid
+            if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result; // Isi src gambar
+                    previewImg.style.display = 'block'; // Tampilkan elemen img
+                    previewDiv.style.display = 'flex'; // Tampilkan div container
+                };
+                reader.readAsDataURL(file); // Membaca file sebagai data URL
+            } else {
+                alert('File yang diunggah harus berupa gambar (JPG, JPEG, atau PNG).');
+                input.value = ''; // Reset input file
+                previewDiv.style.display = 'none'; // Sembunyikan container
+            }
+        } else {
+            // Sembunyikan preview jika tidak ada file
+            previewDiv.style.display = 'none';
+            previewImg.style.display = 'none';
+        }
+    }
 </script>
