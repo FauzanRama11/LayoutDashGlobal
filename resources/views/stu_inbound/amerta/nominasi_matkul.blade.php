@@ -24,6 +24,7 @@
                                     <tr>
                                         <th>Periode Program</th>
                                         <th>Prodi</th>
+                                        <th>Fakultas</th>
                                         <th>Code</th>
                                         <th>Title</th>
                                         <th>Semester</th>
@@ -39,11 +40,12 @@
                                     <tr>
                                         <td>{{ $item->date_program ?? '-' }}</td>
                                         <td>{{ $item->name ?? '-' }}</td>
+                                        <td>{{ $item->nama_ind ?? '-' }}</td>
                                         <td>{{ $item->code ?? '-' }}</td>
                                         <td>{{ $item->title ?? '-' }}</td>
                                         <td>{{ $item->semester ?? '-' }}</td>
                                         <td>{{ $item->sks ?? '-' }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($item->created_date)->format('d M Y - H:i') ?? '-' }}</td>
+                                        <td>{{ $item->created_date}}</td>
 										<td>
 											@if ($item->status === 'approved')
 												<span class="badge badge-primary">Aktif</span>
@@ -68,6 +70,7 @@
                                     <tr>
                                         <th>Periode Program</th>
                                         <th>Prodi</th>
+                                        <th>Fakultas</th>
                                         <th>Code</th>
                                         <th>Title</th>
                                         <th>Semester</th>

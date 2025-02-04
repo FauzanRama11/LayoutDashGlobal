@@ -29,18 +29,32 @@
                                                 </select>
                                                 <div class="invalid-feedback">Please select a valid Prodi.</div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Periode</label>
-                                                <select class="form-select" name="id_age_amerta" required>
-                                                    @foreach($periode as $item)
-                                                        <option value="{{ $item->id }}" 
-                                                            {{ old('id_age_amerta', $matkul->id_age_amerta ?? '') == $item->id ? 'selected' : '' }}>
-                                                            {{ $item->date_program }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <div class="invalid-feedback">Please select a valid Periode.</div>
-                                            </div>
+                                            @if(isset($matkul))
+                                                <div class="mb-3">
+                                                    <label class="form-label">Periode</label>
+                                                    <select class="form-select" name="id_age_amerta" disabled>
+                                                        @foreach($periode as $item)
+                                                            <option value="{{ $item->id }}" 
+                                                                {{ old('id_age_amerta', $matkul->id_age_amerta ?? '') == $item->id ? 'selected' : '' }}>
+                                                                {{ $item->date_program }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="invalid-feedback">Please select a valid Periode.</div>
+                                                </div>
+                                            @else
+                                                <div class="mb-3">
+                                                    <label class="form-label">Periode</label>
+                                                    <select class="form-select" name="id_age_amerta" required>
+                                                        @foreach($periode as $item)
+                                                            <option value="{{ $item->id }}">
+                                                                {{ $item->date_program }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="invalid-feedback">Please select a valid Periode.</div>
+                                                </div>
+                                            @endif
                         
                                             <div class="mb-3">
                                                 <label class="form-label">Course ID (as in Cybercampus)</label>
@@ -63,6 +77,13 @@
                                                 <input class="form-control digits" type="number" name="semester" 
                                                        value="{{ old('semester', $matkul->semester ?? '') }}" 
                                                        placeholder="Enter Course Semester" required>
+                                                <div class="invalid-feedback">This field is required.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">PJMK</label>
+                                                <textarea class="form-control" name="pjmk" 
+                                                          placeholder="Enter Lecturer Names" required>{{ old('pjmk', $matkul->pjmk ?? '') }}</textarea>
                                                 <div class="invalid-feedback">This field is required.</div>
                                             </div>
                         
@@ -130,14 +151,14 @@
                                                     </div>
                                             
                                                     <!-- Tampilkan input file untuk mengganti file -->
-                                                    <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment">
+                                                    <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment" accept=".pdf" onchange="validateFileSize(this)">
                                                     <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                                                     @error('url_attachment')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 @else
                                                     <!-- Input file jika ID tidak ada -->
-                                                    <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment">
+                                                    <input class="form-control @error('url_attachment') is-invalid @enderror" type="file" name="url_attachment" accept=".pdf" onchange="validateFileSize(this)">
                                                     <div class="form-text">Upload a file if needed.</div>
                                                     @error('url_attachment')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -157,3 +178,46 @@
                         </div>
                         
 @endsection
+
+
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    
+    let isFileValid = true; // Variabel global untuk melacak status validasi file
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const fileInputs = document.querySelectorAll("input[type='file']");
+        console.log('percobaan');
+
+        fileInputs.forEach(input => {
+            input.addEventListener("change", function () {
+                console.log(fileInputs);
+                validateFileSize(this); // Jalankan validasi saat file dipilih
+            });
+        });
+    });
+
+    function validateFileSize(input) {
+        const file = input.files[0]; // Ambil file pertama dari input
+        if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    title: 'File too large!',
+                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; // Kosongkan input file jika tidak valid
+                isFileValid = false; // Tandai file tidak valid
+            } else {
+                isFileValid = true; // Tandai file valid
+            }
+        }
+    }
+
+</script>

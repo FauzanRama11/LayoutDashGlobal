@@ -66,16 +66,15 @@ Route::get('/404', function () { return view('admin.authentication.error404');})
 Route::get('/500', function () { return view('admin.authentication.error500');});
 
 // Form
-
 Route::get('/{type}-registration-form', [PendaftaranController::class, 'view_regist'])->name('registrasi');
 Route::post('/save-selected-program',  [PendaftaranController::class, 'fetch_program']);
-Route::post('/student-registration-submitted', [PendaftaranController::class, 'storeRegistrationForm'])->name('simpan.registrasi');
+Route::post('/{type}-student-registration-submitted', [PendaftaranController::class, 'storeRegistrationForm'])->name('simpan.registrasi');
 Route::get('/{type}-registration-submitted', [PendaftaranController::class, 'result'])->name('result');
 
 // Pendaftaran Inbound/Outbound
 Route::get('/registrasi-peserta-inbound/{url_generate}', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
 
-Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
+// Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
 
 Route::post('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'Simpan_stuin'])->name('simpan.stuin');
 Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');

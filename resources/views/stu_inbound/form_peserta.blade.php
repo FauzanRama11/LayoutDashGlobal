@@ -45,7 +45,7 @@
                                   </button>
 
                                   {{-- Reject Button --}}
-                                  @if ($data->is_approved !== 1)
+                                  @if ($data->is_approved === 0)
                                       <button type="button" id="rejectButton" class="btn btn-danger">
                                           <i class="fa fa-ban"></i> Reject
                                       </button>
@@ -54,9 +54,6 @@
                           @endrole
                       @endif
                   @endif
-
-                  
-
               </div>
           </div>
           @endif
@@ -202,14 +199,14 @@
               <div class="mb-3">
                   <label class="form-label" for="fotoPeserta">Photo</label>
                   <input class="form-control" type="file" id="fotoPeserta" name="fotoPeserta" accept=".jpg, .jpeg, .png"
-                      onchange="previewImage(event, 'photoPreviewDiv', 'photoPreview', 240)">
+                      onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)">
                   <div class="invalid-feedback"></div>
               </div>
           @else
               <div class="mb-3">
                   <label class="form-label" for="fotoPeserta">Photo</label>
                   <input class="form-control" type="file" id="fotoPeserta" name="fotoPeserta" accept=".jpg, .jpeg, .png"
-                      onchange="previewImage(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
+                      onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
                   <div class="invalid-feedback"></div>
               </div>
           @endif
@@ -230,7 +227,7 @@
           <div class="mb-3">
             <label class="form-label" for="cvPeserta">CV</label>
               @if (isset($data) && !empty($data->cv_url))
-              <input class="form-control" type="file" id="cvPeserta " name="cvPeserta" accept=".pdf">
+              <input class="form-control" type="file" id="cvPeserta" name="cvPeserta" accept=".pdf" onchange="validateFileSize(this)">
                   <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                   @error('url_attachment')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -254,7 +251,7 @@
                 </div>
               @else
                   <!-- Input file jika ID tidak ada -->
-                  <input class="form-control @error('cvPeserta') is-invalid @enderror" type="file" name="cvPeserta" required>
+                  <input class="form-control @error('cvPeserta') is-invalid @enderror" type="file" name="cvPeserta" accept=".pdf" onchange="validateFileSize(this)" required>
                   @error('cvPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -276,7 +273,7 @@
           <div class="mb-3">
             <label class="form-label" for="loaPeserta">LoA</label>
               @if (isset($data) && !empty($data->loa_url))
-                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf">
+                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf"  onchange="validateFileSize(this)">
                   <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                   @error('url_attachment')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -300,7 +297,7 @@
                 </div>
               @else
                   <!-- Input file jika ID tidak ada -->
-                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf" required>
+                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf" required onchange="validateFileSize(this)">
                   <div class="form-text"></div>
                   @error('url_attachment')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -368,7 +365,7 @@
           <div class="mb-3">
             <label class="form-label" for="passPeserta">Passport</label>
               @if (isset($data) && !empty($data->passport_url))
-                  <input class="form-control" type="file" id="passPeserta" name="passPeserta" accept=".pdf">
+                  <input class="form-control" type="file" id="passPeserta" name="passPeserta" accept=".pdf"  onchange="validateFileSize(this)">
                   <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                   @error('passPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -392,7 +389,7 @@
                   </div>
               @else
                   <!-- Input file jika Passport belum ada -->
-                  <input class="form-control @error('passPeserta') is-invalid @enderror" type="file" name="passPeserta" required>
+                  <input class="form-control @error('passPeserta') is-invalid @enderror" type="file" name="passPeserta" required  onchange="validateFileSize(this)">
                   @error('passPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -401,7 +398,7 @@
         
           <div class="mb-3">
             <label class="form-label" for="idPeserta">Student ID</label>
-            <input class="form-control" type="file" id="idPeserta" name="idPeserta" accept=".jpg, .jpeg, .png" onchange="previewImage(event, 'studentIDPreviewDiv', 'studentIDPreview', 240)">
+            <input class="form-control" type="file" id="idPeserta" name="idPeserta" accept=".jpg, .jpeg, .png" onchange="handleFileChange(event, 'studentIDPreviewDiv', 'studentIDPreview', 240)">
           </div>
           
           <div class="mb-3">
@@ -464,21 +461,52 @@
           event.preventDefault();
       }
   }
+  </script>
   
-  function previewImage(event, previewDivId, previewImgId, imgHeight = null) {
-      const input = event.target;
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<script>
+  let isFileValid = true; // Menyimpan status validasi file
+
+  function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
+      validateFileSize(event.target);
+      previewImage(event.target, previewDivId, previewImgId, imgHeight);
+  }
+
+  function validateFileSize(input) {
+      const file = input.files[0];
+      if (file) {
+          const maxSize = 2 * 1024 * 1024; // 2MB
+          if (file.size > maxSize) {
+              Swal.fire({
+                  title: 'File too large!',
+                  text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              input.value = ""; 
+              isFileValid = false;
+          } else {
+              isFileValid = true;
+          }
+      }
+  }
+
+  function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
       const previewDiv = document.getElementById(previewDivId);
       const previewImg = document.getElementById(previewImgId);
-  
+
       if (!previewDiv || !previewImg) {
           console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
           return;
       }
-  
+
       if (input.files && input.files[0]) {
           const file = input.files[0];
           const reader = new FileReader();
-  
+
           if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
               reader.onload = function (e) {
                   previewImg.src = e.target.result;
@@ -488,7 +516,12 @@
               };
               reader.readAsDataURL(file);
           } else {
-              alert('File harus berupa gambar (JPG, JPEG, atau PNG).');
+              Swal.fire({
+                  title: 'Invalid File Type!',
+                  text: 'Only JPG, JPEG, or PNG files are allowed.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
               input.value = '';
               previewDiv.style.display = 'none';
           }
@@ -498,10 +531,8 @@
           previewImg.src = '';
       }
   }
-  </script>
-  
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</script>
+
 
   @if($data)
   <script>

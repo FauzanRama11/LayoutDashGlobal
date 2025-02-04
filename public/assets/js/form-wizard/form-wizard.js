@@ -106,6 +106,12 @@ function validateForm() {
 
     console.log(`Validating inputs for tab ${currentTab}`);
 
+    document.querySelectorAll("select").forEach(select => {
+        console.log(`Checking select: name=${select.name}, required=${select.hasAttribute("required")}`);
+    });
+    
+    
+
     inputs.forEach(input => {
         // Abaikan input yang dinonaktifkan
         if (input.disabled) {
@@ -128,6 +134,8 @@ function validateForm() {
                 feedback.textContent = "This field is required.";
             }
             valid = false;
+
+         
         } 
         // Validasi format email jika input bertipe email
         else if (!isEmpty && isEmail && !validateEmail(input.value)) {

@@ -11,15 +11,6 @@ class LinguaController extends Controller
 
     public function pendaftar()
     {
-        // $data = DB::table('age_peserta_inbound')
-        //     ->join('age_lingua', 'age_peserta_inbound.id_period', '=', 'age_lingua.id')
-        //     ->select('age_peserta_inbound.id as id', '.age_peserta_inbound.type as type', 'age_peserta_inbound.email as email', 'age_peserta_inbound.metadata as metadata', 'age_peserta_inbound.created_date as created_date', 
-        //      DB::raw('CONCAT(DATE_FORMAT(age_lingua.start_date_program, \'%d %b %Y\'), \' - \', DATE_FORMAT(age_lingua.end_date_program, \'%d %b %Y\')) as date_program'), 'age_peserta_inbound.is_approve as is_approve')
-        //     ->where('age_peserta_inbound.type', 'lingua')
-        //     ->limit(500)
-        //     ->get();
-
-            // dd($data);
         
             $data = DB::table('age_peserta_inbound')
             ->join('age_lingua', 'age_peserta_inbound.id_period', '=', 'age_lingua.id')
@@ -34,62 +25,23 @@ class LinguaController extends Controller
                 'age_peserta_inbound.is_approve as is_approve'
             )
             ->where('age_peserta_inbound.type', 'lingua')
-            ->limit(500)
+            ->orderByDesc('age_peserta_inbound.id')
             ->get();
         
         // Decode metadata dan tambahkan key dari JSON sebagai properti
         $processedData = $data->map(function ($item) {
             $metadata = json_decode($item->metadata, true); // Decode JSON menjadi array
-        
+
             return [
                 'id' => $item->id,
                 'type' => $item->type,
                 'email' => $item->email,
-                'secondary_email' => $item->secondary_email,
                 'created_date' => $item->created_date,
-                'date_program' => $item->date_program ?? null,
+                'date_program' => $item->date_program,
                 'is_approve' => $item->is_approve,
-                'full_name' => $metadata['fullname'] ?? '-',
-                'first_name' => $metadata['firstname'] ?? '-',
-                'last_name' => $metadata['lastname'] ?? '-',
-                'dob' => $metadata['dob'] ?? null, // Date of birth
-                'pob' => $metadata['pob'] ?? '-', // Place of birth
-                'gpa' => $metadata['gpa'] ?? null,
-                'sex' => $metadata['sex'] ?? '-',
-                'major' => $metadata['major'] ?? '-',
-                'phone' => $metadata['phone'] ?? '-',
-                'photo' => $metadata['photo'] ?? '-',
-                'native_language' => $metadata['native'] ?? '-',
-                'address' => $metadata['address'] ?? '-',
-                'university' => $metadata['university'] ?? '-',
-                'year_entry' => $metadata['year_entry'] ?? null,
-                'nationality' => $metadata['nationality'] ?? '-',
-                'passport_number' => $metadata['passport_number'] ?? '-',
-                'passport_date_issue' => $metadata['passport_date_issue'] ?? null,
-                'passport_date_exp' => $metadata['passport_date_exp'] ?? null,
-                'issuing_authority' => $metadata['issuing_authority'] ?? '-',
-                'motivation_letter' => $metadata['motivation_letter'] ?? '-',
-                'transcript' => $metadata['transcript'] ?? '-',
-                'letter_recom' => $metadata['letter_recom'] ?? '-',
-                'selected_program' => $metadata['selected_program'] ?? '-',
-                'take_indo' => $metadata['take_indo'] ?? '-',
-                'taken_indo' => $metadata['taken_indo'] ?? '-',
-                'english_certificate' => $metadata['english_certificate'] ?? '-',
-                'english_score' => $metadata['english_score'] ?? '-',
-                'pic_name' => $metadata['pic_name'] ?? '-',
-                'pic_email' => $metadata['pic_email'] ?? '-',
-                'pic_telephone' => $metadata['pic_telephone'] ?? '-',
-                'pic_address' => $metadata['pic_address'] ?? '-',
-                'pic_position' => $metadata['pic_position'] ?? '-',
-                'referee_name' => $metadata['referee_name'] ?? '-',
-                'referee_email' => $metadata['referee_email'] ?? '-',
-                'referee_relation' => $metadata['referee_relation'] ?? '-',
-                'referee_organization' => $metadata['referee_organization'] ?? '-',
-                'kin_name' => $metadata['kin_name'] ?? '-',
-                'kin_email' => $metadata['kin_email'] ?? '-',
-                'kin_phone' => $metadata['kin_phone'] ?? '-',
-                'kin_address' => $metadata['kin_address'] ?? '-',
-                'kin_relation' => $metadata['kin_relation'] ?? '-',
+                'full_name' => $metadata['fullname'] ?? '', 
+                'selected_program' => $metadata['selected_program'] ?? '',
+                'loaPeserta' => $metadata['loaPeserta'] ?? '',
             ];
         });
         
