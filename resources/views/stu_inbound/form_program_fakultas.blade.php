@@ -109,7 +109,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="programLogo">Logo/Poster</label>
-                    <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png" onchange="previewImage(event)">
+                    <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png" onchange="handleFileChange(event)">
                 </div>
                
                 <div class="mt-3">
@@ -131,6 +131,10 @@
 </div>
 @endsection
 
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -160,32 +164,69 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <script>
-    function previewImage(event) {
-        const input = event.target; // Input elemen file
-        const previewDiv = document.getElementById('previewdiv'); // Div container untuk preview
-        const previewImg = document.getElementById('preview'); // Elemen img untuk menampilkan gambar
-
+    let isFileValid = true; 
+  
+    document.addEventListener("DOMContentLoaded", function () {
+        const fileInputs = document.querySelectorAll("input[type='file']");
+        console.log('File validation initialized.');
+  
+        fileInputs.forEach(input => {
+            input.addEventListener("change", handleFileChange);
+        });
+    });
+  
+    function handleFileChange(event) {
+        validateFileSize(event.target); 
+        previewImage(event.target); 
+    }
+  
+    function validateFileSize(input) {
+        const file = input.files[0]; 
+        if (file) {
+            const maxSize = 2 * 1024 * 1024; 
+            if (file.size > maxSize) {
+                Swal.fire({
+                    title: 'File too large!',
+                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; 
+                isFileValid = false; 
+            } else {
+                isFileValid = true; 
+            }
+        }
+    }
+  
+    function previewImage(input) {
+        const previewDiv = document.getElementById('previewdiv'); 
+        const previewImg = document.getElementById('preview'); 
+  
         if (input.files && input.files[0]) {
-            const file = input.files[0]; // File yang diunggah
-            const reader = new FileReader(); // FileReader untuk membaca file
-
-            // Hanya menampilkan file dengan tipe yang valid
+            const file = input.files[0]; 
+            const reader = new FileReader(); 
+  
             if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
                 reader.onload = function (e) {
-                    previewImg.src = e.target.result; // Isi src gambar
-                    previewImg.style.display = 'block'; // Tampilkan elemen img
-                    previewDiv.style.display = 'flex'; // Tampilkan div container
+                    previewImg.src = e.target.result; 
+                    previewImg.style.display = 'block'; 
+                    previewDiv.style.display = 'flex'; 
                 };
-                reader.readAsDataURL(file); // Membaca file sebagai data URL
+                reader.readAsDataURL(file); 
             } else {
-                alert('File yang diunggah harus berupa gambar (JPG, JPEG, atau PNG).');
-                input.value = ''; // Reset input file
-                previewDiv.style.display = 'none'; // Sembunyikan container
+                Swal.fire({
+                    title: 'Invalid File Type!',
+                    text: 'Only JPG, JPEG, or PNG files are allowed.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ''; 
+                previewDiv.style.display = 'none'; 
             }
         } else {
-            // Sembunyikan preview jika tidak ada file
             previewDiv.style.display = 'none';
             previewImg.style.display = 'none';
         }
     }
-</script>
+  </script>

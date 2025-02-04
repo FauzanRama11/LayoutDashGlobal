@@ -53,6 +53,7 @@ function getFileUrl($fileUrl) {
                                         <th>Status</th>
 										<th>Approve</th>
 	                                    <th>Add Revision</th>
+	                                    <th>Reject</th>
 	                                </tr>
 	                            </thead>
 	                            <tbody>
@@ -116,18 +117,46 @@ function getFileUrl($fileUrl) {
 												<button class="btn btn-success btn-sm" disabled>Approved</button>
 											@elseif ($item->is_approved === -1)
 												<button class="btn btn-danger btn-sm" disabled>Rejected</button>
+												@if (!empty($item->revision_note)) 
+													<!-- Tombol untuk melihat revisi -->
+													<button type="button" class="btn btn-warning btn-sm viewRevisionButton" 
+														data-revision="{{ $item->revision_note }}">
+														<i class="fa fa-eye"></i> 
+													</button>
+												@endif
 											@else
 												<button class="btn btn-info btn-sm" disabled>Processed</button>
+												@if (!empty($item->revision_note)) 
+													<!-- Tombol untuk melihat revisi -->
+													<button type="button" class="btn btn-warning btn-sm viewRevisionButton" 
+														data-revision="{{ $item->revision_note }}">
+														<i class="fa fa-eye"></i> 
+													</button>
+												@endif
 											@endif
 										</td>
 										<td>
-											<form action="{{ route('stuin.approve', $item->id) }}" method="POST">
-												@csrf
-												<button type="submit" class="btn btn-primary edit-button">Approve</button>
-											</form>
+											@if ($item->is_approved === 1)
+												<form action="{{ route('stuin.unapprove', $item->id) }}" method="POST">
+													@csrf
+													<button type="submit" class="btn btn-primary edit-button">Unapprove</button>
+												</form>
+											@else
+												<form action="{{ route('stuin.approve', $item->id) }}" method="POST">
+													@csrf
+													<button type="submit" class="btn btn-primary edit-button">Approve</button>
+												</form>
+											@endif
 										</td>
-										<td><form action="" method="GET">
-												<button type="submit" class="btn btn-primary edit-button">Revise</button>
+										<td>
+											<button type="button" class="btn btn-warning reviseButton" data-id="{{ $item->id }}">
+												<i class="fa fa-edit"></i> Revise
+											</button>
+										</td>
+										<td>
+											<form action="{{ route('stuin.reject', $item->id) }}" method="POST">
+												@csrf
+												<button type="submit" class="btn btn-danger edit-button">Reject</button>
 											</form>
 										</td>
                                     @endforeach
@@ -152,6 +181,7 @@ function getFileUrl($fileUrl) {
                                         <th>Status</th>
 										<th>Approve</th>
 	                                    <th>Add Revision</th>
+	                                    <th>Reject</th>
 	                                </tr>
 	                            </tfoot>
 	                        </table>
@@ -163,3 +193,79 @@ function getFileUrl($fileUrl) {
 	    </div>
 	</div>
 @endsection
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+	$(document).ready(function () {
+		$(document).on("click", ".reviseButton", function () {
+			let id = $(this).data("id");
+			console.log("ID yang dikirim:", id); 
+
+			Swal.fire({
+				title: 'Revisi Data',
+				input: 'text',
+				inputPlaceholder: 'Masukkan catatan revisi di sini...',
+				showCancelButton: true,
+				confirmButtonText: '<i class="fa fa-save"></i> Simpan',
+				cancelButtonText: '<i class="fa fa-times"></i> Batal',
+				confirmButtonColor: "#007bff",
+				cancelButtonColor: "#d33",
+				inputValidator: (value) => {
+					if (!value.trim()) {
+						return 'Catatan revisi tidak boleh kosong!';
+					}
+				}
+			}).then((result) => {
+				if (result.isConfirmed) {
+					let revisionNote = result.value;
+					console.log("Revisi Note:", revisionNote); 
+	
+					Swal.fire({
+						title: 'Menyimpan...',
+						text: 'Mohon tunggu sementara revisi disimpan.',
+						allowOutsideClick: false,
+						didOpen: () => {
+							Swal.showLoading();
+						}
+					});
+	
+					$.ajax({
+						url: "/student-inbound/save-revision/" + id, 
+						type: "POST",
+						headers: {
+							'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') 
+						},
+						data: {
+							revision_note: revisionNote
+						},
+						success: function (response) {
+							console.log("Response sukses:", response); 
+							Swal.fire('Berhasil!', 'Revisi berhasil disimpan.', 'success')
+							.then(() => {
+								location.reload();
+							});
+						},
+						error: function (xhr) {
+							console.log("Error response:", xhr.responseText); 
+							Swal.fire('Error!', 'Terjadi kesalahan: ' + xhr.responseText, 'error');
+						}
+					});
+				}
+			});
+		});
+	
+		$(document).on("click", ".viewRevisionButton", function () {
+			let revisionNote = $(this).data("revision"); 
+			Swal.fire({
+				title: 'Revisi',
+				text: revisionNote,
+				icon: 'info',
+				confirmButtonText: 'Tutup',
+				confirmButtonColor: "#007bff"
+			});
+		});
+	});
+	</script>
+	

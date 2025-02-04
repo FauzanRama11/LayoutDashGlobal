@@ -64,6 +64,8 @@
      
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/responsive.css") }}">
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/sweetalert2.css") }}">
+    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
   
     @includeIf('layouts.partials.css')

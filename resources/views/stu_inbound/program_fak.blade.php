@@ -37,16 +37,16 @@
 	                            <tbody>
 									@foreach ($data as $item)
 									<tr>
-										<td>{{ $item->name ?? '-' }}</td>
-										<td>{{ $item->start_date ?? '-' }}</td>
-										<td>{{ $item->end_date ?? '-' }}</td>
-										<td>{{ $item->cat ?? '-' }}</td>
-										<td>{{ $item->via ?? '-' }}</td>
-										<td>{{ $item->unit ?? '-' }}</td>
-										<td>{{ $item->pt_ft ?? '-' }}</td>
-										<td>{{ $item->peserta ?? '-' }}</td>
-										<td>{{ $item->is_private_event === 'Ya' ? 'Registrasi' : 'Pelaporan' }}</td>
-										<td>{{ $item->created_time ?? '-' }}</td>                                    
+										<td>{{ $item->name ?? '' }}</td>
+										<td>{{ $item->start_date ?? '' }}</td>
+										<td>{{ $item->end_date ?? '' }}</td>
+										<td>{{ $item->cat ?? '' }}</td>
+										<td>{{ $item->via ?? '' }}</td>
+										<td>{{ $item->unit ?? '' }}</td>
+										<td>{{ $item->pt_ft ?? '' }}</td>
+										<td>{{ $item->jumlah_peserta ?? '' }}</td>
+										<td>{{ $item->is_private_event === 'Tidak' ? 'registrasi' : 'Pelaporan' }}</td>
+										<td>{{ $item->created_time ?? '' }}</td>                                    
 										<td>
 											<form  action="{{ route('program_stuin.edit', ['id' => $item->id]) }}" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Edit</button>

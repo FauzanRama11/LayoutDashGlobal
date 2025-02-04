@@ -50,7 +50,8 @@ class StudentInboundController extends Controller
         return view('stu_inbound.approval_pelaporan', compact('data'));
     }
 
-    public function actionPesertaApprove(Request $request, $id)
+    // APPROVAL
+    public function pesertaApprove(Request $request, $id)
     {
         $peserta = MStuInPeserta::find($id);
         
@@ -65,7 +66,67 @@ class StudentInboundController extends Controller
             'approval_code' => $peserta->approval_code, 
         ]);
     
-        return redirect()->route('stuin_approval_pelaporan');
+        if ($peserta->program->is_private_event === 'Ya') {
+            return redirect()->route('stuin_approval_pelaporan');
+        } else {
+            return redirect()->route('stuin_peserta.edit', [
+                'prog_id' => $peserta->program->id, 
+                'item_id' => $peserta->id
+            ]);
+        }
+
+    }
+
+    public function pesertaUnapprove(Request $request, $id)
+    {
+        $peserta = MStuInPeserta::find($id);
+        
+        if (is_null($peserta->approval_code)) {
+            $peserta->approval_code = $this->generateRandomString(10);
+        }
+
+        $peserta->update([
+            'is_approved' => 0,
+            'approved_time' => now(),
+            'approved_by' => Auth::id(),
+            'approval_code' => $peserta->approval_code, 
+        ]);
+
+        if ($peserta->program->is_private_event === 'Ya') {
+            return redirect()->route('stuin_approval_pelaporan');
+        } else {
+            return redirect()->route('stuin_peserta.edit', [
+                'prog_id' => $peserta->program->id, 
+                'item_id' => $peserta->id
+            ]);
+        }
+    
+    }
+
+    public function pesertaReject(Request $request, $id)
+    {
+        $peserta = MStuInPeserta::find($id);
+        
+        if (is_null($peserta->approval_code)) {
+            $peserta->approval_code = $this->generateRandomString(10);
+        }
+
+        $peserta->update([
+            'is_approved' => -1,
+            'approved_time' => now(),
+            'approved_by' => Auth::id(),
+            'approval_code' => $peserta->approval_code, 
+        ]);
+
+        if ($peserta->program->is_private_event === 'Ya') {
+            return redirect()->route('stuin_approval_pelaporan');
+        } else {
+            return redirect()->route('stuin_peserta.edit', [
+                'prog_id' => $peserta->program->id, 
+                'item_id' => $peserta->id
+            ]);
+        }
+    
     }
 
     public function approveDana($id)
@@ -82,6 +143,41 @@ class StudentInboundController extends Controller
         return redirect()->back()->with('success', 'Bantuan Dana berhasil disetujui.');
     }
 
+    public function unapproveDana($id)
+    {
+        $model = MStuInPeserta::find($id);
+
+        if (!$model) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan!');
+        }
+
+        $model->pengajuan_dana_status = 'REQUESTED';
+        $model->save();
+
+        return redirect()->back()->with('success', 'Bantuan Dana berhasil disetujui.');
+    }
+
+    public function saveRevision(Request $request, $id)
+    {
+        // Validate input
+        $validated = $request->validate([
+            'revision_note' => 'required|string|max:255'
+        ]);
+
+        // Find the record
+        $data = MStuInPeserta::find($id);
+
+        if (!$data) {
+            return response()->json(['message' => 'Data tidak ditemukan!'], 404);
+        }
+
+        // Save the revision note
+        $data->revision_note = $request->revision_note;
+        $data->save();
+
+        return response()->json(['message' => 'Revisi berhasil disimpan!']);
+    }
+
 
     public function pdfPengajuanInbound($id, $tipe = null)
     {
@@ -96,19 +192,24 @@ class StudentInboundController extends Controller
             ->get();
 
         if ($peserta->isEmpty()) {
-            return redirect()->back()->with('error', 'Tidak ada peserta dengan sumber dana ' . ($tipe ?? 'RKAT') . '.');
+            return redirect()->route('program_stuin.edit', ['id' => $id])
+                ->with('sweetalert', [
+                    'type' => 'error',
+                    'message' => 'Tidak ada peserta dengan sumber dana ' . ($tipe ?? 'RKAT') . '.'
+                ]);
         }
 
         $program = DB::table('m_stu_in_programs')->where('id', $id)->first();
 
-        $logo = asset("app/static/header_age.jpg");
-        $ttd = asset("app/static/ttd_pak_iman.jpg");
+        $logo = public_path('assets/template/header_age.png');
+        $ttd = public_path('assets/template/ttd_pak_iman.png');
+
 
         $ptft = ($program->pt_ft == 'PT') ? 'Part Time' : 'Full Time';
         $pengajuan_dana = $tipe ?? 'RKAT';
 
         // **Buat Header PDF**
-        $header = '<img src="' . $logo . '">';
+        $header = '<img src="' . $logo . '" style="width: 100%;">';
 
         // **Buat Isi PDF**
         $html = '<style>
@@ -119,8 +220,9 @@ class StudentInboundController extends Controller
                     ol { padding-left: 20px; }
                 </style>';
 
-        $html .= '<div class="content">';
-        $html .= '<p class="text">Permohonan Persetujuan Bantuan Pendanaan Student Inbound mahasiswa <b>' . $program->host_unit_text . '</b> yang akan mengikuti <b>' . $program->name . '</b> pada <b>' . ($program->start_date) . '</b> sampai <b>' . ($program->end_date) . '</b> atas nama:</p>';
+        $html .= '<div class="content"> <br>';
+        $html .= '<p class="text">Permohonan Persetujuan Bantuan Pendanaan Student Inbound mahasiswa ' . $program->host_unit_text . 
+        ' yang akan mengikuti ' . $program->name . ' pada ' . ($program->start_date) . ' sampai ' . ($program->end_date) . ' atas nama:</p>';
 
         $html .= '<ol>';
         foreach ($peserta as $p) {
@@ -128,9 +230,11 @@ class StudentInboundController extends Controller
         }
         $html .= '</ol>';
 
-        $html .= '<p class="text">Telah diverifikasi dan disetujui oleh Airlangga Global Engagement untuk diberikan bantuan pendanaan student inbound <b>' . $ptft . '</b> melalui <b>' . $pengajuan_dana . '</b> di ' . $program->host_unit_text . '. Setelah menyelesaikan program, mahasiswa diwajibkan membuat laporan dan sertifikat kegiatan untuk dikumpulkan ke fakultas.</p>';
+        $html .= '<p class="text">Telah diverifikasi dan disetujui oleh Airlangga Global Engagement untuk diberikan bantuan pendanaan student 
+        inbound ' . $ptft . ' melalui ' . $pengajuan_dana . ' ' . $program->host_unit_text . '. Setelah menyelesaikan program, mahasiswa 
+        diwajibkan membuat laporan dan sertifikat kegiatan untuk dikumpulkan ke fakultas.</p>';
 
-        $html .= '<img src="' . $ttd . '" style="width: 380px; margin-left: 300px;">';
+        $html .= '<img src="' . $ttd . '" style="width: 320px; margin-left: 380px;">';
         $html .= '</div>';
 
         // **Buat PDF Menggunakan mPDF**
@@ -156,60 +260,6 @@ class StudentInboundController extends Controller
             'Content-Disposition' => 'inline; filename="Persetujuan_Dana.pdf"',
         ]);
     }
-
-    // public function pdfPengajuanInbound($id, $tipe)
-    // {
-    //     // set_time_limit(300); // Mencegah timeout jika proses lama
-
-    //     $program = MStuInProgram::with(['mStuInPesertas' => function ($query) use ($tipe) {
-    //         $query->where('pengajuan_dana_status', 'APPROVED')
-    //             ->where('sumber_dana', $tipe);
-    //     }])->find($id);
-
-    //     if (!$program || $program->mStuInPesertas->isEmpty()) {
-    //         return redirect()->back()->with('error', 'Tidak ada peserta dengan sumber dana ' . $tipe . '.');
-    //     }
-
-    //     // **Pastikan Template Word Ada**
-    //     $templatePath = public_path('assets/template/TemplatePendanaanInbound.docx');
-    //     if (!file_exists($templatePath)) {
-    //         return redirect()->back()->with('error', 'Template tidak ditemukan.');
-    //     }
-
-    //     // **Load Template Word**
-    //     $templateProcessor = new TemplateProcessor($templatePath);
-
-    //     // **Ganti placeholder dalam template**
-    //     $templateProcessor->setValue('Fakultas', $program->host_unit_text);
-    //     $templateProcessor->setValue('Nama Program', $program->name);
-    //     $templateProcessor->setValue('Tgl. Mulai', $program->start_date);
-    //     $templateProcessor->setValue('Tgl. Selesai', $program->end_date);
-    //     $templateProcessor->setValue('Part Time/Full Time', ($program->pt_ft == 'PT') ? 'Part Time' : 'Full Time');
-    //     $templateProcessor->setValue('RKAT/DAPT', $tipe);
-
-    //     // **Ganti daftar mahasiswa sesuai sumber dana**
-    //     $mahasiswaList = implode("\n", $program->mStuInPesertas->map(function ($p) {
-    //         return "{$p->nama} – {$p->tujuan_prodi}";
-    //     })->toArray());
-
-    //     $templateProcessor->setValue('Mahasiswa List', $mahasiswaList);
-
-    //     // **Simpan hasil perubahan ke file sementara**
-    //     $tempDocPath = tempnam(sys_get_temp_dir(), 'word') . '.docx';
-    //     $templateProcessor->saveAs($tempDocPath);
-
-    //     // **Konversi Word ke PDF (Tanpa Menyimpan ke Storage)**
-    //     $mpdf = new Mpdf();
-    //     $mpdf->WriteHTML(nl2br(strip_tags(file_get_contents($tempDocPath)))); // Pastikan teks diproses dengan baik
-
-    //     // **Langsung Stream PDF ke Browser**
-    //     return response()->stream(function () use ($mpdf) {
-    //         $mpdf->Output();
-    //     }, 200, [
-    //         'Content-Type' => 'application/pdf',
-    //         'Content-Disposition' => 'inline; filename="Persetujuan_Dana.pdf"',
-    //     ]);
-    // }
 
     private function generateRandomString($length = 10)
     {

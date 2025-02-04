@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use App\Models\AgePesertaInbound;
 
 class PendaftaranController extends Controller
@@ -14,6 +15,7 @@ class PendaftaranController extends Controller
     {
         // Define title and initialize variables
         $title = strtoupper($type) . ' REGISTRATION';
+        $tipe = strtoupper($type);
 
         if ($type !== 'amerta' && $type !== 'lingua') {
             $message = 'Please enter the right link to go to the form registration!';
@@ -31,6 +33,8 @@ class PendaftaranController extends Controller
             ->whereDate('start_date_pendaftaran', '<=', now())
             ->whereDate('end_date_pendaftaran', '>=', now())
             ->first();
+
+        // dd($period);
         
     
         if (!$period) {
@@ -53,6 +57,7 @@ class PendaftaranController extends Controller
         return view('pendaftaran.registrasi', [
             'title' => $title,
             'type' => $type,
+            'tipe' => $tipe,
             'step' => $step,
             'id_period' => $period->id ?? null,
             'univ' => $univ,
@@ -83,9 +88,9 @@ class PendaftaranController extends Controller
             'type' => $type,
             'message' => $message,
         ]);
-}
+    }
 
-    public function storeRegistrationForm(Request $request, $type = 'amerta')
+public function storeRegistrationForm(Request $request, $type)
     {   
     // Fetch active period data specific to program type
     $programTable = $type === 'amerta-ua' ? 'age_amerta' : 'age_' . $type;
@@ -100,24 +105,35 @@ class PendaftaranController extends Controller
 
     // Prepare data for metadata and file processing
     $data = $request->except('_token');
+
+    // dd($data);
     
     if($type=='lingua'){
         $data['selected_program'] = 'Lingua';
     }
 
+
     $data['period'] = $period->id;
 
-    // File upload configuration
+    // **File upload configuration**
     $fileFields = [
-        'cv' => 'cv',
-        'passport' => 'passport',
-        'photo' => 'photo',
-        'transcript' => 'transcript',
-        'letter_recom_referee' => 'letter_recom_referee',
+        'cv' => 'cv', 
+        'passport' => 'passport', 
+        'photo' => 'photo', 
+        'transcript' => 'transcript', 
+        'letter_recom_referee' => 'letter_recom_referee', 
         'letter_recom' => 'letter_recom',
-        'english_certificate' => 'english_certificate',
+        'english_certificate' => 'english_certificate', 
+        'motivation_letter' => 'motivation_letter', 
         'research_proposal' => 'research_proposal',
     ];
+
+    // // **Validasi file sebelum diproses**
+    // $validationErrors = $this->validateFiles($request, $fileFields);
+
+    // if (!empty($validationErrors)) {
+    //     return redirect()->back()->with('file_errors', $validationErrors);
+    // }
     
     try {
         foreach ($fileFields as $field => $attribute) {
@@ -158,6 +174,33 @@ class PendaftaranController extends Controller
     }
 }
 
+private function validateFiles(Request $request, array $fileFields)
+{
+    $fileValidationRules = [
+        'cv' => 'required|file|mimes:pdf|max:2048',
+        'passport' => 'required|file|mimes:pdf|max:2048',
+        'photo' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+        'transcript' => 'required|file|mimes:pdf|max:2048',
+        'letter_recom_referee' => 'required|file|mimes:pdf|max:2048',
+        'letter_recom' => 'required|file|mimes:pdf|max:2048',
+        'english_certificate' => 'required|file|mimes:pdf|max:2048',
+        'motivation_letter' => 'nullable|file|mimes:pdf|max:2048',
+        'research_proposal' => 'nullable|file|mimes:pdf|max:2048',
+    ];
+
+    // Ambil hanya field yang sesuai dari request
+    $fileInputs = $request->only($fileFields);
+
+    // Validasi file
+    $validator = Validator::make($fileInputs, $fileValidationRules);
+
+    if ($validator->fails()) {
+        return $validator->errors()->all(); // Mengembalikan daftar error
+    }
+
+    return []; // Jika tidak ada error
+}
+
     private function storeFile($file, $subfolder = null)
     {
         $folder = $subfolder ? "/{$subfolder}" : '';
@@ -191,12 +234,16 @@ class PendaftaranController extends Controller
             'dob', 'nationality', 'passport_number', 'passport_date_issue', 'passport_date_exp',
             'issuing_authority', 'telephone', 'phone', 'address', 'mail_address', 'embassy_address',
             'kin_name', 'kin_relation', 'kin_address', 'kin_phone', 'kin_telephone', 'kin_email',
-            'university', 'major', 'gpa', 'year_entry', 'native', 'english_score', 'field_of_study',
-            'referee_name', 'referee_organization', 'referee_relation', 'referee_email', 'pic_name',
-            'pic_email', 'pic_position', 'pic_telephone', 'pic_address', 'course1', 'course2', 'course3',
-            'course4', 'course5', 'course6', 'taken_indo', 'take_indo', 'cv', 'passport', 'photo',
-            'transcript', 'letter_recom', 'motivation_letter', 'english_certificate', 'research_proposal',
-            'letter_recom_referee', 'program_info',
+            'university', 'degree', 'faculty', 'major', 'gpa', 'year_entry', 'native', 'english_score', 
+            
+            'referee_name', 'referee_organization', 'referee_relation', 'referee_email', 'progCategory', 'via', 
+
+            'pic_name', 'pic_position', 'pic_email', 'pic_telephone', 'pic_address', 'course1', 'course2', 
+            'course3', 'course4', 'course5', 'course6', 'taken_indo', 'take_indo', 'joined_lingua', 
+            
+            'cv', 'passport', 'photo', 'transcript', 'letter_recom', 'motivation_letter', 'english_certificate', 
+            'research_proposal', 'field_of_study', 'start_date_prog', 'end_date_prog', 'outcome', 
+            'supervisor', 'experience', 'program_info', 'loaPeserta', 'tFakultasPeserta', 'tProdiPeserta'
         ];
 
         $metadata = [];

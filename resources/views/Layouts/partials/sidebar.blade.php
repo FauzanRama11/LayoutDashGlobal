@@ -44,12 +44,6 @@
                             @includeIf('layouts.partials.button-route.dashboard')
                         @endrole
 
-
-                        @hasanyrole("kps|dirpen")
-                            @includeIf('layouts.partials.button-route.amerta')
-                            {{-- @includeIf('layouts.partials.button-route.dashboard') --}}
-                        @endhasanyrole
-
                         @role("pusbamulya")
                             @includeIf('layouts.partials.button-route.lingua')
                         @endrole

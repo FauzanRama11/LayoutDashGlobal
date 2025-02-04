@@ -47,24 +47,14 @@
                         <ol>
                             <li>This Application Form must be fully completed in the required format.</li>
                             <li>Please indicate "NA" if an item is not applicable.</li>
-                            <li>The Application Form consists of three sections:
-                                <ul>
-                                <li>Personal Information</li>
-                                <li>Educational Qualifications</li>
-                                <li>Choice of Subjects</li>
-                                </ul>
-                            </li>
                         </ol>
                         <br>
                         
                         <p>Please upload the required supporting documents along with this application form:</p>
                         <ol>
-                            <li>Student Card</li>
                             <li>Most recent passport-size photo (red/blue/white background)</li>
-                            <li>Official academic transcript in English</li>
-                            <li>Scanned English Proficiency Certificate</li>
                             <li>Curriculum Vitae (CV)</li>
-                            <li>Motivation Letter</li>
+                            <li>Passport identity page</li>
                         </ol>
                         <br>
 
@@ -180,7 +170,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="photo_url">Foto</label>
+                        <label class="form-label" for="photo_url">Photo</label>
                         <input class="form-control" type="file" id="photo_url" name="photo_url"  accept=".jpg, .jpeg, .png"  required>
                         <div class="invalid-feedback">Foto wajib diisi.</div>
                     </div>
@@ -192,11 +182,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="passport_url">Passport</label>
-                        <input class="form-control" type="file" id="passport_url" name="passport_url"   accept=".pdf .jpg, .jpeg, .png"  required>
+                        <label class="form-label" for="passport_url">Passport Identity Page</label>
+                        <input class="form-control" type="file" id="passport_url" name="passport_url"   accept=".pdf"  required>
                         <div class="invalid-feedback">Passport wajib diisi.</div>
                     </div>
-
                     
                     <div class="mb-3">
                         <label class="form-label" for="program_info">Where did you first get information about this program?</label>
@@ -224,4 +213,85 @@
   </div>
 </div>
 @endsection
+
+
+<script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    
+    let isFileValid = true; // Variabel global untuk melacak status validasi file
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const fileInputs = document.querySelectorAll("input[type='file']");
+        console.log('percobaan');
+
+        fileInputs.forEach(input => {
+            input.addEventListener("change", function () {
+                console.log(fileInputs);
+                validateFileSize(this); // Jalankan validasi saat file dipilih
+            });
+        });
+    });
+
+    function validateFileSize(input) {
+        const file = input.files[0]; // Ambil file pertama dari input
+        if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    title: 'File too large!',
+                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; // Kosongkan input file jika tidak valid
+                isFileValid = false; // Tandai file tidak valid
+            } else {
+                isFileValid = true; // Tandai file valid
+            }
+        }
+    }
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    @if(session('file_errors'))
+        let errorMessages = "";
+        @foreach(session('file_errors') as $error)
+            errorMessages += "• {{ $error }}\n";
+        @endforeach
+        Swal.fire({
+            title: 'Validation Failed!',
+            text: errorMessages,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            title: 'Success!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            timer: 4000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            title: 'Error!',
+            text: "{{ session('error') }}",
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    @endif
+});
+</script>
 

@@ -2,40 +2,62 @@
 @section('content') 
 
 <div class="card">
-  <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-      <div>
-          <h5>Form Peserta</h5>
-          <span>This is Optional Notes</span>
+  <div class="card-header pb-0">
+      <div class="row align-items-center">
+          <div class="col-md-6 col-12 mb-2">
+              <h5 class="mb-1">Form Peserta</h5>
+              <span class="text-muted">This is Optional Notes</span>
+          </div>
+
+          @if ($data)
+          <div class="col-md-6 col-12">
+              <div class="d-flex flex-wrap justify-content-md-end justify-content-center gap-2">
+
+                  {{-- Back Button --}}
+                  <button type="button" class="btn btn-info" onclick="window.location.href='{{ route('program_stuin.edit', ['id' => $data->program->id]) }}'">
+                      <i class="fa fa-arrow-left"></i> Back
+                  </button>
+
+                  {{-- Check if LoA URL exists --}}
+                  @if ($data->loa_url)
+                      @if ($data->is_approved == 1)
+                          @if ($data->program->is_private_event === 'Tidak')
+                              @role('fakultas')
+                                  {{-- Unapprove Button --}}
+                                  <button type="button" id="unapproveButton" class="btn btn-warning">
+                                      <i class="fa fa-times-circle"></i> Unapprove
+                                  </button>
+                              @endrole
+                          @endif
+
+                          {{-- Ajukan Bantuan Dana Button --}}
+                          @if ($data->pengajuan_dana_status === 'EMPTY')
+                            <button type="button" id="bantuanButton" class="btn btn-secondary">
+                                <i class="fa fa-hand-holding-usd"></i> Ajukan Bantuan Dana
+                            </button>
+                          @endif
+                      @else
+                          @role('fakultas')
+                              @if ($data->program->is_private_event === 'Tidak')
+                                  {{-- Approve Button --}}
+                                  <button type="button" id="approveButton" class="btn btn-success">
+                                      <i class="fa fa-check-circle"></i> Approve
+                                  </button>
+
+                                  {{-- Reject Button --}}
+                                  @if ($data->is_approved === 0)
+                                      <button type="button" id="rejectButton" class="btn btn-danger">
+                                          <i class="fa fa-ban"></i> Reject
+                                      </button>
+                                  @endif
+                              @endif
+                          @endrole
+                      @endif
+                  @endif
+              </div>
+          </div>
+          @endif
       </div>
-
-      @if ($data)
-        <div class="d-flex">
-
-            <a href="" class="btn btn-info mx-1">Back</a>
-
-            @if ($data->loa_url)
-                @if ($data->is_approved == 1)
-                    @role('gmp')
-                        <button type="button" id="unapproveButton" class="btn btn-primary mx-1">Unapprove</button>
-                    @endrole
-                    <button type="button" id="bantuanButton" class="btn btn-secondary mx-1">
-                        Ajukan Bantuan Dana
-                    </button>
-                @else
-                    @role('fakultas')
-                        @if ($data->program->is_private_event === 'Tidak')
-                          <form action="{{ route('stuin.approve', $data->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-primary edit-button">Approve</button>
-                          </form>
-                        @endif
-                    @endrole
-                @endif
-            @endif
-
-            <button type="button" id="rejectButton1" class="btn btn-danger mx-1">Reject</button>
-        </div>
-      @endif
   </div>
 
   <hr>
@@ -56,7 +78,7 @@
       @if ($data)
         <div class="d-flex">
           @if ($data->revision_note && $data->is_approved === 0)
-            <button type="button" id="rejectButton1" class="btn btn-warning mx-1">{{ $data->revision_note }}</button>
+          <button type="button" id="rejectButton1" class="btn btn-warning mx-1">Revision : {{ $data->revision_note }}</button>
           @endif
         </div>
       @endif
@@ -177,14 +199,14 @@
               <div class="mb-3">
                   <label class="form-label" for="fotoPeserta">Photo</label>
                   <input class="form-control" type="file" id="fotoPeserta" name="fotoPeserta" accept=".jpg, .jpeg, .png"
-                      onchange="previewImage(event, 'photoPreviewDiv', 'photoPreview', 240)">
+                      onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)">
                   <div class="invalid-feedback"></div>
               </div>
           @else
               <div class="mb-3">
                   <label class="form-label" for="fotoPeserta">Photo</label>
                   <input class="form-control" type="file" id="fotoPeserta" name="fotoPeserta" accept=".jpg, .jpeg, .png"
-                      onchange="previewImage(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
+                      onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
                   <div class="invalid-feedback"></div>
               </div>
           @endif
@@ -205,7 +227,7 @@
           <div class="mb-3">
             <label class="form-label" for="cvPeserta">CV</label>
               @if (isset($data) && !empty($data->cv_url))
-              <input class="form-control" type="file" id="cvPeserta " name="cvPeserta" accept=".pdf">
+              <input class="form-control" type="file" id="cvPeserta" name="cvPeserta" accept=".pdf" onchange="validateFileSize(this)">
                   <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                   @error('url_attachment')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -229,7 +251,7 @@
                 </div>
               @else
                   <!-- Input file jika ID tidak ada -->
-                  <input class="form-control @error('cvPeserta') is-invalid @enderror" type="file" name="cvPeserta" required>
+                  <input class="form-control @error('cvPeserta') is-invalid @enderror" type="file" name="cvPeserta" accept=".pdf" onchange="validateFileSize(this)" required>
                   @error('cvPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -252,7 +274,7 @@
           <div class="mb-3">
             <label class="form-label" for="loaPeserta">LoA</label>
               @if (isset($data) && !empty($data->loa_url))
-                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf">
+                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf"  onchange="validateFileSize(this)">
                   <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                   @error('url_attachment')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -276,7 +298,7 @@
                 </div>
               @else
                   <!-- Input file jika ID tidak ada -->
-                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf" required>
+                  <input class="form-control" type="file" id="loaPeserta" name="loaPeserta" accept=".pdf" required onchange="validateFileSize(this)">
                   <div class="form-text"></div>
                   @error('url_attachment')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -344,7 +366,7 @@
           <div class="mb-3">
             <label class="form-label" for="passPeserta">Passport</label>
               @if (isset($data) && !empty($data->passport_url))
-                  <input class="form-control" type="file" id="passPeserta" name="passPeserta" accept=".pdf">
+                  <input class="form-control" type="file" id="passPeserta" name="passPeserta" accept=".pdf"  onchange="validateFileSize(this)">
                   <div class="form-text">Upload a new file to replace the existing document (optional).</div>
                   @error('passPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -368,7 +390,7 @@
                   </div>
               @else
                   <!-- Input file jika Passport belum ada -->
-                  <input class="form-control @error('passPeserta') is-invalid @enderror" type="file" name="passPeserta" required>
+                  <input class="form-control @error('passPeserta') is-invalid @enderror" type="file" name="passPeserta" required  onchange="validateFileSize(this)">
                   @error('passPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -377,7 +399,7 @@
         
           <div class="mb-3">
             <label class="form-label" for="idPeserta">Student ID</label>
-            <input class="form-control" type="file" id="idPeserta" name="idPeserta" accept=".jpg, .jpeg, .png" onchange="previewImage(event, 'studentIDPreviewDiv', 'studentIDPreview', 240)">
+            <input class="form-control" type="file" id="idPeserta" name="idPeserta" accept=".jpg, .jpeg, .png" onchange="handleFileChange(event, 'studentIDPreviewDiv', 'studentIDPreview', 240)">
           </div>
           
           <div class="mb-3">
@@ -440,21 +462,52 @@
           event.preventDefault();
       }
   }
+  </script>
   
-  function previewImage(event, previewDivId, previewImgId, imgHeight = null) {
-      const input = event.target;
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<script>
+  let isFileValid = true; // Menyimpan status validasi file
+
+  function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
+      validateFileSize(event.target);
+      previewImage(event.target, previewDivId, previewImgId, imgHeight);
+  }
+
+  function validateFileSize(input) {
+      const file = input.files[0];
+      if (file) {
+          const maxSize = 2 * 1024 * 1024; // 2MB
+          if (file.size > maxSize) {
+              Swal.fire({
+                  title: 'File too large!',
+                  text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              input.value = ""; 
+              isFileValid = false;
+          } else {
+              isFileValid = true;
+          }
+      }
+  }
+
+  function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
       const previewDiv = document.getElementById(previewDivId);
       const previewImg = document.getElementById(previewImgId);
-  
+
       if (!previewDiv || !previewImg) {
           console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
           return;
       }
-  
+
       if (input.files && input.files[0]) {
           const file = input.files[0];
           const reader = new FileReader();
-  
+
           if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
               reader.onload = function (e) {
                   previewImg.src = e.target.result;
@@ -464,7 +517,12 @@
               };
               reader.readAsDataURL(file);
           } else {
-              alert('File harus berupa gambar (JPG, JPEG, atau PNG).');
+              Swal.fire({
+                  title: 'Invalid File Type!',
+                  text: 'Only JPG, JPEG, or PNG files are allowed.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
               input.value = '';
               previewDiv.style.display = 'none';
           }
@@ -474,57 +532,106 @@
           previewImg.src = '';
       }
   }
-  </script>
-  
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Tambahkan SweetAlert -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Pastikan jQuery tersedia -->
+</script>
 
 
+  @if($data)
   <script>
-    $(document).ready(function () {
-        $('#bantuanButton').click(function () {
-            Swal.fire({
-                title: 'Ajukan Bantuan Dana',
-                input: 'select',
-                inputOptions: {
-                    'RKAT': 'RKAT',
-                    'DPAT': 'DPAT'
-                },
-                inputPlaceholder: 'Pilih Sumber Dana',
-                showCancelButton: true,
-                confirmButtonText: 'Ajukan',
-                cancelButtonText: 'Batal',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'Anda harus memilih salah satu!';
-                    }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let tipe = result.value; // Ambil nilai yang dipilih
-                    let id = "{{ $data->id ?? '' }}"; // Ambil ID dari Blade
-                    
-                    // Kirim AJAX ke Laravel
-                    $.ajax({
-                        url: "{{ route('ajukan.bantuan.dana') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            id: id,
-                            tipe: tipe
-                        },
-                        success: function (response) {
-                            Swal.fire('Berhasil!', response.message, 'success')
-                            .then(() => {
-                                location.reload(); // Refresh halaman setelah sukses
-                            });
-                        },
-                        error: function (xhr) {
-                            Swal.fire('Error!', 'Terjadi kesalahan, coba lagi.', 'error');
-                        }
-                    });
-                }
-            });
-        });
-    });
-    </script>
+      document.addEventListener("DOMContentLoaded", function () {
+          let participantId = "{{ $data->id ?? '' }}"; 
+
+          function sendRequest(url, method, data, successMessage) {
+              $.ajax({
+                  url: url,
+                  type: method,
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      id: participantId,
+                      ...data 
+                  },
+                  success: function (response) {
+                      Swal.fire('Berhasil!', successMessage, 'success').then(() => {
+                          location.reload();
+                      });
+                  },
+                  error: function (xhr) {
+                      Swal.fire('Error!', 'Terjadi kesalahan, coba lagi.', 'error');
+                  }
+              });
+          }
+
+          $('#bantuanButton').click(function () {
+              Swal.fire({
+                  title: 'Ajukan Bantuan Dana',
+                  input: 'select',
+                  icon: "warning",
+                  inputOptions: {
+                      'RKAT': 'RKAT',
+                      'DPAT': 'DPAT'
+                  },
+                  inputPlaceholder: 'Pilih Sumber Dana',
+                  showCancelButton: true,
+                  confirmButtonText: 'Ajukan',
+                  cancelButtonText: 'Batal',
+                  inputValidator: (value) => {
+                      if (!value) {
+                          return 'Anda harus memilih salah satu!';
+                      }
+                  }
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      sendRequest("{{ route('ajukan.bantuan.dana') }}", "POST", { tipe: result.value }, "Bantuan dana berhasil diajukan.");
+                  }
+              });
+          });
+
+          $('#approveButton').click(function () {
+              Swal.fire({
+                  title: "Approve Participant?",
+                  text: "Once approved, this participant will be officially recognized.",
+                  icon: "success",
+                  showCancelButton: true,
+                  confirmButtonColor: "#28a745",
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Yes, Approve!"
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      sendRequest("{{ route('stuin.approve', $data->id) }}", "POST", {}, "Participant approved successfully!");
+                  }
+              });
+          });
+
+          $('#unapproveButton').click(function () {
+              Swal.fire({
+                  title: "Unapprove Participant?",
+                  text: "This will remove the approval status from this participant.",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#ffc107",
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Yes, Unapprove!"
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      sendRequest("{{ route('stuin.unapprove', $data->id) }}", "POST", {}, "Participant approval has been removed.");
+                  }
+              });
+          });
+
+          $('#rejectButton').click(function () {
+              Swal.fire({
+                  title: "Reject Participant?",
+                  text: "Are you sure you want to reject this participant?",
+                  icon: "error",
+                  showCancelButton: true,
+                  confirmButtonColor: "#dc3545",
+                  cancelButtonColor: "#6c757d",
+                  confirmButtonText: "Yes, Reject!"
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      sendRequest("{{ route('stuin.reject', $data->id) }}", "POST", {}, "Participant has been rejected.");
+                  }
+              });
+          });
+      });
+  </script>
+@endif
