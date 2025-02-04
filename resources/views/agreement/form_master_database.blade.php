@@ -448,19 +448,19 @@ function confirmSubmission(event) {
     const form = event.target; // Get the form element
     const action = form.action.includes('update') ? 'update' : 'store'; // Determine the action
     const actionMessages = {
-        update: 'Apakah Anda yakin ingin memperbarui data?',
-        store: 'Apakah Anda yakin ingin menyimpan data?'
+        update: 'Are you sure you want to update the data?',
+        store: 'Are you sure you want to save the data?'
     };
 
     Swal.fire({
-        title: 'Konfirmasi',
+        title: 'Confirmation',
         text: actionMessages[action],
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, Lanjutkan!',
-        cancelButtonText: 'Batal'
+        confirmButtonText: 'Yes, proceed!',
+        cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
             // Use AJAX to submit the form
@@ -474,8 +474,8 @@ function confirmSubmission(event) {
                     console.log(response); // Log the response for debugging
                     if (response.status === 'success') {
                         Swal.fire({
-                            title: 'Berhasil!',
-                            text: `Data berhasil ${action === 'update' ? 'diperbaharui' : 'tersimpan'}.`,
+                            title: 'Success!',
+                            text: `Data has been ${action === 'update' ? 'updated' : 'saved'}.`,
                             icon: 'success',
                             timer: 4000,
                             showConfirmButton: false
@@ -484,8 +484,8 @@ function confirmSubmission(event) {
                         });
                     } else {
                         Swal.fire({
-                            title: 'Gagal!',
-                            text: response.message || 'Tidak dapat memproses data.',
+                            title: 'Failed!',
+                            text: response.message || 'Unable to process data.',
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
@@ -495,7 +495,7 @@ function confirmSubmission(event) {
                     console.error(xhr); // Log error response for debugging
                     Swal.fire({
                         title: 'Error!',
-                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses data.',
+                        text: xhr.responseJSON?.message || 'An error occurred while processing the data.',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
@@ -504,6 +504,26 @@ function confirmSubmission(event) {
         }
     });
 }
+</script>
+<script>
+        function validateFileSize(input) {
+                const file = input.files[0];
+                if (file) {
+                    const maxSize = 2.5 * 1024 * 1024; // 1 MB
+                    if (file.size > maxSize) {
+                        Swal.fire({
+                            title: 'File too large!',
+                            text: 'The file size exceeds 2.5 MB. Please upload a smaller file.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        input.value = ""; // Clear the input
+                        isFileValid = false; // Tandai file tidak valid
+                    } else {
+                        isFileValid = true; // Tandai file valid
+                    }
+                }
+            }
 </script>
 @endsection
 
