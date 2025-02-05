@@ -99,12 +99,14 @@ public function store_pelaporan(Request $request, $id = null) {
         ->where("id", "=", $request->input('deptP'))
         ->pluck("nama_ind")->first();
         
-        try {
-            $request->validate([
-                'linkDownload' => 'required|file|mimes:pdf|max:2560', 
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
+        if($request->hasFile('linkDownload')){
+            try {
+                $request->validate([
+                    'linkDownload' => 'required|file|mimes:pdf|max:2560', 
+                ]);
+            } catch (ValidationException $e) {
+                return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
+            }
         }
 
     if ($id) {

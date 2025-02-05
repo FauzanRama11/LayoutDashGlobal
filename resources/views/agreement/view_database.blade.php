@@ -221,9 +221,9 @@ return $(tableId).DataTable({
 
         pageLength: 25,
         lengthMenu: [
-            [25, 50, 100, 250, 500, 1000, -1],
-            ['25', '50', '100', '250', '500', '1000', 'All']
-        ],
+			   [10, 25, 100, 250, 500, 1000, -1],
+			   ['10', '25', '100', '250', '500', '1000', 'All']
+		   ],
 
         processing: true,
         serverSide: true,
@@ -347,7 +347,7 @@ return $(tableId).DataTable({
                 const row = tableNorm2.row(dataIndex).node();
                 const rowStartDate = row?.getAttribute('data-start-date')
                     ? new Date(row.getAttribute('data-start-date'))
-                    : new Date(data[3]); 
+                    : new Date(data[6]); 
 
                 if (isNaN(rowStartDate.getTime())) {
                     return false; 

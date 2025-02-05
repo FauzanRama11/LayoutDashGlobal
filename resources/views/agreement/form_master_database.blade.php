@@ -16,9 +16,9 @@
         @if(isset($data))
             @method('PUT') <!-- Untuk update, menambahkan method PUT -->
         @endif
-        <div class="row">
+      <div class="row">
           <!-- Kolom Kiri -->
-          <div class="col-md-6">
+      <div class="col-md-6">
       <div class="mb-3">
         <label class="form-label" for="jenisP">Type of Agreement</label>
         <select class="form-select" id="jenisP" name="jenisP" required>
@@ -131,6 +131,9 @@
         <input type="date" class="form-control" id="endDate" name="endDate" value="{{ old('endDate', isset($data) ? $data->mou_end_date : '')}}" required>
         <div class="invalid-feedback">Tanggal berakhir wajib diisi.</div>
       </div>
+
+      </div>
+      <div class="col-md-6">
 
       <div class="mb-3">
         <label class="form-label" for="catNaskah">Kategori Naskah</label>
@@ -262,45 +265,52 @@
             </div>
         </div>
     </div>
-          </div>
+    </div>
+  </div>
 
-
-      <div class="col-md-6">
 
       <div class="card-header pb-0">
           <h5>Penandatanganan</h5><span>Informasi Penandatanganan</span>
         </div>
       <div class="card-body">
+      <div class= "row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label" for="nosUnair">Name of Signatory (UNAIR)</label>
+          <input class="form-control" id="nosUnair" name="nosUnair" placeholder="Name of Signatory (UNAIR)"  value = "{{ old('nosUnair', isset($data) ? $data->signatories_unair_name : '') }}" required>
+          <div class="invalid-feedback">Name of signatory (UNAIR) wajib diisi.</div>
+        </div>
         
-      <div class="mb-3">
-        <label class="form-label" for="nosUnair">Name of Signatory (UNAIR)</label>
-        <input class="form-control" id="nosUnair" name="nosUnair" placeholder="Name of Signatory (UNAIR)"  value = "{{ old('nosUnair', isset($data) ? $data->signatories_unair_name : '') }}" required>
-        <div class="invalid-feedback">Name of signatory (UNAIR) wajib diisi.</div>
+        <div class="mb-3">
+          <label class="form-label" for="nopUnair">Name of Position (UNAIR)</label>
+          <input class="form-control" id="nopUnair" name="nopUnair" placeholder="Name of Position (UNAIR)"  value = "{{ old('nopUnair', isset($data) ? $data->signatories_unair_pos : '') }}" required>
+          <div class="invalid-feedback">Name of position (UNAIR) wajib diisi.</div>
+        </div>
       </div>
-      
-      <div class="mb-3">
-        <label class="form-label" for="nopUnair">Name of Position (UNAIR)</label>
-        <input class="form-control" id="nopUnair" name="nopUnair" placeholder="Name of Position (UNAIR)"  value = "{{ old('nopUnair', isset($data) ? $data->signatories_unair_pos : '') }}" required>
-        <div class="invalid-feedback">Name of position (UNAIR) wajib diisi.</div>
+      <div class="col-md-6">
+        
+        <div class="mb-3">
+          <label class="form-label" for="nosPart">Name of Signatory (Partner)</label>
+          <input class="form-control" id="nosPart" name="nosPart" placeholder="Name of Signatory (Partner)"  value = "{{ old('nosPart', isset($data) ? $data->signatories_partner_name : '') }}" required>
+          <div class="invalid-feedback">Name of signatory (partner) wajib diisi.</div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label" for="nopPart">Name of Position (Partner)</label>
+          <input class="form-control" id="nopPart" name="nopPart" placeholder="Name of Position (Partner)"  value = "{{ old('nopPart', isset($data) ? $data->signatories_partner_pos : '') }}" required>
+          <div class="invalid-feedback">Name of position (partner) wajib diisi.</div>
+        </div>  
       </div>
-      
-      <div class="mb-3">
-        <label class="form-label" for="nosPart">Name of Signatory (Partner)</label>
-        <input class="form-control" id="nosPart" name="nosPart" placeholder="Name of Signatory (Partner)"  value = "{{ old('nosPart', isset($data) ? $data->signatories_partner_name : '') }}" required>
-        <div class="invalid-feedback">Name of signatory (partner) wajib diisi.</div>
       </div>
-      
-      <div class="mb-3">
-        <label class="form-label" for="nopPart">Name of Position (Partner)</label>
-        <input class="form-control" id="nopPart" name="nopPart" placeholder="Name of Position (Partner)"  value = "{{ old('nopPart', isset($data) ? $data->signatories_partner_pos : '') }}" required>
-        <div class="invalid-feedback">Name of position (partner) wajib diisi.</div>
-      </div>  
-    </div>
+      </div>
 
     <div class="card-header pb-0">
           <h5>Person in Charge (PIC)</h5><span>Informasi PIC</span>
         </div>
       <div class="card-body">
+
+      <div class= "row">
+      <div class="col-md-6">
         
       <div class="mb-3">
         <label class="form-label" for="namePic">Name (Partner PIC)</label>
@@ -326,6 +336,8 @@
         <div class="invalid-feedback">Nomor telepon (partner PIC) wajib diisi.</div>
       </div>
 
+</div>
+      <div class="col-md-6">
       <div class="mb-3">
         <label class="form-label" for="namePic2">Name (UNAIR PIC)</label>
         <input class="form-control" id="namePic2" name="namePic2" placeholder="Name (UNAIR PIC)" value = "{{ old('namePic2', isset($data) ? $data->pic_fak_nama : '') }}" required>
@@ -349,10 +361,10 @@
         <input class="form-control" id="telpPic2" name="telpPic2" type="number" placeholder="Nomor Telepon (UNAIR PIC)" value = "{{ old('telpPic2', isset($data) ? $data->pic_fak_phone : '') }}" required>
         <div class="invalid-feedback">Nomor telepon (UNAIR PIC) wajib diisi.</div>
       </div>
-      
-    </div>
       </div>
+      </div>  
   </div>
+
 
       <div class="col-12">
       @if(isset($data->approval_pelaporan))
