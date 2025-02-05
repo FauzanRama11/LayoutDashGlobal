@@ -49,7 +49,10 @@ public function viewPdfNaskah($fileName)
 
 public function view($folderOrFile, $fileName = null)
 {
-    
+    if (is_null($folderOrFile)) {
+        abort(404, 'Folder atau file tidak ditemukan.');
+    }
+
     if (is_null($fileName)) {
         $fileName = $folderOrFile;
         $folder = null;

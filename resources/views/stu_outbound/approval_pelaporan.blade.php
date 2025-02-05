@@ -173,12 +173,11 @@ function initializeDataTable(tableId) {
 return $(tableId).DataTable({
     order: [ ],
 
-        pageLength: 25,
-        lengthMenu: [
-            [25, 50, 100, 250, 500, 1000, -1],
-            ['25', '50', '100', '250', '500', '1000', 'All']
-        ],
-
+		pageLength: 10,
+		lengthMenu: [
+			[10, 25, 100, 250, 1000, -1],
+			['10', '25', '100', '250', '1000', 'All']
+		],
         processing: true,
         serverSide: true,
         ordering: true,
@@ -303,5 +302,6 @@ return $(tableId).DataTable({
         }
     }
  });
- </script>
+</script>
+
 @endsection

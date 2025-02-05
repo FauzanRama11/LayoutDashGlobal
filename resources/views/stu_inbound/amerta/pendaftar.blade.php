@@ -4,10 +4,6 @@
 @endsection
 
 @section('content') 
- 
-@push('css')
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/datatables.css')}}">
-@endpush
 
     <h2>Student Inbound | Amerta</h2>
     <p>This is the Pendaftar</p>
@@ -19,7 +15,7 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
-	                        <table class="display" id="API-2">
+	                        <table class="display" id="norm-1">
 	                            <thead>
 	                                <tr>
 	                                    <th>Full Name</th>
@@ -70,6 +66,16 @@
 														<button type="submit" class="btn btn-primary edit-button">Approve</button>
 													</form>
 												@endif
+											@else
+												@if ($item['is_approve'] == true)
+														<form action="{{ route('unapprove_peserta_inbound', ['id' => $item['id'] ]) }}" method="POST">
+															@csrf
+															@method('PUT')
+															<button type="submit" class="btn btn-primary edit-button">Unapprove</button>
+														</form>
+												@else
+												<button class="btn btn-primary edit-button" disabled>Upload Loa First</button>
+												@endif
 											@endif
 										</td>
 										<td>
@@ -104,3 +110,22 @@
 	    </div>
 	</div>
 @endsection
+{{-- 
+@if ($processedData['loaPeserta'])
+                @if ($processedData['is_approve'] === true)
+                    <button type="button" id="unapproveButton" class="btn btn-warning">
+                        <i class="fa fa-times-circle"></i> Unapprove
+                    </button>
+                @else
+                    
+                    <button type="button" id="approveButton" class="btn btn-success">
+                        <i class="fa fa-check-circle"></i> Approve
+                    </button>
+
+                    <button type="button" id="rejectButton" class="btn btn-danger">
+                        <i class="fa fa-ban"></i> Reject
+                    </button>
+                @endif
+            @endif
+
+ --}}

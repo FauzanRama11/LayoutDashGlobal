@@ -21,7 +21,8 @@ class StudentOutboundController extends Controller
                 'host_unit_text', 'm_stu_out_programs.name as program',
                 'm_stu_out_programs.pt_ft as tipe', 'm_university.name as univ',
                 'm_country.name as negara_asal_univ', 'photo_url', 'passport_url',
-                'student_id_url', 'loa_url', 'cv_url', 'pengajuan_dana_status', 'm_stu_out_peserta.sumber_dana'
+                'student_id_url', 'loa_url', 'cv_url', 'pengajuan_dana_status', 
+                'm_stu_out_peserta.sumber_dana'
             )
             ->leftJoin('m_university', 'm_stu_out_peserta.univ', '=', 'm_university.id')
             ->leftJoin('m_country', 'm_university.country', '=', 'm_country.id')
@@ -75,12 +76,12 @@ class StudentOutboundController extends Controller
                 if ($item->pengajuan_dana_status === 'APPROVED') {
                     return '<form action="' . route('stuout.unapprove.dana', $item->id) . '" method="POST">
                                 ' . csrf_field() . '
-                                <button type="submit" class="btn btn-warning edit-button">Unapprove</button>
+                                <button type="submit" class="btn btn-warning edit-button"><i class="fa fa-times-circle"></i>  Unapprove</button>
                             </form>';
                 } else {
                     return '<form action="' . route('stuout.approve.dana', $item->id) . '" method="POST">
                                 ' . csrf_field() . '
-                                <button type="submit" class="btn btn-primary edit-button">Approve</button>
+                                <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-check-circle"></i>  Approve</button>
                             </form>';
                 }
             })
@@ -180,13 +181,13 @@ class StudentOutboundController extends Controller
                     return '<form action="' . route('stuout_peserta.unapprove', $item->id) . '" method="POST">
                                 ' . csrf_field() . '
                                 <input type="hidden" name="_method" value="PUT">
-                                <button type="submit" class="btn btn-warning edit-button">Unapprove</button>
+                                <button type="submit" class="btn btn-warning edit-button"><i class="fa fa-times-circle"></i>  Unapprove</button>
                             </form>';
                 } else {
                     return '<form action="' . route('stuout_peserta.approve', $item->id) . '" method="POST">
                                 ' . csrf_field() . '
                                 <input type="hidden" name="_method" value="PUT">
-                                <button type="submit" class="btn btn-success edit-button">Approve</button>
+                                <button type="submit" class="btn btn-success edit-button"><i class="fa fa-check-circle"></i>  Approve</button>
                             </form>';
                 }
             })

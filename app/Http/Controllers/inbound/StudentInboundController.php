@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\DataTables;
 
 use Mpdf\Mpdf;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -18,36 +19,198 @@ use App\Models\MStuInPeserta;
 
 class StudentInboundController extends Controller
 {
-    public function approval_dana()
+    public function approval_dana(Request $request)
     {
-        $data = DB::table('m_stu_in_peserta')
-        ->select('reg_time', 'm_stu_in_peserta.id', 'm_stu_in_peserta.nama', 'm_fakultas_unit.nama_ind as fakultas','m_stu_in_programs.name as program', 'm_stu_in_programs.pt_ft as tipe', 'm_university.name as univ', 'm_country.name as negara_asal_univ', 'photo_url','passport_url','student_id_url', 'loa_url','cv_url','pengajuan_dana_status as dana_status')
-        ->join('m_stu_in_programs', 'm_stu_in_peserta.program_id', '=', 'm_stu_in_programs.id')
-        ->join('m_fakultas_unit', 'm_stu_in_peserta.tujuan_fakultas_unit', '=', 'm_fakultas_unit.id')
-        ->join('m_university', 'm_stu_in_peserta.univ', '=', 'm_university.id')
-        ->join('m_country', 'm_university.country', '=', 'm_country.id')
-        ->whereNotNull('pengajuan_dana_status') 
-        ->where('pengajuan_dana_status', '!=', 'EMPTY')  
-        ->orderBy('reg_time', 'desc')
-        ->get();
+        if($request->ajax()){
+            $data = DB::table('m_stu_in_peserta')
+            ->select(
+                'reg_time', 'm_stu_in_peserta.id', 'm_stu_in_peserta.nama', 'm_fakultas_unit.nama_ind as fakultas',
+                'm_stu_in_programs.name as program', 'm_stu_in_programs.pt_ft as tipe', 'm_university.name as univ',
+                'm_country.name as negara_asal_univ', 'photo_url','passport_url','student_id_url', 'loa_url','cv_url',
+                'pengajuan_dana_status', 'm_stu_in_peserta.sumber_dana'
+            )
+            ->leftjoin('m_stu_in_programs', 'm_stu_in_peserta.program_id', '=', 'm_stu_in_programs.id')
+            ->leftjoin('m_fakultas_unit', 'm_stu_in_peserta.tujuan_fakultas_unit', '=', 'm_fakultas_unit.id')
+            ->leftjoin('m_university', 'm_stu_in_peserta.univ', '=', 'm_university.id')
+            ->leftjoin('m_country', 'm_university.country', '=', 'm_country.id')
+            ->whereNotNull('pengajuan_dana_status') 
+            ->where('pengajuan_dana_status', '!=', '')
+            ->where('pengajuan_dana_status', '!=', 'EMPTY'); 
 
+            
+            if ($request->has('order')) {
+                foreach ($request->order as $order) {
+                    $columnIndex = $order['column']; 
+                    $columnDir = $order['dir'];
+                    $columnName = $request->columns[$columnIndex]['data'];      
+                }
+            } else {
+                $data->orderBy('reg_time', 'desc'); 
+            }
 
-        return view('stu_inbound.approval_dana', compact('data'));
+            return DataTables::of($data)
+            ->editColumn('photo_url', function ($row) {
+                return $this->getFileDownloadButton($row->photo_url);
+            })
+            ->editColumn('passport_url', function ($row) {
+                return $this->getFileDownloadButton($row->passport_url);
+            })
+            ->editColumn('student_id_url', function ($row) {
+                return $this->getFileDownloadButton($row->student_id_url);
+            })
+            ->editColumn('loa_url', function ($row) {
+                return $this->getFileDownloadButton($row->loa_url);
+            })
+            ->editColumn('cv_url', function ($row) {
+                return $this->getFileDownloadButton($row->cv_url);
+            })
+            ->editColumn('sumber_dana', function ($item) {
+                if ($item->sumber_dana === 'RKAT') {
+                    return '<button class="btn btn-success btn-sm" disabled>RKAT</button>';
+                } elseif ($item->sumber_dana === 'DPAT' || $item->sumber_dana === 'DAPT') {
+                    return '<button class="btn btn-warning btn-sm" disabled>DAPT</button>';
+                }
+            })
+            ->editColumn('pengajuan_dana_status', function ($item) {
+                if ($item->pengajuan_dana_status === 'APPROVED') {
+                    return '<button class="btn btn-success btn-sm" disabled>Approved</button>';
+                } elseif ($item->pengajuan_dana_status === 'REQUESTED') {
+                    return '<button class="btn btn-warning btn-sm" disabled>Requested</button>';
+                }
+            })
+            ->addColumn('action', function ($item) {
+                if ($item->pengajuan_dana_status === 'APPROVED') {
+                    return '<form action="' . route('stuin.unapprove.dana', $item->id) . '" method="POST">
+                                ' . csrf_field() . '
+                                <button type="submit" class="btn btn-warning edit-button"><i class="fa fa-times-circle"></i>  Unapprove</button>
+                            </form>';
+                } else {
+                    return '<form action="' . route('stuin.approve.dana', $item->id) . '" method="POST">
+                                ' . csrf_field() . '
+                                <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-check-circle"></i>  Approve</button>
+                            </form>';
+                }
+            })
+            // ->filterColumn('sumber_dana', function ($query, $keyword) {
+            //     $sql = "(CASE 
+            //                 WHEN sumber_dana = 'RKAT' THEN 'RKAT'
+            //                 WHEN sumber_dana IN ('DPAT', 'DAPT') THEN 'DAPT'
+            //             END) LIKE ?";
+            //     $query->whereRaw($sql, ["%{$keyword}%"]);
+            // })       
+            ->rawColumns(['photo_url', 'passport_url', 'student_id_url', 'loa_url', 'cv_url', 'sumber_dana', 'pengajuan_dana_status', 'action'])
+            ->make(true);
+        }
+
+        return view('stu_inbound.approval_dana');
     }
     
-    public function approval_pelaporan()
+    public function approval_pelaporan(Request $request)
     {
-        $data = DB::table('m_stu_in_peserta as t')
-            ->select('t.*', 'p.via as via', 'p.start_date as start_date', 'p.end_date as end_date', 'p.host_unit_text as host_unit', 'u.name as univ_name', 'c.name as country_name', 'p.pt_ft as tipe', 'p.name as program')
-            ->join('m_university as u', 'u.id', '=', 't.univ')
-            ->join('m_country as c', 'c.id', '=', 't.kebangsaan')
-            ->join('m_stu_in_programs as p', function ($join) {
-                $join->on('p.id', '=', 't.program_id')
-                    ->where('p.is_private_event', '=', 'Ya');
+        if($request->ajax()){
+                
+            $data = DB::table('m_stu_in_peserta as t')
+            ->select(
+                't.*', 'p.via as via', 'p.start_date as start_date', 'p.end_date as end_date', 
+                'p.host_unit_text as host_unit', 'u.name as univ_name', 'c.name as country_name', 
+                'p.pt_ft as tipe', 'p.name as program')
+            ->leftJoin('m_university as u', 'u.id', '=', 't.univ')
+            ->leftJoin('m_country as c', 'c.id', '=', 't.kebangsaan')
+            ->leftJoin('m_stu_in_programs as p', 'p.id', '=', 't.program_id')
+            ->where('is_private_event', '=', 'Ya');
+
+                if ($request->has('order')) {
+                    foreach ($request->order as $order) {
+                        $columnIndex = $order['column']; 
+                        $columnDir = $order['dir'];
+                        $columnName = $request->columns[$columnIndex]['data'];      
+                    }
+                } else {
+                    $data->orderBy('reg_time', 'desc'); 
+                }
+            
+            return DataTables::of($data)
+            ->editColumn('photo_url', function ($row) {
+                return $this->getFileDownloadButton($row->photo_url);
             })
-            ->get();
+            ->editColumn('passport_url', function ($row) {
+                return $this->getFileDownloadButton($row->passport_url);
+            })
+            ->editColumn('student_id_url', function ($row) {
+                return $this->getFileDownloadButton($row->student_id_url);
+            })
+            ->editColumn('loa_url', function ($row) {
+                return $this->getFileDownloadButton($row->loa_url);
+            })
+            ->editColumn('cv_url', function ($row) {
+                return $this->getFileDownloadButton($row->cv_url);
+            })
+            ->editColumn('is_approved', function ($item) {
+                if ($item->is_approved === 1) {
+                    return '<button class="btn btn-success btn-sm" disabled>Approved</button>';
+                } elseif ($item->is_approved === -1) {
+                    return '<button class="btn btn-danger btn-sm" disabled>Rejected</button>' . 
+                           (!empty($item->revision_note) ? '<button type="button" class="btn btn-warning btn-sm viewRevisionButton" data-revision="' . htmlspecialchars($item->revision_note) . '"><i class="fa fa-eye"></i></button>' : '');
+                } else {
+                    return '<button class="btn btn-info btn-sm" disabled>Processed</button>' . 
+                           (!empty($item->revision_note) ? '<button type="button" class="btn btn-warning btn-sm viewRevisionButton" data-revision="' . htmlspecialchars($item->revision_note) . '"><i class="fa fa-eye"></i></button>' : '');
+                }
+            })
+            ->addColumn('action', function ($item) {
+                if ($item->is_approved == 1) {
+                    return '<form action="' . route('stuin.unapprove', $item->id) . '" method="POST">
+                                ' . csrf_field() . '
+                                <button type="submit" class="btn btn-warning edit-button"><i class="fa fa-times-circle"></i>  Unapprove</button>
+                            </form>';
+                } else {
+                    return '<form action="' . route('stuin.approve', $item->id) . '" method="POST">
+                                ' . csrf_field() . '
+                                <button type="submit" class="btn btn-success edit-button"><i class="fa fa-check-circle"></i>  Approve</button>
+                            </form>';
+                }
+            })
+            ->addColumn('revise', function ($item) {
+                return '<button type="button" class="btn btn-warning reviseButton" data-id="' . $item->id . '">
+                            <i class="fa fa-edit"></i> Revise
+                        </button>';
+            })
+            ->addColumn('reject', function ($item) {
+                return '<form action="' . route('stuin.reject', $item->id) . '" method="POST">
+                            ' . csrf_field() . '
+                            <button type="submit" class="btn btn-danger edit-button"><i class="fa fa-ban"></i>  Reject</button>
+                        </form>';
+            })
+            ->filterColumn('is_approved', function ($query, $keyword) {
+                $sql = "(CASE 
+                            WHEN is_approved = 1 THEN 'Approved'
+                            WHEN is_approved = -1 THEN 'Rejected'
+                            WHEN is_approved = 0 THEN 'Processed'
+                            END) LIKE ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->rawColumns(['photo_url', 'passport_url', 'student_id_url', 'loa_url', 'cv_url','is_approved', 'action', 'revise', 'reject']) // Enable HTML rendering
+            ->make(true);
+        }
     
-        return view('stu_inbound.approval_pelaporan', compact('data'));
+        return view('stu_inbound.approval_pelaporan');
+    }
+    
+    private function getFileDownloadButton($fileUrl)
+    {
+        if (empty($fileUrl)) return '';
+        
+        $filePath = ltrim(str_replace('repo/', '', $fileUrl), '/');
+        $segments = explode('/', $filePath);
+        $fileName = array_pop($segments);
+        $folder = implode('/', $segments);
+        
+        $url = !empty($folder)
+            ? route('view.dokumen', ['folder' => $folder, 'fileName' => $fileName])
+            : route('view.dokumen', ['folder' => $fileName]);
+        
+        return '<a href="' . $url . '" target="_blank" class="btn btn-primary">
+                    <i class="fa fa-download"></i>
+                </a>';
     }
 
     // APPROVAL

@@ -19,11 +19,7 @@ class PesertaInboundAGEController extends Controller
 
         // dd( $model);
 
-        return response()->json([
-            'status' => 'approved',
-            'redirect_url' => route($model->type === 'amerta' ? 'am_pendaftar' : 'li_pendaftar')
-        ]);
-
+        return redirect()->route($model->type === 'amerta' ? 'am_pendaftar' : 'li_pendaftar');
     }
 
     public function unapprove($id)
@@ -32,22 +28,16 @@ class PesertaInboundAGEController extends Controller
         $model->is_approve = null;
         $model->save();
 
-        return response()->json([
-            'status' => 'unapproved',
-            'redirect_url' => route($model->type === 'amerta' ? 'am_pendaftar' : 'li_pendaftar')
-        ]);
+        return redirect()->route($model->type === 'amerta' ? 'am_pendaftar' : 'li_pendaftar');
     }
 
-    public function reject($id)
+    public function reject($id) 
     {
         $model = AgePesertaInbound::findOrFail($id);
         $model->is_approve = false;
         $model->save();
 
-        return response()->json([
-            'status' => 'rejected',
-            'redirect_url' => route($model->type === 'amerta' ? 'am_pendaftar' : 'li_pendaftar')
-        ]);
+        return redirect()->route($model->type === 'amerta' ? 'am_pendaftar' : 'li_pendaftar');
     }
 
     // HALAMAN EDIT

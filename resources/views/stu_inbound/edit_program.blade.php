@@ -68,7 +68,7 @@ function getFileUrl($fileUrl) {
                         @if ($data)
                           <div class="d-flex">
                   
-                            <a href="" class="btn btn-info mx-1">Back</a>
+                            <a href="{{ $data->is_program_age === 'Y' ? route('stuin_program_age') : route('stuin_program_fak')}}" class="btn btn-info mx-1">Back</a>
                             <button type="button" id="generatePdfRkat" class="btn btn-secondary mx-1">PDF RKAT</button>
                             <button type="button" id="generatePdfDpat" class="btn btn-secondary mx-1">PDF DPAT</button>
                   
