@@ -128,20 +128,20 @@ public function storeRegistrationForm(Request $request, $type)
         'research_proposal' => 'research_proposal',
     ];
 
-    foreach ($fileFields as $field) {
-        if ($request->hasFile($field)) {
-            try {
-                $request->validate([
-                    $field => 'required|file|mimes:pdf,jpg,png|max:1000', 
-                ]);
-            } catch (ValidationException $e) {
-                return response()->json([
-                    'status' => 'error', 
-                    'message' => "File $field harus berupa PDF, JPG, atau PNG dan tidak boleh lebih dari 1 MB!"
-                ], 500);
-            }
-        }
-    }
+    // foreach ($fileFields as $field) {
+    //     if ($request->hasFile($field)) {
+    //         try {
+    //             $request->validate([
+    //                 $field => 'required|file|mimes:pdf,jpg,png|max:1000', 
+    //             ]);
+    //         } catch (ValidationException $e) {
+    //             return response()->json([
+    //                 'status' => 'error', 
+    //                 'message' => "File $field harus berupa PDF, JPG, atau PNG dan tidak boleh lebih dari 1 MB!"
+    //             ], 500);
+    //         }
+    //     }
+    // }
     
     try {
         foreach ($fileFields as $field => $attribute) {
