@@ -62,7 +62,7 @@
 
   <hr>
 
-  <form class="was-validated" action="{{ $data ? route('stuin_peserta.update') : route('stuin_peserta.store') }}"  method="post" enctype="multipart/form-data">
+  <form id="fromPStuIn" onsubmit="return confirmSubmission(event)" class="was-validated" action="{{ $data ? route('stuin_peserta.update') : route('stuin_peserta.store') }}"  method="post" enctype="multipart/form-data">
     @csrf
     @if ($data)
         @method('PUT')
@@ -420,7 +420,7 @@
 
     <!-- Tombol Submit -->
     <div class="card-footer text-end">
-      <button class="btn btn-primary" type="submit">Submit</button>
+      <button class="btn btn-primary" type="submit"  id="submitStuIn" >Submit</button>
     </div>
   </form>
 </div>
@@ -494,6 +494,75 @@
           }
       }
   }
+
+  
+  let isSubmitting = false;
+
+function confirmSubmission(event) {
+    event.preventDefault(); 
+    if (isSubmitting) return; // Prevent multiple submissions
+    isSubmitting = true;
+
+    const form = event.target; 
+    const action = form.action.includes('update') ? 'update' : 'store';
+    const actionMessages = {
+        update: 'Are you sure you want to update the data?',
+        store: 'Are you sure you want to save the data?'
+    };
+
+    Swal.fire({
+        title: 'Confirmation',
+        text: actionMessages[action],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, proceed!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: form.action,
+                type: form.method,
+                data: new FormData(form),
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    isSubmitting = false; // Reset submission state
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: `Data has been ${action === 'update' ? 'updated' : 'saved'}.`,
+                            icon: 'success',
+                            timer: 4000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirect;
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Failed!',
+                            text: response.message || 'Unable to process data.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    isSubmitting = false; // Reset submission state
+                    Swal.fire({
+                        title: 'Error!',
+                        text: xhr.responseJSON?.message || 'An error occurred while processing the data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        } else {
+            isSubmitting = false; // Reset submission state if cancelled
+        }
+    });
+} 
 
   function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
       const previewDiv = document.getElementById(previewDivId);
@@ -634,4 +703,13 @@
           });
       });
   </script>
+
+    <!-- SweetAlert2 CSS -->
+    <script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 @endif

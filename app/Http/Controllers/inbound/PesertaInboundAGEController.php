@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\inbound;
-
+use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -172,11 +172,35 @@ class PesertaInboundAGEController extends Controller
                 'motivation_letter', 'research_proposal', 'loaPeserta'
             ];
 
+            $mimeTypesMap = [
+                'cv' => 'pdf',
+                'passport' => 'pdf',
+                'photo' => 'png,jpg,jpeg',
+                'transcript' => 'pdf',
+                'letter_recom_referee' => 'pdf',
+                'letter_recom' => 'pdf',
+                'english_certificate' => 'pdf',
+                'motivation_letter' => 'pdf',
+                'research_proposal' => 'pdf',
+                'loaPeserta' => 'pdf',
+            ];
+
             $newFiles = [];
 
             // Mengecek dokumen baru dan store ke folder
             foreach ($fileFields as $field) {
                 if ($request->hasFile($field)) {
+                   
+                $mimeTypes = $mimeTypesMap[$field] ?? 'png,jpg,jpeg';
+
+                try {
+                    $request->validate([
+                        $field => 'required|file|mimes:' . $mimeTypes . '|max:2048',
+                    ]);
+                } catch (ValidationException $e) {
+                    return response()->json(['status' => 'error', 'message' => 'Please upload <2 MB valid files!']);
+                }
+
                     $filePath = $this->storeFile($request->file($field), 'pendaftaran');
                     $newFiles[$field] = $filePath;
                 }
@@ -199,7 +223,9 @@ class PesertaInboundAGEController extends Controller
             $peserta->metadata = $metadata;
             $peserta->save();
 
-            return redirect()->back()->with('success', 'Data berhasil diperbarui.');
+            // return redirect()->back()->with('success', 'Data berhasil diperbarui.');
+            return response()->json(['status' => 'success', 'redirect' => route('am_pendaftar')]);
+
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update data: ' . $e->getMessage());
