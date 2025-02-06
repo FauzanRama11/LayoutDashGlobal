@@ -16,7 +16,7 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
-	                        <table class="display" id="API-2">
+	                        <table class="display" id="norm-1">
 	                            <thead>
 	                                <tr>
 	                                    <th>Full Name</th>

@@ -95,11 +95,13 @@
                 info: true,
                 ordering: true,
                 paging: true,
-                pageLength: 25,
+                pageLength: 10,
                 lengthMenu: [
-			            [10, 25, 100, 250, 500, 1000, -1],
-                        ['10', '25', '100', '250', '500', '1000', 'All']
-                    ],
+
+                    [10, 25, 100, 250, 500, 1000, -1],
+                    ['10', '25', '100', '250', '500', '1000', 'All']
+                ],
+
                 dom: '<"top"lBf>rt<"bottom"ip><"clear">',
                 buttons: [
                     {

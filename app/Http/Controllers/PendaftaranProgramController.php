@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Validation\ValidationException;
 use App\Models\MStuInProgram;
 use App\Models\MStuInPeserta;
 use App\Models\MStuOutProgram;
@@ -88,11 +88,26 @@ class PendaftaranProgramController extends Controller
             'cv_url' => 'cv_url',
         ];
 
+        $mimeTypesMap = [
+            'photo_url' => 'png,jpg,jpeg',
+            'passport_url' => 'pdf',
+            'cv_url' => 'pdf',
+        ];
+
         foreach ($fileFields as $field => $attribute) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
 
-                // Simpan file dan tambahkan ke array $uploadedFiles
+                $mimeTypes = $mimeTypesMap[$field] ?? 'png,jpg,jpeg';
+
+                try {
+                    $request->validate([
+                        $field => 'required|file|mimes:' . $mimeTypes . '|max:2048',
+                    ]);
+                } catch (ValidationException $e) {
+                    return response()->json(['status' => 'error', 'message' => 'Please upload <2 MB valid files!'], 500);
+                }
+
                 $filePath = $this->storeFile($file, 'inbound');
                 $validated[$attribute] = $filePath;
                 $uploadedFiles[] = $filePath;
@@ -107,6 +122,8 @@ class PendaftaranProgramController extends Controller
         MStuInPeserta::create($validated);
 
         return redirect('/');
+        // return response()->json(['status' => 'success', 'redirect' => url('/')]);
+
     }
 
     private function storeFile($file, $subfolder = null)

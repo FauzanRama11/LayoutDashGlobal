@@ -366,6 +366,10 @@ return $(tableId).DataTable({
 
             window.applyBetweenFilter = function () {
                 console.log('Applying date filter...');
+                const startDateInput = document.getElementById('start-date')?.value || null;
+                const endDateInput = document.getElementById('end-date')?.value || null;
+
+                console.log('Applying date filter...');
                 tableNorm2.draw();
             };
 
