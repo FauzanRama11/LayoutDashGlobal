@@ -30,7 +30,7 @@
                                     </div>
                                
                                     <!-- Tombol Filter di Kanan -->
-                                    <div class="col-auto">
+                                    <div class="col-auto" hidden>
                                         <div class="btn-group" role="group" aria-label="Filter Tanggal">
                                             <div class="position-relative">
                                                 <button class="btn btn-secondary" id="btn-toggle-date-range" onclick="toggleDateRange()">Between</button>
