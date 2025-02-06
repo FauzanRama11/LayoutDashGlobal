@@ -3,7 +3,7 @@
 @section('content') 
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5>Form Periode Amerta</h5>
+                    <h5>Form Target</h5>
                     <span>This is Optional Notes</span>
                 </div>
                 <div class="card-body">

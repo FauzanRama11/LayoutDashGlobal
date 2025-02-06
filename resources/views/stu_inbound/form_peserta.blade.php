@@ -14,7 +14,7 @@
               <div class="d-flex flex-wrap justify-content-md-end justify-content-center gap-2">
 
                   {{-- Back Button --}}
-                  <button type="button" class="btn btn-info" onclick="window.location.href='{{ route('program_stuin.edit', ['id' => $data->program->id]) }}'">
+                  <button type="button" class="btn btn-info" onclick="window.location.href='{{ $data->is_program_age === 'N' ? route('stuin_program_fak') : route('stuin_program_age') }}'">
                       <i class="fa fa-arrow-left"></i> Back
                   </button>
 
@@ -239,20 +239,18 @@
                         $segments = explode('/', $filePath);
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
+
+                        $encodedFileName = urlencode($fileName);
+                        $encodedFolder = urlencode($folder);
                         
-                        if( $folder === ''){
-                          $encodedFileName = urlencode($folder);
-                          $encodedFolder = urlencode($fileName);
-                        } else {
-                          $encodedFileName = urlencode($fileName);
-                          $encodedFolder = urlencode($folder);
-                        }
                     @endphp
         
-                    <a href="{{ route('view.dokumen', ['folder' => $encodedFolder , 'fileName' => $encodedFileName]) }}" 
+                    <a href="{{ !empty($encodedFolder) 
+                          ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                          : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
                       target="_blank" class="btn btn-primary">
-                        View / Download Passport
-                    </a>
+                      View / Download CV
+                  </a>
                 </div>
               @else
                   <!-- Input file jika ID tidak ada -->
@@ -291,20 +289,17 @@
                         $segments = explode('/', $filePath);
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
-                        
-                        if( $folder === ''){
-                          $encodedFileName = urlencode($folder);
-                          $encodedFolder = urlencode($fileName);
-                        } else {
-                          $encodedFileName = urlencode($fileName);
-                          $encodedFolder = urlencode($folder);
-                        }
+
+                        $encodedFileName = urlencode($fileName);
+                        $encodedFolder = urlencode($folder);
                     @endphp
         
-                    <a href="{{ route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) }}" 
-                      target="_blank" class="btn btn-primary">
-                        View / Download LoA
-                    </a>
+                  <a href="{{ !empty($encodedFolder) 
+                        ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                        : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
+                    target="_blank" class="btn btn-primary">
+                    View / Download LoA
+                  </a>
                 </div>
               @else
                   <!-- Input file jika ID tidak ada -->
@@ -384,28 +379,25 @@
           
                   <div class="mt-2">
                     @php
-                        $filePath = ltrim(str_replace('repo/', '', $data->cv_url), '/');
+                        $filePath = ltrim(str_replace('repo/', '', $data->passport_url), '/');
                         $segments = explode('/', $filePath);
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
                         
-                        if( $folder === ''){
-                          $encodedFileName = urlencode($folder);
-                          $encodedFolder = urlencode($fileName);
-                        } else {
-                          $encodedFileName = urlencode($fileName);
-                          $encodedFolder = urlencode($folder);
-                        }
+                        $encodedFileName = urlencode($fileName);
+                        $encodedFolder = urlencode($folder);
                     @endphp
         
-                    <a href="{{ route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) }}" 
+                    <a href="{{ !empty($encodedFolder) 
+                            ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                            : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
                       target="_blank" class="btn btn-primary">
-                        View / Download Passport
+                      View / Download Passport
                     </a>
                   </div>
               @else
                   <!-- Input file jika Passport belum ada -->
-                  <input class="form-control @error('passPeserta') is-invalid @enderror" type="file" name="passPeserta" required  onchange="validateFileSize(this)">
+                  <input class="form-control @error('passPeserta') is-invalid @enderror" type="file" name="passPeserta" required  onchange="validateFileSize(this)" accept="pdf">
                   @error('passPeserta')
                       <div class="invalid-feedback">{{ $message }}</div>
                   @enderror

@@ -105,8 +105,8 @@ class MStuInPesertaController extends Controller
             'cvPeserta' => 'pdf',
             'loaPeserta' => 'pdf',
             'fotoPeserta' => 'png,jpg,jpeg',
-            'passPeserta' => 'png,jpg,jpeg',
-            'idPeserta' => 'png,jpg,jpeg',
+            'passPeserta' => 'pdf',
+            'idPeserta' => 'pdf',
         ];
     
         // Iterasi setiap field file untuk diproses

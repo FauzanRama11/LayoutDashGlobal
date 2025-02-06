@@ -38,13 +38,13 @@
 										<td>{{ $item->target_pt ?? '-' }}</td>
 										<td>{{ $item->target_ft ?? '-' }}</td>                                
 										<td>
-											<a href="{{ route('form_target.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">Edit</a>
+											<a href="{{ route('form_target.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i>  Edit</a>
 										</td>
 										<td>
 											<form action="{{ route('hapus_target', ['id' => $item->id]) }}" method="POST">
 												@csrf
 												@method('DELETE')
-												<button type="submit" class="btn btn-danger btn-sm">Delete</button>
+												<button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>  Delete</button>
 											</form>
 										</td>
 
