@@ -287,7 +287,7 @@
                   
                   <div class="mt-2">
                     @php
-                        $filePath = ltrim(str_replace('repo/', '', $data->cv_url), '/');
+                        $filePath = ltrim(str_replace('repo/', '', $data->loa_url), '/');
                         $segments = explode('/', $filePath);
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
@@ -303,7 +303,7 @@
         
                     <a href="{{ route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) }}" 
                       target="_blank" class="btn btn-primary">
-                        View / Download Passport
+                        View / Download LoA
                     </a>
                 </div>
               @else

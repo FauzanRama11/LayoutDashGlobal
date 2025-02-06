@@ -125,7 +125,6 @@ class MStuInPesertaController extends Controller
                 }
 
 
-
                 $storagePath = '/inbound';
                 if (!Storage::disk('inside')->exists($storagePath)) {
                         Storage::disk('inside')->makeDirectory($storagePath);
@@ -157,7 +156,7 @@ class MStuInPesertaController extends Controller
 
     public function update_peserta(Request $request)
     {
-        // dd($request->all());
+        
         $peserta = MStuInPeserta::findOrFail($request->input('peserta_id'));
         
         $unit = DB::table('m_fakultas_unit')
@@ -193,12 +192,26 @@ class MStuInPesertaController extends Controller
             'idPeserta' => 'student_id_url',
         ];
 
-        
-        // dd($peserta);
+        $mimeTypesMap = [
+            'cvPeserta' => 'pdf',
+            'loaPeserta' => 'pdf',
+            'fotoPeserta' => 'png,jpg,jpeg',
+            'passPeserta' => 'png,jpg,jpeg',
+            'idPeserta' => 'png,jpg,jpeg',
+        ];
 
         foreach ($fileFields as $field => $attribute) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
+                $mimeTypes = $mimeTypesMap[$field] ?? 'png,jpg,jpeg';
+
+                try {
+                    $request->validate([
+                        $field => 'required|file|mimes:' . $mimeTypes . '|max:2048',
+                    ]);
+                } catch (ValidationException $e) {
+                    return response()->json(['status' => 'error', 'message' => 'Please upload <2 MB valid files!'], 500);
+                }
 
                 // Tentukan path penyimpanan
                 $storagePath = '/inbound';
@@ -219,7 +232,9 @@ class MStuInPesertaController extends Controller
         // Simpan perubahan pada model
         $peserta->save();
 
-        return redirect()->route('program_stuin.edit', ['id' => $request->input('progId')]);
+        // return redirect()->route('program_stuin.edit', ['id' => $request->input('progId')]);
+        return response()->json(['status' => 'success', 'redirect' => route('program_stuin.edit', ['id' => $request->input('progId')])]);
+
     }
 
     public function BantuanDana(Request $request) {
