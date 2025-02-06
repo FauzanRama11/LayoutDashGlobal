@@ -97,9 +97,9 @@
                 paging: true,
                 pageLength: 25,
                 lengthMenu: [
-                    [25, 50, 100, 250, 500, 1000, -1],
-                    ['25', '50', '100', '250', '500', '1000', 'All']
-                ],
+			            [10, 25, 100, 250, 500, 1000, -1],
+                        ['10', '25', '100', '250', '500', '1000', 'All']
+                    ],
                 dom: '<"top"lBf>rt<"bottom"ip><"clear">',
                 buttons: [
                     {
@@ -148,6 +148,9 @@
 
     if (document.getElementById('norm-2')) {
         const tableNorm2 = initializeDataTable('#norm-2');
+        console.log("Data Row:", data);
+
+        
 
         if (tableNorm2) {
             console.log('DataTable "example" initialized successfully.');
@@ -156,6 +159,7 @@
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
                 const startDateInput = document.getElementById('start-date')?.value || null;
                 const endDateInput = document.getElementById('end-date')?.value || null;
+                console.log("Row Date:", rowStartDate, "Start Date Input:", startDateInput, "End Date Input:", endDateInput);
 
                 if (!startDateInput && !endDateInput) {
                     return true;
@@ -164,7 +168,7 @@
                 const row = tableNorm2.row(dataIndex).node();
                 const rowStartDate = row?.getAttribute('data-start-date')
                     ? new Date(row.getAttribute('data-start-date'))
-                    : new Date(data[3]); 
+                    : new Date(data[7]); 
 
                 if (isNaN(rowStartDate.getTime())) {
                     return false; 

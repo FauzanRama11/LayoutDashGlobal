@@ -225,8 +225,8 @@ class MasterController extends Controller
             })
                 ->addColumn('partner_involved', function ($item) {
                     $result = DB::table('grie_moa_academic_partner as gs')
-                        ->select(DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'))
-                        // ->select(DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'))
+                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT u2.name) AS partner_involved'))
+                        ->select(DB::raw('STRING_AGG(DISTINCT u2.name, \', \') AS partner_involved'))
                         ->leftJoin('m_university as u2', 'u2.id', '=', 'gs.id_partner_university')
                         ->where('gs.id_moa_academic', operator: $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -236,8 +236,8 @@ class MasterController extends Controller
                 })
                 ->addColumn('prodi_involved', function ($item) {
                     $result = DB::table('grie_moa_academic_prodi as gs')
-                        ->select(DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'))
-                        // ->select(DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'))
+                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT p.name_eng) AS prodi_involved'))
+                        ->select(DB::raw('STRING_AGG(DISTINCT p.name_eng, \', \') AS prodi_involved'))
                         ->leftJoin('m_prodi as p', 'p.id', '=', 'gs.id_program_study_unair')
                         ->where('gs.id_moa_academic', $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -247,8 +247,8 @@ class MasterController extends Controller
                 })
                 ->addColumn('faculty_involved', function ($item) {
                     $result = DB::table('grie_moa_academic_faculty as gs')
-                        ->select(DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'))
-                        // ->select(DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'))
+                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT fu.nama_eng) AS faculty_involved'))
+                        ->select(DB::raw('STRING_AGG(DISTINCT fu.nama_eng, \', \') AS faculty_involved'))
                         ->leftJoin('m_fakultas_unit as fu', 'fu.id', '=', 'gs.id_faculty')
                         ->where('gs.id_moa_academic', $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -258,8 +258,8 @@ class MasterController extends Controller
                 })
                 ->addColumn('collaboration_scope', function ($item) {
                     $result = DB::table('grie_moa_academic_scope as gs')
-                        ->select(DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope'))
-                        // ->select(DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'))
+                        // ->select(DB::raw('GROUP_CONCAT(DISTINCT cs.name) AS collaboration_scope'))
+                        ->select(DB::raw('STRING_AGG(DISTINCT cs.name, \', \') AS collaboration_scope'))
                         ->leftJoin('m_collaboration_scope as cs', 'cs.id', '=', 'gs.id_collaboration_scope')
                         ->where('gs.id_moa_academic', $item->id)
                         ->groupBy('gs.id_moa_academic')
@@ -415,7 +415,68 @@ class MasterController extends Controller
     }
 
     public function store_master_database(Request $request, $id = null) {
+        try {
+            $request->validate([
+                'jenisP' => 'required|string', 
+                'queueP' => 'required|string', 
+                'triDharma' => 'required|string', 
+                'statusLapkerma' => 'required|string', 
+                'unitP' => 'required|integer', 
+                'countryP' => 'required|integer', 
+                'partnerP' => 'required|array', 
+                'partnerP.*' => 'integer',
+                'docP' => 'required|string', 
+                'tittleP' => 'required|string|max:255', 
+                'scopeP' => 'required|array', 
+                'scopeP.*' => 'integer', 
+                'startDate' => 'required|date', 
+                'endDate' => 'required|date|after:startDate', 
+                'catNaskah' => 'required|string', 
+                'skema' => 'required|string', 
+                'deptP' => 'required|integer', 
+                'FacP' => 'required|array', 
+                'FacP.*' => 'integer', 
+                'stuProgP' => 'required|array', 
+                'stuProgP.*' => 'integer',
+                'partDept' => 'required|string', 
+                'partnerFac' => 'required|string', 
+                'partnerStuProg' => 'required|string', 
+                'typeP' => 'required|string', 
+                'nosUnair' => 'required|string', 
+                'nopUnair' => 'required|string', 
+                'nosPart' => 'required|string', 
+                'nopPart' => 'required|string', 
+                'namePic' => 'required|string', 
+                'postPic' => 'required|string', 
+                'emailPic' => 'required|email', 
+                'telpPic' => 'required|numeric', 
+                'namePic2' => 'required|string', 
+                'postPic2' => 'required|string', 
+                'emailPic2' => 'required|email', 
+                'telpPic2' => 'required|numeric', 
+            ]);
 
+            if($request->input('jenisP') == "Riset"){
+                $request->validate([                  
+                    'sourceFund' => 'required', 
+                    'sumFund' => 'required|numeric'
+                ]);
+
+            }
+        } catch (ValidationException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Please make sure all required fields are completed!'], 500);
+        }
+
+
+    if($request->hasFile('linkDownload')){
+        try {
+            $request->validate([
+                'linkDownload' => 'required|file|mimes:pdf|max:2560', 
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
+        }
+    }
         $country = DB::table("m_country")
             ->where("id", "=", $request->input('countryP'))
             ->pluck("m_country.name")->first();
@@ -423,13 +484,6 @@ class MasterController extends Controller
         $dept = DB::table("m_departemen")
             ->where("id", "=", $request->input('deptP'))
             ->pluck("nama_ind")->first();
-            try {
-                $request->validate([
-                    'linkDownload' => 'required|file|mimes:pdf|max:2560', 
-                ]);
-            } catch (ValidationException $e) {
-                return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
-            }
             
         if ($id) {
             $agreement = GrieMoaAcademic::findOrFail($id); 
@@ -446,6 +500,7 @@ class MasterController extends Controller
                 $agreement->current_iterasi = 1;
                 $agreement->age_archive_sn = GrieMoaAcademic::generateNumber();        
                 $agreement->lapkerma_archive = $agreement->age_archive_sn.'.KSLN';
+                $agreement->link_pelaporan = null;
             }
         }
         $agreement->current_id_status = 0;
@@ -499,7 +554,6 @@ class MasterController extends Controller
         $agreement->status = 'Completed';
         // $agreement->status_lapkerma = 'BELUM';
         $agreement->year = date('Y', strtotime($agreement->mou_start_date));
-        $agreement->link_pelaporan = '';
         $agreement->status_pelaporan_lapkerma = "Belum";
         $agreement->current_id_status = 0;
     
@@ -552,12 +606,14 @@ class MasterController extends Controller
     
             $agreement = GrieMoaAcademic::find($id);
 
-            try {
-                $request->validate([
-                    'linkDownload' => 'required|file|mimes:pdf|max:1000', 
-                ]);
-            } catch (ValidationException $e) {
-                return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 1 MB!'], 500);
+            if($request->hasFile('linkPelaporan')){
+                try {
+                    $request->validate([
+                        'linkPelaporan' => 'required|file|mimes:pdf|max:1000', 
+                    ]);
+                } catch (ValidationException $e) {
+                    return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 1 MB!'], 500);
+                }
             }
     
             if ($request->hasFile('linkPelaporan')) {
@@ -581,7 +637,8 @@ class MasterController extends Controller
             $agreement->update([
                 'status_pelaporan_lapkerma' => $request->input('buktiP')
             ]);    
-            return redirect()->route('view_database');
+            // return redirect()->route('view_database');
+            return response()->json(['status' => 'success', 'redirect' => route('view_database')]);
     
         }
     
