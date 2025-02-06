@@ -24,9 +24,11 @@
 	                                    <th>Program</th>
 	                                    <th>Tgl Daftar</th>
 	                                    <th>Status</th>
+										@hasrole('gmp')
 										<th>Edit</th>
 										<th>Approve</th>
 										<th>Reject</th>
+										@endrole
 	                                </tr>
 	                            </thead>
 	                            <tbody>
@@ -46,6 +48,8 @@
 												<span class="badge badge-info">Belum diproses</span>
 											@endif
 										</td>
+										
+										@hasrole('gmp')
 										<td>
 											<form action="{{route('edit_peserta_inbound', ['id' => $item['id'] ]) }}" method="GET">
 												<button type="submit" class="btn btn-primary edit-button">Edit</button>
@@ -85,6 +89,7 @@
 												<button type="submit" class="btn btn-danger edit-button">Reject</button>
 											</form>
 										</td>
+										@endrole
 									</tr>
 									@endforeach
 	                            </tbody>
@@ -96,9 +101,11 @@
 	                                    <th>Program</th>
 	                                    <th>Tgl Daftar</th>
 	                                    <th>Status</th>
+										@hasrole('gmp')
 										<th>Edit</th>
 										<th>Approve</th>
 										<th>Reject</th>
+										@endrole
 	                                </tr>
 	                            </tfoot>
 	                        </table>

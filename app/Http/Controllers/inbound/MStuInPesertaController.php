@@ -193,6 +193,9 @@ class MStuInPesertaController extends Controller
             'idPeserta' => 'student_id_url',
         ];
 
+        
+        dd($peserta);
+
         foreach ($fileFields as $field => $attribute) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
@@ -211,7 +214,7 @@ class MStuInPesertaController extends Controller
             }
         }
 
-        // dd($peserta);
+        dd($peserta);
 
         // Simpan perubahan pada model
         $peserta->save();

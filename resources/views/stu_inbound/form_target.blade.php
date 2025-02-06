@@ -20,7 +20,7 @@
                                     <label class="form-label" for="fakultas">Fakultas</label>
                                     <select class="form-select js-example-basic-single" id="fakultas" name="fakultas" required>
                                         @foreach($unit as $item)
-                                            <option value="{{ $item->id }}" {{ old('fakultas', $target->id_fakultas) == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
+                                            <option value="{{ $item->id }}" {{ old('fakultas', $target->id_fakultas ?? null) == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
                                         @endforeach
                                     </select>
                                 </div>

@@ -56,7 +56,9 @@ function nextPrev(n) {
     }
     if (currentTab >= tabs.length) {
         console.warn("currentTab exceeds tabs length. Triggering form submission.");
-        document.getElementById("regForm").submit();
+   
+        document.getElementById("regForm").addEventListener("submit", confirmSubmission);
+        // document.getElementById("regForm").submit();
         return false;
     }
 
@@ -99,6 +101,79 @@ document.querySelectorAll(".setup-panel .stepwizard-step a").forEach((stepLink, 
         }
     });
 });
+
+
+function confirmSubmission(event) {
+    event.preventDefault(); // Mencegah submit default
+    console.log('Confirm submission function called'); // Debugging
+
+    const form = event.target; // Form elemen
+    console.log('Form action:', form.action); // Debugging
+
+    const action = form.action.includes('update') ? 'update' : 'store';
+    const actionMessages = {
+        update: 'Are you sure you want to update the data?',
+        store: 'Are you sure you want to save the data?'
+    };
+
+    Swal.fire({
+        title: 'Confirmation',
+        text: actionMessages[action],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, proceed!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData(form);
+            console.log('Form data ready to be submitted'); // Debugging
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => {
+                console.log('Response received:', response); // Debugging
+                return response.json(); // Pastikan response adalah JSON
+            })
+            .then(data => {
+                console.log('Data from response:', data); // Debugging
+                if (data.status === 'success') {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: `Data has been ${action === 'update' ? 'updated' : 'saved'}.`,
+                        icon: 'success',
+                        timer: 4000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = data.redirect;
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Failed!',
+                        text: data.message || 'Unable to process data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error during fetch:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while processing the data.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+    });
+}
 
 function validateForm() {
     let valid = true;

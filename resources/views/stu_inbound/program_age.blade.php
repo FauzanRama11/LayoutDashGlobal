@@ -24,6 +24,7 @@
 	                <div class="card-body">
 	                    <div class="table-responsive">
 	                        <table class="display" id="norm-16">
+								<a href= "{{route('stuin_age.create')}}"><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                            <thead>	
 									<tr>
 										<th>No</th>

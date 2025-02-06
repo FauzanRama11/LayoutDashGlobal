@@ -240,11 +240,16 @@
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
                         
-                        $encodedFileName = urlencode($fileName);
-                        $encodedFolder = urlencode($folder);
+                        if( $folder === ''){
+                          $encodedFileName = urlencode($folder);
+                          $encodedFolder = urlencode($fileName);
+                        } else {
+                          $encodedFileName = urlencode($fileName);
+                          $encodedFolder = urlencode($folder);
+                        }
                     @endphp
         
-                    <a href="{{ route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) }}" 
+                    <a href="{{ route('view.dokumen', ['folder' => $encodedFolder , 'fileName' => $encodedFileName]) }}" 
                       target="_blank" class="btn btn-primary">
                         View / Download Passport
                     </a>
@@ -282,13 +287,18 @@
                   
                   <div class="mt-2">
                     @php
-                        $filePath = ltrim(str_replace('repo/', '', $data->loa_url), '/');
+                        $filePath = ltrim(str_replace('repo/', '', $data->cv_url), '/');
                         $segments = explode('/', $filePath);
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
                         
-                        $encodedFileName = urlencode($fileName);
-                        $encodedFolder = urlencode($folder);
+                        if( $folder === ''){
+                          $encodedFileName = urlencode($folder);
+                          $encodedFolder = urlencode($fileName);
+                        } else {
+                          $encodedFileName = urlencode($fileName);
+                          $encodedFolder = urlencode($folder);
+                        }
                     @endphp
         
                     <a href="{{ route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) }}" 
@@ -374,13 +384,18 @@
           
                   <div class="mt-2">
                     @php
-                        $filePath = ltrim(str_replace('repo/', '', $data->passport_url), '/');
+                        $filePath = ltrim(str_replace('repo/', '', $data->cv_url), '/');
                         $segments = explode('/', $filePath);
                         $fileName = array_pop($segments);
                         $folder = implode('/', $segments);
                         
-                        $encodedFileName = urlencode($fileName);
-                        $encodedFolder = urlencode($folder);
+                        if( $folder === ''){
+                          $encodedFileName = urlencode($folder);
+                          $encodedFolder = urlencode($fileName);
+                        } else {
+                          $encodedFileName = urlencode($fileName);
+                          $encodedFolder = urlencode($folder);
+                        }
                     @endphp
         
                     <a href="{{ route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) }}" 
