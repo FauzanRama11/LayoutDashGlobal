@@ -176,6 +176,9 @@
         <input type="date" class="form-control" id="endDate" name="endDate" value="{{ old('endDate', isset($data) ? $data->mou_end_date : '')}}" required>
         <div class="invalid-feedback">Tanggal berakhir wajib diisi.</div>
       </div>
+      </div>
+        <div class="col-md-6">
+
 
       <div class="mb-3">
         <label class="form-label" for="deptP">Department</label>
@@ -204,7 +207,7 @@
             @endforeach
             </select>
         </div>
-
+    
         <div class="mb-3">
         <label class="form-label" for="partDept">Partner's Department</label>
         <input class="form-control" id="partDept" name="partDept" placeholder="Partner's Department" value = "{{ old('partDept', isset($data) ? $data->department_partner : '') }}" required>
@@ -272,11 +275,17 @@
         </div>
     </div>
   </div>
-  <div class="col-md-6">
+</div>
+
+
       <div class="card-header pb-0">
           <h5>Penandatanganan</h5><span>Informasi Penandatanganan</span>
         </div>
       <div class="card-body">
+        
+      <div class="row">
+          <!-- Kolom Kiri -->
+          <div class="col-md-6">
         
       <div class="mb-3">
         <label class="form-label" for="nosUnair">Name of Signatory (UNAIR)</label>
@@ -289,7 +298,8 @@
         <input class="form-control" id="nopUnair" name="nopUnair" placeholder="Name of Position (UNAIR)"  value = "{{ old('nopUnair', isset($data) ? $data->signatories_unair_pos : '') }}" required>
         <div class="invalid-feedback">Name of position (UNAIR) wajib diisi.</div>
       </div>
-      
+    </div>
+    <div class="col-md-6">
       <div class="mb-3">
         <label class="form-label" for="nosPart">Name of Signatory (Partner)</label>
         <input class="form-control" id="nosPart" name="nosPart" placeholder="Name of Signatory (Partner)"  value = "{{ old('nosPart', isset($data) ? $data->signatories_partner_name : '') }}" required>
@@ -302,11 +312,16 @@
         <div class="invalid-feedback">Name of position (partner) wajib diisi.</div>
       </div>  
     </div>
+    </div>
+      </div>
 
     <div class="card-header pb-0">
           <h5>Person in Charge (PIC)</h5><span>Informasi PIC</span>
         </div>
       <div class="card-body">
+      <div class="row">
+          <!-- Kolom Kiri -->
+          <div class="col-md-6">
         
       <div class="mb-3">
         <label class="form-label" for="namePic">Name (Partner PIC)</label>
@@ -331,6 +346,9 @@
         <input class="form-control" id="telpPic" name="telpPic" type="number" placeholder="Nomor Telepon (Partner PIC)" value = "{{ old('telpPic', isset($data) ? $data->pic_mitra_phone : '') }}" required>
         <div class="invalid-feedback">Nomor telepon (partner PIC) wajib diisi.</div>
       </div>
+    </div>
+
+    <div class="col-md-6">
 
       <div class="mb-3">
         <label class="form-label" for="namePic2">Name (UNAIR PIC)</label>
@@ -357,9 +375,10 @@
       </div>
       
     </div>
-    </div>
+      </div>
+      
 
-</div>
+
 
       <div class="col-12">
       @if(isset($data->approval_pelaporan))

@@ -1,6 +1,9 @@
 @extends('layouts.master')
 
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <h2>Upload Pelaporan</h2>
     <p>This is Upload Pelaporan.</p>
 
@@ -29,6 +32,7 @@
                     @endif
                 </div>
 
+                
                 <div class="mb-3">
                     <label class="form-label" for="buktiP">Upload Bukti Pelaporan Lapkerma</label>
                     <select class="form-select" id="buktiP" name="buktiP" required>
@@ -70,69 +74,112 @@
                 }
             }
 </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const submitButton = document.getElementById('submitButton');
-            const form = document.getElementById('buktiForm');
-            const fileInput = document.querySelector('input[name="linkPelaporan"]');
-            let isFileValid = true; // Status validasi file
+<script>
+     document.addEventListener('DOMContentLoaded', function () {
+    const submitButton = document.getElementById('submitButton');
+    const form = document.getElementById('buktiForm');
+    let isFileValid = true; // Status validasi file
 
-            if (submitButton) {
-        submitButton.addEventListener('click', function (e) {
-            e.preventDefault(); // Prevent the default form submission
-
-            // Check file validation before opening SweetAlert
-            if (!isFileValid) {
+    function validateFileSize(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxSize = 1 * 1024 * 1024; // 1 MB
+            const allowedTypes = ["application/pdf"]; // Hanya PDF
+            if (file.size > maxSize) {
                 Swal.fire({
-                    title: 'Invalid File!',
-                    text: 'Please upload a valid PDF file (max 2.5 MB) before submitting.',
+                    title: 'File terlalu besar!',
+                    text: 'Ukuran file melebihi 1 MB. Harap unggah file yang lebih kecil.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-                return; // Stop the process if the file is invalid
+                input.value = ""; // Reset input file
+                isFileValid = false;
+            } else if (!allowedTypes.includes(file.type)) {
+                Swal.fire({
+                    title: 'Format tidak valid!',
+                    text: 'Harap unggah file dengan format PDF.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; // Reset input file
+                isFileValid = false;
+            } else {
+                isFileValid = true;
+            }
+        }
+    }
+
+    if (submitButton) {
+        submitButton.addEventListener('click', function (e) {
+            e.preventDefault(); // Mencegah form langsung submit
+
+            // Cek apakah file diupload
+            let fileInput = document.querySelector('input[name="linkPelaporan"]');
+            if (fileInput && fileInput.required && !fileInput.files.length) {
+                Swal.fire({
+                    title: 'File diperlukan!',
+                    text: 'Harap unggah file sebelum mengirimkan form.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
             }
 
-            // SweetAlert for form submission confirmation
+            // Cek apakah file valid
+            if (!isFileValid) {
+                Swal.fire({
+                    title: 'File tidak valid!',
+                    text: 'Harap unggah file PDF dengan ukuran maksimal 1 MB sebelum mengirim.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // SweetAlert konfirmasi sebelum submit
             Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to submit the form?",
+                title: 'Apakah Anda yakin?',
+                text: "Anda akan mengirimkan form ini.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, submit it!'
+                confirmButtonText: 'Ya, kirim!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Use AJAX to submit the form
+                    // Kirim data melalui AJAX
+                    let formData = new FormData(form);
+                    
                     $.ajax({
                         url: form.action,
                         type: form.method,
-                        data: new FormData(form),
+                        data: formData,
                         processData: false,
                         contentType: false,
                         success: function (response) {
-                            console.log(response); // Log the response for debugging
+                            console.log(response); // Debugging
+
                             if (response.status === 'success') {
                                 Swal.fire({
                                     title: 'Berhasil!',
-                                    text: `Data berhasil ${action === 'update' ? 'diperbaharui' : 'tersimpan'}.`,
+                                    text: 'Data berhasil disimpan.',
                                     icon: 'success',
-                                    timer: 4000,
+                                    timer: 2000,
                                     showConfirmButton: false
                                 }).then(() => {
-                                    window.location.href = response.redirect; // Redirect after showing success message
+                                    window.location.href = response.redirect; // Redirect setelah sukses
                                 });
                             } else {
                                 Swal.fire({
                                     title: 'Gagal!',
-                                    text: response.message || 'Tidak dapat memproses data.',
+                                    text: response.message || 'Terjadi kesalahan.',
                                     icon: 'error',
                                     confirmButtonText: 'OK'
                                 });
                             }
                         },
                         error: function (xhr) {
-                            console.error(xhr); // Log error response for debugging
+                            console.error(xhr);
                             Swal.fire({
                                 title: 'Error!',
                                 text: xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses data.',
@@ -145,28 +192,7 @@
             });
         });
     }
-        });
+});
+
     </script>
-
-    @if (session('success'))
-        <script>
-            Swal.fire({
-                title: 'Success!',
-                text: {!! json_encode(session('success')) !!},
-                icon: 'success',
-                confirmButtonText: 'OK'
-            });
-        </script>
-    @endif
-
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                title: 'Error!',
-                text: {!! json_encode(session('error')) !!},
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        </script>
-    @endif
 @endsection

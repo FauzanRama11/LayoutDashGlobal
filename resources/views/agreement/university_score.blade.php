@@ -13,7 +13,7 @@
 	                <div class="card-body">
 	                    <div class="table-responsive">
 							
-	                        <table class="display" id="norm-1" data-columns-export=":not(:eq(0))">
+	                        <table class="display" id="norm-2" data-columns-export=":not(:eq(0))">
 							@role("fakultas")
 								<a href= ""><button class="btn btn-success btn-sm active" type="button"  style="width: 20%; margin:15px">+ Tambah</button></a>
 	                        @endrole    
@@ -48,7 +48,13 @@
                                             <td>{{$item->staff_inbound}}</td>
                                             <td>{{$item->staff_outbound}}</td>                                    
                                             <td>{{$item->kumulatif_score}}</td>
-                                            <td>{{$item->status}}</td>
+                                            <td>
+												@if ($item->status == "active")
+													<button class="btn btn-success btn-sm">ACTIVE</button>
+												@else
+													<button class="btn btn-danger btn-sm">SLEEPING</button>
+												@endif
+										</td>
 									</tr>
                                     @endforeach
 	                            </tbody>
