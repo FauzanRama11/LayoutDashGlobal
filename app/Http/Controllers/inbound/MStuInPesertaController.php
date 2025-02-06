@@ -157,7 +157,7 @@ class MStuInPesertaController extends Controller
 
     public function update_peserta(Request $request)
     {
-        
+        // dd($request->all());
         $peserta = MStuInPeserta::findOrFail($request->input('peserta_id'));
         
         $unit = DB::table('m_fakultas_unit')
@@ -194,7 +194,7 @@ class MStuInPesertaController extends Controller
         ];
 
         
-        dd($peserta);
+        // dd($peserta);
 
         foreach ($fileFields as $field => $attribute) {
             if ($request->hasFile($field)) {
@@ -214,7 +214,7 @@ class MStuInPesertaController extends Controller
             }
         }
 
-        dd($peserta);
+        // dd($peserta);
 
         // Simpan perubahan pada model
         $peserta->save();
