@@ -98,6 +98,7 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::get('/approval-dana', [StudentInboundController::class, 'approval_dana'])->name('stuin_approval_dana');
         Route::post('/ajukan-bantuan-dana', [MStuInPesertaController::class, 'BantuanDana'])->name('ajukan.bantuan.dana');
         Route::post('/approve-dana/{id}', [StudentInboundController::class, 'approveDana'])->name('stuin.approve.dana');
+        Route::post('/unapprove-dana/{id}', [StudentInboundController::class, 'unapproveDana'])->name('stuin.unapprove.dana');
         Route::get('/pdf-pengajuan-dana/{id}/{tipe}', [StudentInboundController::class, 'pdfPengajuanInbound'])->name('stuin.pengajuan.dana');
 
         // Approval Peserta

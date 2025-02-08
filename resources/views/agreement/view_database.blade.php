@@ -30,7 +30,7 @@
                                     </div>
                                
                                     <!-- Tombol Filter di Kanan -->
-                                    <div class="col-auto">
+                                    <div class="col-auto" hidden>
                                         <div class="btn-group" role="group" aria-label="Filter Tanggal">
                                             <div class="position-relative">
                                                 <button class="btn btn-secondary" id="btn-toggle-date-range" onclick="toggleDateRange()">Between</button>
@@ -221,9 +221,9 @@ return $(tableId).DataTable({
 
         pageLength: 25,
         lengthMenu: [
-            [25, 50, 100, 250, 500, 1000, -1],
-            ['25', '50', '100', '250', '500', '1000', 'All']
-        ],
+			   [10, 25, 100, 250, 500, 1000, -1],
+			   ['10', '25', '100', '250', '500', '1000', 'All']
+		   ],
 
         processing: true,
         serverSide: true,
@@ -347,7 +347,7 @@ return $(tableId).DataTable({
                 const row = tableNorm2.row(dataIndex).node();
                 const rowStartDate = row?.getAttribute('data-start-date')
                     ? new Date(row.getAttribute('data-start-date'))
-                    : new Date(data[3]); 
+                    : new Date(data[6]); 
 
                 if (isNaN(rowStartDate.getTime())) {
                     return false; 
@@ -365,6 +365,10 @@ return $(tableId).DataTable({
             });
 
             window.applyBetweenFilter = function () {
+                console.log('Applying date filter...');
+                const startDateInput = document.getElementById('start-date')?.value || null;
+                const endDateInput = document.getElementById('end-date')?.value || null;
+
                 console.log('Applying date filter...');
                 tableNorm2.draw();
             };

@@ -8,46 +8,108 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\MStuInProgram;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\DataTables;
 
 class MStuInProgramController extends Controller
 {
-    public function program_fak()
+    public function program_fak(Request $request)
     {
-        $user = Auth::user();
+        if ($request->ajax()) {
+            $user = Auth::user();
 
-        if ($user->hasRole('fakultas')) {
-            $fa = $user->name;
-            
-            $data = DB::table('m_stu_in_programs')
-            ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
-                        DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
-            ->where('host_unit_text', 'like', "%$fa%")
-            ->where("is_program_age", "N")
-            ->orderBy('created_time', 'desc')
-            ->get();
+            if ($user->hasRole('fakultas')) {
+                $fa = $user->name;
+
+                $data = DB::table('m_stu_in_programs')
+                    ->select('id', 'name', 'start_date', 'end_date', 'category_text as cat', 'via', 
+                             'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
+                             DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
+                    ->where('host_unit_text', 'like', "%$fa%")
+                    ->where("is_program_age", "N");
+            } else {
+                $data = DB::table('m_stu_in_programs')
+                    ->select('id', 'name', 'start_date', 'end_date', 'category_text as cat', 'via', 
+                             'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
+                             DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
+                    ->where("is_program_age", "N");
+            }
+
+                if ($request->has('order')) {
+                    foreach ($request->order as $order) {
+                        $columnIndex = $order['column']; 
+                        $columnDir = $order['dir'];
+                        $columnName = $request->columns[$columnIndex]['data'];      
+                    }
+                } else {
+                    $data->orderBy('created_time', 'desc'); 
+                }
+
+            return DataTables::of($data)
+                ->editColumn('is_private_event', function ($item) {
+                    return $item->is_private_event === 'Tidak' ? 'Registrasi' : 'Pelaporan';
+                })
+                ->addColumn('edit', function ($item) {
+                    return '<form action="' . route('program_stuin.edit', ['id' => $item->id]) . '" method="GET">
+                                <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-edit"></i>  Edit</button>
+                            </form>';
+                })
+                ->addColumn('delete', function ($item) {
+                    return '<form action="' . route('program_stuin.destroy', ['id' => $item->id]) . '" method="POST" 
+                                onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan\')">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="submit" class="btn btn-danger delete-button"><i class="fa fa-trash"></i>  Delete</button>
+                            </form>';
+                })
+                ->rawColumns(['is_private_event', 'edit', 'delete']) // Render as HTML
+                ->make(true);
         }
-        else{
+
+        return view('stu_inbound.program_fak');
+    }
+
+    public function program_age(Request $request)
+    {
+        if ($request->ajax()) {
+
             $data = DB::table('m_stu_in_programs')
             ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
-                        DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
-            ->where("is_program_age", "N")
-            ->orderBy('created_time', 'desc')
-            ->get();
-        };
+                DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
+            ->where("is_program_age", "Y")
+            ->orWhere('host_unit_text', 'Airlangga Global Engagement');
 
-        return view('stu_inbound.program_fak', compact('data'));
+                if ($request->has('order')) {
+                    foreach ($request->order as $order) {
+                        $columnIndex = $order['column']; 
+                        $columnDir = $order['dir'];
+                        $columnName = $request->columns[$columnIndex]['data'];      
+                    }
+                } else {
+                    $data->orderBy('created_time', 'desc'); 
+                }
+
+            return DataTables::of($data)
+                ->editColumn('is_private_event', function ($item) {
+                    return $item->is_private_event === 'Tidak' ? 'Registrasi' : 'Pelaporan';
+                })
+                ->addColumn('edit', function ($item) {
+                    return '<form action="' . route('program_stuin.edit', ['id' => $item->id]) . '" method="GET">
+                                <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-edit"></i>  Edit</button>
+                            </form>';
+                })
+                ->addColumn('delete', function ($item) {
+                    return '<form action="' . route('program_stuin.destroy', ['id' => $item->id]) . '" method="POST" 
+                                onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini? Data yang telah dihapus tidak dapat dipulihkan\')">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="submit" class="btn btn-danger delete-button"><i class="fa fa-trash"></i>  Delete</button>
+                            </form>';
+                })
+                ->rawColumns(['is_private_event', 'edit', 'delete']) // Render as HTML
+                ->make(true);
+        }
+
+        return view('stu_inbound.program_age');
     }
-    public function program_age()
-    {
-        $data = $data = DB::table('m_stu_in_programs')
-        ->select('id','name','start_date', 'end_date', 'category_text as cat', 'via', 'host_unit_text as unit', 'pt_ft', 'is_private_event', 'created_time',
-            DB::raw("(SELECT COUNT(*) FROM m_stu_in_peserta ps WHERE ps.program_id = m_stu_in_programs.id) as jumlah_peserta"))
-        ->where("is_program_age", "Y")
-        ->orWhere('host_unit_text', 'Airlangga Global Engagement')
-        ->orderBy('created_time', 'desc')
-        ->get();
-        return view('stu_inbound.program_age', compact('data'));
-    }
+
     public function add_program_fak(){
         $category = DB::table('m_stu_in_program_category')->get();
         $univ = DB::table('m_university')

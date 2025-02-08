@@ -1069,6 +1069,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+ 
     document.getElementById('confirmUpdate').addEventListener('click', function () {
         if (validateForm()) {
             Swal.fire({
@@ -1087,6 +1088,54 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    document.getElementById('submitForm').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default submit
+
+        const form = document.getElementById('updateForm');
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(response => {
+            if (response.status === 'success') {
+                Swal.fire({
+                    title: 'Success!',
+                    text: `Data has been updated.`,
+                    icon: 'success',
+                    timer: 4000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = response.redirect;
+                });
+            } else {
+                Swal.fire({
+                    title: 'Failed!',
+                    text: response.message || 'Unable to process data.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error!',
+                text: error.message || 'An error occurred while processing the data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
     let participantId = "{{ isset($processedData['id']) ? $processedData['id'] : '' }}";
 
           function sendRequest(url, method, data, successMessage) {

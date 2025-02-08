@@ -30,8 +30,10 @@
 										<th>Tgl Berakhir Pendaftaran</th>
 										<th>Tgl Mulai Program</th>
 										<th>Tgl Berakhir Program</th>
-										<th>Edit</th>
-										<th>Delete</th>
+										@hasrole('gmp')
+											<th>Edit</th>
+											<th>Delete</th>
+										@endrole
 									</tr>
 								</thead>
 								<tbody>
@@ -41,16 +43,18 @@
 										<td>{{ \Carbon\Carbon::parse($item->end_date_pendaftaran)->format('d M Y') ?? '-' }}</td>
 										<td>{{ \Carbon\Carbon::parse($item->start_date_program)->format('d M Y') ?? '-' }}</td>
 										<td>{{ \Carbon\Carbon::parse($item->end_date_program)->format('d M Y') ?? '-' }}</td>
-										<td>
-											<a href="{{ route('am_form_periode.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">Edit</a>
-										</td>
-										<td>
-											<form action="{{ route('am_hapus_periode', ['id' => $item->id]) }}" method="POST">
-												@csrf
-												@method('DELETE')
-												<button type="submit" class="btn btn-danger btn-sm">Delete</button>
-											</form>
-										</td>
+										@hasrole('gmp')
+											<td>
+												<a href="{{ route('am_form_periode.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">Edit</a>
+											</td>
+											<td>
+												<form action="{{ route('am_hapus_periode', ['id' => $item->id]) }}" method="POST">
+													@csrf
+													@method('DELETE')
+													<button type="submit" class="btn btn-danger btn-sm">Delete</button>
+												</form>
+											</td>
+										@endrole
 									</tr>
 									@endforeach
 									<tfoot>
@@ -59,8 +63,10 @@
 											<th>Tgl Berakhir Pandaftaran</th>
 											<th>Tgl Mulai Program</th>
 											<th>Tgl Berakhir Program</th>
-											<th>Edit</th>
-											<th>Delete</th>
+											@hasrole('gmp')
+												<th>Edit</th>
+												<th>Delete</th>
+											@endrole
 										</tr>
 									</tfoot>
 								</tbody>

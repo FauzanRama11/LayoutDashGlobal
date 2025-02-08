@@ -14,7 +14,7 @@
 	            <div class="card">
 	                <div class="card-body">
 	                    <div class="table-responsive">
-	                        <table class="display" id="API-2">
+	                        <table class="display" id="norm-1">
 								<a href="{{ route('form_target.create') }}">
 									<button class="btn btn-success btn-sm active" type="button" style="width: 20%; margin:15px">+ Tambah</button>
 								</a>
@@ -38,13 +38,13 @@
 										<td>{{ $item->target_pt ?? '-' }}</td>
 										<td>{{ $item->target_ft ?? '-' }}</td>                                
 										<td>
-											<a href="{{ route('form_target.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">Edit</a>
+											<a href="{{ route('form_target.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i>  Edit</a>
 										</td>
 										<td>
 											<form action="{{ route('hapus_target', ['id' => $item->id]) }}" method="POST">
 												@csrf
 												@method('DELETE')
-												<button type="submit" class="btn btn-danger btn-sm">Delete</button>
+												<button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>  Delete</button>
 											</form>
 										</td>
 

@@ -91,14 +91,58 @@ public function destroy_pelaporan($id){
 } 
 
 public function store_pelaporan(Request $request, $id = null) {
-    $country = DB::table("m_country")
-        ->where("id", "=", $request->input('countryP'))
-        ->pluck("m_country.name")->first();
 
-    $dept = DB::table("m_departemen")
-        ->where("id", "=", $request->input('deptP'))
-        ->pluck("nama_ind")->first();
-        
+
+        try {
+            $request->validate([
+                'jenisP' => 'required|string', 
+                'triDharma' => 'required|string', 
+                'unitP' => 'required|integer', 
+                'countryP' => 'required|integer', 
+                'partnerP' => 'required|array', 
+                'partnerP.*' => 'integer',
+                'docP' => 'required|string', 
+                'tittleP' => 'required|string|max:255', 
+                'scopeP' => 'required|array', 
+                'scopeP.*' => 'integer', 
+                'startDate' => 'required|date', 
+                'endDate' => 'required|date|after:startDate', 
+                'deptP' => 'required|integer', 
+                'FacP' => 'required|array', 
+                'FacP.*' => 'integer', 
+                'stuProgP' => 'required|array', 
+                'stuProgP.*' => 'integer',
+                'partDept' => 'required|string', 
+                'partnerFac' => 'required|string', 
+                'partnerStuProg' => 'required|string', 
+                'typeP' => 'required|string', 
+                'nosUnair' => 'required|string', 
+                'nopUnair' => 'required|string', 
+                'nosPart' => 'required|string', 
+                'nopPart' => 'required|string', 
+                'namePic' => 'required|string', 
+                'postPic' => 'required|string', 
+                'emailPic' => 'required|email', 
+                'telpPic' => 'required|numeric', 
+                'namePic2' => 'required|string', 
+                'postPic2' => 'required|string', 
+                'emailPic2' => 'required|email', 
+                'telpPic2' => 'required|numeric', 
+            ]);
+
+            if($request->input('jenisP') == "Riset"){
+                $request->validate([                  
+                    'sourceFund' => 'required', 
+                    'sumFund' => 'required|numeric'
+                ]);
+
+            }
+        } catch (ValidationException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Please make sure all required fields are completed!'], 500);
+        }
+
+
+    if($request->hasFile('linkDownload')){
         try {
             $request->validate([
                 'linkDownload' => 'required|file|mimes:pdf|max:2560', 
@@ -106,6 +150,15 @@ public function store_pelaporan(Request $request, $id = null) {
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 2.5 MB!'], 500);
         }
+    }
+ 
+    $country = DB::table("m_country")
+        ->where("id", "=", $request->input('countryP'))
+        ->pluck("m_country.name")->first();
+
+    $dept = DB::table("m_departemen")
+        ->where("id", "=", $request->input('deptP'))
+        ->pluck("nama_ind")->first();
 
     if ($id) {
         $pelaporan = GrieMoaAcademicPelaporan::findOrFail($id); 
@@ -507,8 +560,25 @@ public function store_pelaporan(Request $request, $id = null) {
 
         $agreement = GrieMoaAcademic::find($id);
 
+        try {
+            $request->validate([
+                'buktiP' => 'required|string', 
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Please select valid value!'], 500);
+        }
+
         if ($request->hasFile('linkPelaporan')) {
             $file = $request->file('linkPelaporan');
+
+            try {
+                $request->validate([
+                    'linkPelaporan' => 'required|file|mimes:pdf|max:1024', 
+                ]);
+            } catch (ValidationException $e) {
+                return response()->json(['status' => 'error', 'message' => 'Please upload a PDF file smaller than 1 MB!'], 500);
+            }
+
             $storagePath = '/naskah';
 
             if (!Storage::disk('outside')->exists($storagePath)) {
@@ -530,7 +600,8 @@ public function store_pelaporan(Request $request, $id = null) {
         ]);
 
 
-        return redirect()->route('view_database');
+        // return redirect()->route('view_database');
+        return response()->json(['status' => 'success', 'redirect' => route('view_database')]);
     }
 
     public function generate_number(){
