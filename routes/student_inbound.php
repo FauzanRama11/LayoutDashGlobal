@@ -18,7 +18,7 @@ use App\Http\Controllers\inbound\PesertaInboundAGEController;
 use App\Http\Controllers\staff_inbound\PendaftaranInboundController;
 
 // Student Inbound
-Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps|dirpen'])->group(function () {
 
     Route::prefix('amerta')->group(function () {
         Route::get('/template-rps', [AmertaRpsController::class, 'index'])->name('am_template_rps');
@@ -100,9 +100,12 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps'])->group(function
         Route::post('/approve-dana/{id}', [StudentInboundController::class, 'approveDana'])->name('stuin.approve.dana');
         Route::post('/unapprove-dana/{id}', [StudentInboundController::class, 'unapproveDana'])->name('stuin.unapprove.dana');
         Route::get('/pdf-pengajuan-dana/{id}/{tipe}', [StudentInboundController::class, 'pdfPengajuanInbound'])->name('stuin.pengajuan.dana');
+        Route::get('/pdf-pengajuan-loa/{id}', [StudentInboundController::class, 'pdfloa'])->name('stuin.pengajuan.loa');
 
         // Approval Peserta
         Route::get('/approval-pelaporan', [StudentInboundController::class, 'approval_pelaporan'])->name('stuin_approval_pelaporan');
+        Route::post('/request/{id}', [StudentInboundController::class, 'pesertaRequest'])->name('stuin.request');
+        Route::post('/unrequest/{id}', [StudentInboundController::class, 'pesertaUnrequest'])->name('stuin.unrequest');
         Route::post('/approve/{id}', [StudentInboundController::class, 'pesertaApprove'])->name('stuin.approve');
         Route::post('/unapprove/{id}', [StudentInboundController::class, 'pesertaUnapprove'])->name('stuin.unapprove');
         Route::post('/reject/{id}', [StudentInboundController::class, 'pesertaReject'])->name('stuin.reject');

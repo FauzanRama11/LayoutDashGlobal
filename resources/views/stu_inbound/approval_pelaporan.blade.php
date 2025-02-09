@@ -58,9 +58,9 @@ function getFileUrl($fileUrl) {
 										<th>Student ID</th>
 	                                    <th>LoA</th>
                                         <th>CV</th>
-										<th>Sumber Dana</th>
-                                        <th>Status</th>
-										<th>Approve</th>
+                                        <th>Loa Status</th>
+                                        <th>Approval Status</th>
+										<th>Action</th>
 	                                    <th>Add Revision</th>
 	                                    <th>Reject</th>
 	                                </tr>
@@ -85,8 +85,9 @@ function getFileUrl($fileUrl) {
 										<th>Student ID</th>
 	                                    <th>LoA</th>
                                         <th>CV</th>
-                                        <th>Status</th>
-										<th>Approve</th>
+                                        <th>Loa Status</th>
+                                        <th>Approval Status</th>
+										<th>Action</th>
 	                                    <th>Add Revision</th>
 	                                    <th>Reject</th>
 	                                </tr>
@@ -217,6 +218,7 @@ function getFileUrl($fileUrl) {
 		   { data: 'student_id_url', name: 'student_id_url' },
 		   { data: 'loa_url', name: 'loa_url' },
 		   { data: 'cv_url', name: 'cv_url' },
+		   { data: 'is_loa', name: 'is_loa'},
 		   { data: 'is_approved', name: 'is_approved'},
 		   { data: 'action', name: 'action', orderable:false, searchable:false },
 		   { data: 'revise', name: 'revise',  orderable:false, searchable:false  },

@@ -75,49 +75,44 @@
                 <div id="step-2" class="tab setup-content">
                     <input type="hidden" name="step" value="2">
                     
-                    <input type="hidden" name="program_id" value="{{ $program->id }}">
+                    <input type="hidden" id="kode" name="kode" value="{{$program->url_generate}}">
                     
-                    <!-- Full Name -->
                     <div class="mb-3">
-                        <label class="form-label" for="nama">Full Name *</label>
+                        <label class="form-label" for="nama">Full Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nama" name="nama" placeholder="Masukkan Nama Lengkap" required>
                         <div class="invalid-feedback">Fullname field can not be empty.</div>
                     </div>
 
-                     <!-- Telephone Number -->
                      <div class="mb-3">
-                        <label class="form-label" for="telp">Telephone Number *</label>
+                        <label class="form-label" for="telp">Telephone Number <span class="text-danger">*</span></label>
                         <input type="tel" class="form-control" id="telp" name="telp" placeholder="Masukkan Nomor Telepon" required>
                         <div class="invalid-feedback">Nomor field can not be empty.</div>
                     </div>
 
-                    <!-- Email -->
                     <div class="mb-3">
-                        <label class="form-label" for="email">Email</label>
+                        <label class="form-label" for="email">Email <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="email" name="email" required>
                         <div class="invalid-feedback">Email field can not be empty.</div>
                     </div>
 
-                    <!-- Sex -->
                     <div class="mb-3">
-                        <label class="form-label" for="jenis_kelamin">Sex *</label>
+                        <label class="form-label" for="jenis_kelamin">Sex <span class="text-danger">*</span></label>
                         <select class="form-select" id="jenis_kelamin" name="jenis_kelamin" required>
                             <option value="Laki-Laki" selected>Male</option>
                             <option value="Perempuan">Female</option>
+                            <option value="Other">Prefer not to disclose</option>
                         </select>
                         <div class="invalid-feedback">Sex field can not be empty.</div>
                     </div>
 
-                    <!-- Date of Birth -->
                     <div class="mb-3">
-                        <label class="form-label" for="tgl_lahir">Date of Birth *</label>
+                        <label class="form-label" for="tgl_lahir">Date of Birth <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="tgl_lahir" name="tgl_lahir" required>
                         <div class="invalid-feedback">Date of Birth field can not be empty.</div>
                     </div>
                     
-                    {{-- Education Level --}}
                     <div class="mb-3">
-                        <label class="form-label" for="jenjang">Education Level</label>
+                        <label class="form-label" for="jenjang">Education Level <span class="text-danger">*</span></label>
                         <select class="form-select" id="jenjang" name="jenjang">
                           <option value="diploma" selected>Diploma</option>
                           <option value="bachelor">Bachelor</option>
@@ -171,22 +166,88 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="photo_url">Photo</label>
-                        <input class="form-control" type="file" id="photo_url" name="photo_url"  accept=".jpg, .jpeg, .png"  required>
-                        <div class="invalid-feedback">Foto wajib diisi.</div>
+                        <input 
+                            class="form-control"  type="file" id="photo_url" name="photo_url" accept=".jpg, .jpeg, .png" 
+                            onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div 
+                            class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
+                            id="photoPreviewDiv">
+                            
+                            <img id="photoPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="cv_url">CV</label>
-                        <input class="form-control" type="file" id="cv_url" name="cv_url"  accept=".pdf"  required>
+                        <input class="form-control" type="file" id="cv_url" name="cv_url"  accept=".pdf"  required onchange="validateFileSize(this)">
                         <div class="invalid-feedback">CV wajib diisi.</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="passport_url">Passport Identity Page</label>
-                        <input class="form-control" type="file" id="passport_url" name="passport_url"   accept=".pdf"  required>
-                        <div class="invalid-feedback">Passport wajib diisi.</div>
+                        <label class="form-label" for="selected_id">Selected Identity <span class="text-danger">*</span></label>
+                        <select class="form-select" id="selected_id" name="selected_id" required>
+                            <option value="">Selected Identity</option>
+                            <option value="student_id">Student ID</option>
+                            <option value="passport">Passport</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
                     </div>
-                    
+
+                    {{-- STUDENT ID FIELD --}}
+                    <div class="studentid_field" style="display: none;">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="student_no">Student Identity Number</label>
+                            <input class="form-control" id="student_no" name="student_no" placeholder="Enter your Student Id Number"  required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="student_id_url">Student ID</label>
+                            <input 
+                                class="form-control"  type="file" id="student_id_url" name="student_id_url" accept=".jpg, .jpeg, .png" 
+                                onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 240)" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div 
+                                class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
+                                id="studentIdPreviewDiv">
+                                
+                                <img id="studentIdPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- PASSPORT FIELD --}}
+                    <div class="passport_field" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label" for="passport_no">Paspport Number</label>
+                            <input class="form-control" id="passport_no" name="passport_no" placeholder="Nomor Passport" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="passport_url">Passport Identity Page</label>
+                            <input 
+                                class="form-control"  type="file" id="passport_url" name="passport_url" accept=".jpg, .jpeg, .png" 
+                                onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 240)" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div 
+                                class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
+                                id="passportPreviewDiv">
+                                
+                                <img 
+                                    id="passportPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label" for="program_info">Where did you first get information about this program?</label>
                         <select class="form-select" id="program_info" name="program_info" required>
@@ -203,7 +264,7 @@
                 <!-- Navigation Buttons -->
                 <div class="text-end btn-mb">
                     <button class="btn btn-secondary" id="prevBtn" type="button" onclick="nextPrev(-1)">Previous</button>
-                    <button class="btn btn-primary" id="nextBtn" type="submit" onclick="nextPrev(1)">Next</button>
+                    <button class="btn btn-primary" id="nextBtn" type="button" onclick="nextPrev(1)">Next</button>
                 </div>
               </form>              
           </div>
@@ -220,24 +281,86 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selected_program = document.getElementById('selected_id');
+    
+        selected_program.addEventListener('change', function () {
+            const selectedValue = this.value;
+    
+            // Ambil semua elemen dengan kelas yang sesuai
+            const passport_field = document.querySelectorAll('.passport_field');
+            const studentid_field = document.querySelectorAll('.studentid_field');
+    
+            // Sembunyikan semua form
+            hideForms(passport_field);
+            hideForms(studentid_field);
+    
+            // Tampilkan form yang sesuai dengan pilihan
+            if (selectedValue === 'passport') {
+                showForms(passport_field);
+            } else if (selectedValue === 'student_id') {
+                showForms(studentid_field);
+            } 
+        });
+    
+        // Fungsi untuk menyembunyikan semua elemen dalam NodeList
+        function hideForms(forms) {
+            forms.forEach(form => {
+                form.style.display = 'none';
+                toggleInputs(form, true);
+            });
+        }
+    
+        // Fungsi untuk menampilkan semua elemen dalam NodeList
+        function showForms(forms) {
+            forms.forEach(form => {
+                form.style.display = 'block';
+                toggleInputs(form, false);
+            });
+        }
+    
+       // Fungsi untuk mengaktifkan/menonaktifkan input dalam form
+        function toggleInputs(form, isDisabled) {
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.disabled = isDisabled;
+    
+                // Cek apakah elemen awalnya memiliki required
+                if (!isDisabled) {
+                    if (input.dataset.originalRequired === "true") {
+                        input.setAttribute('required', true);
+                    }
+                } else {
+                    // Simpan status required sebelum dinonaktifkan
+                    if (input.hasAttribute('required')) {
+                        input.dataset.originalRequired = "true"; // Tandai bahwa awalnya required
+                    } else {
+                        input.dataset.originalRequired = "false"; // Tandai bahwa awalnya tidak required
+                    }
+    
+                    input.removeAttribute('required');
+                }
+            });
+        }
+    
+    
+    });
+    
+</script>
+
 <script>
     
-    let isFileValid = true; // Variabel global untuk melacak status validasi file
+    let isFileValid = true; // Menyimpan status validasi file
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const fileInputs = document.querySelectorAll("input[type='file']");
-        console.log('percobaan');
-
-        fileInputs.forEach(input => {
-            input.addEventListener("change", function () {
-                console.log(fileInputs);
-                validateFileSize(this); // Jalankan validasi saat file dipilih
-            });
-        });
-    });
+    function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
+        validateFileSize(event.target);
+        previewImage(event.target, previewDivId, previewImgId, imgHeight);
+    }
 
     function validateFileSize(input) {
-        const file = input.files[0]; // Ambil file pertama dari input
+        const file = input.files[0];
         if (file) {
             const maxSize = 2 * 1024 * 1024; // 2MB
             if (file.size > maxSize) {
@@ -247,86 +370,59 @@
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-                input.value = ""; // Kosongkan input file jika tidak valid
-                isFileValid = false; // Tandai file tidak valid
+                input.value = ""; 
+                isFileValid = false;
             } else {
-                isFileValid = true; // Tandai file valid
+                isFileValid = true;
             }
         }
     }
-document.addEventListener("DOMContentLoaded", function () {
-document.getElementById("regForm").addEventListener("submit", confirmSubmission);
-});
-function confirmSubmission(event) {
-    event.preventDefault(); // Mencegah submit default
-    console.log('Confirm submission function called'); // Debugging
+    function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
+    const previewDiv = document.getElementById(previewDivId);
+    const previewImg = document.getElementById(previewImgId);
 
-    const form = event.target; // Form elemen
-    console.log('Form action:', form.action); // Debugging
+    if (!previewDiv || !previewImg) {
+        console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
+        return;
+    }
 
-    const action = form.action.includes('update') ? 'update' : 'store';
-    const actionMessages = {
-        update: 'Are you sure you want to update the data?',
-        store: 'Are you sure you want to save the data?'
-    };
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
 
-    Swal.fire({
-        title: 'Confirmation',
-        text: actionMessages[action],
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, proceed!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const formData = new FormData(form);
-            console.log('Form data ready to be submitted'); // Debugging
+        if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
 
-            fetch(form.action, {
-                method: form.method,
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => {
-                console.log('Response received:', response); // Debugging
-                return response.json(); // Pastikan response adalah JSON
-            })
-            .then(data => {
-                console.log('Data from response:', data); // Debugging
-                if (data.status === 'success') {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: `Data has been ${action === 'update' ? 'updated' : 'saved'}.`,
-                        icon: 'success',
-                        timer: 4000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = data.redirect;
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Failed!',
-                        text: data.message || 'Unable to process data.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error during fetch:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'An error occurred while processing the data.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
+                // 🔹 Ubah div menjadi `d-flex` dan tambahkan border
+                previewDiv.classList.remove('d-none');
+                previewDiv.classList.add('d-flex', 'border', 'border-3');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            Swal.fire({
+                title: 'Invalid File Type!',
+                text: 'Only JPG, JPEG, or PNG files are allowed.',
+                icon: 'error',
+                confirmButtonText: 'OK'
             });
+
+            input.value = ''; // Reset input file
+            resetPreview(previewDiv, previewImg);
         }
-    });
+    } else {
+        resetPreview(previewDiv, previewImg);
+    }
+}
+
+// 🔹 Fungsi untuk menyembunyikan preview jika file tidak ada
+function resetPreview(previewDiv, previewImg) {
+    previewDiv.classList.add('d-none'); 
+    previewDiv.classList.remove('d-flex', 'border', 'border-3'); 
+    previewImg.style.display = 'none'; 
+    previewImg.src = ''; 
 }
 
 </script>

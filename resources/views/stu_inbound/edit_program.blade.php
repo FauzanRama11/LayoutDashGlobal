@@ -1,6 +1,8 @@
 @extends('layouts.master')
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -22,6 +24,24 @@
                 });
             }
         }
+
+        function generateLOA() {
+            let pesertaLOACount = {{ $pesertaLOA->count() }};
+
+            if (pesertaLOACount > 0) {
+                let url = `{{ route('stuin.pengajuan.loa', ['id' => '__ID__']) }}`;
+                url = url.replace('__ID__', `{{ $data->id }}`);
+                window.open(url, "_blank");
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Pemberitahuan",
+                    text: "Tidak ada peserta yang memenuhi persyaratan.", // 🔹 Tambahkan koma di sini
+                    confirmButtonColor: "#007bff"
+                });
+            }
+        }
+
     
         // Klik tombol RKAT
         $('#generatePdfRkat').click(function () {
@@ -31,6 +51,10 @@
         // Klik tombol DPAT
         $('#generatePdfDpat').click(function () {
             generatePdf('DPAT');
+        });
+        // Klik tombol DPAT
+        $('#generatePdfLoa').click(function () {
+            generateLOA();
         });
     });
 </script>
@@ -71,6 +95,7 @@ function getFileUrl($fileUrl) {
                             <a href="{{ $data->is_program_age === 'Y' ? route('stuin_program_age') : route('stuin_program_fak')}}" class="btn btn-info mx-1">Back</a>
                             <button type="button" id="generatePdfRkat" class="btn btn-secondary mx-1">PDF RKAT</button>
                             <button type="button" id="generatePdfDpat" class="btn btn-secondary mx-1">PDF DPAT</button>
+                            <button type="button" id="generatePdfLoa" class="btn btn-secondary mx-1">LOA</button>
                   
                           </div>
                         @endif
@@ -250,6 +275,7 @@ function getFileUrl($fileUrl) {
                                     <th>Universitas</th>
                                     <th>Negara</th>
                                     <th>Waktu Registrasi</th>
+                                    <th>Status Permintaan LOA</th>
                                     <th>Status Persetujuan</th>
                                     <th>Status Pengajuan Dana</th>
                                     <th>LOA URL</th>
@@ -271,6 +297,17 @@ function getFileUrl($fileUrl) {
                                             <td>{{$item->univ_name}}</td>
                                             <td>{{$item->country_name}}</td>
                                             <td>{{$item->reg_time}}</td>
+                                            <td>  
+                                                @if ($item->is_loa === 1)
+                                                    <button class="btn btn-warning btn-sm" disabled>Requesting</button>
+                                                @elseif ($item->is_loa === 2)
+                                                    <button class="btn btn-success btn-sm" disabled>Accepted</button>
+                                                @elseif ($item->is_loa === -1)
+                                                    <button class="btn btn-danger btn-sm" disabled>Rejected</button>
+                                                @else
+                                                    <button class="btn btn-info btn-sm" disabled>Processed</button>
+                                                @endif
+                                            </td>
                                             <td>  
                                                 @if ($item->is_approved === 1)
                                                     <button class="btn btn-success btn-sm" disabled>Approved</button>
@@ -332,6 +369,7 @@ function getFileUrl($fileUrl) {
                                     <th>Universitas</th>
                                     <th>Negara</th>
                                     <th>Waktu Registrasi</th>
+                                    <th>Status Permintaan LOA</th>
                                     <th>Status Persetujuan</th>
                                     <th>Status Pengajuan Dana</th>
                                     <th>LOA URL</th>

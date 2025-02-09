@@ -229,6 +229,13 @@ class MStuInProgramController extends Controller
             ->select('m_stu_in_peserta.nama', 'm_prodi.level', 'm_prodi.name')
             ->get();
 
+        $pesertaLOA = DB::table('m_stu_in_peserta')
+            ->join('m_prodi', 'm_stu_in_peserta.tujuan_prodi', '=', 'm_prodi.id')
+            ->where('m_stu_in_peserta.program_id', $id)
+            ->where('m_stu_in_peserta.is_approved', '1')
+            ->select('m_stu_in_peserta.nama', 'm_prodi.level', 'm_prodi.name')
+            ->get();
+
         $category = DB::table('m_stu_in_program_category')->get();
         $dosen = DB::table('m_dosen')->get();
         $univ = DB::table('m_university')
@@ -266,7 +273,7 @@ class MStuInProgramController extends Controller
         ->leftjoin('m_country', 'm_country.id', '=', 'm_stu_in_peserta.kebangsaan')
         ->get();
 
-        return view("stu_inbound.edit_program", compact("peserta", "pesertaRKAT", "pesertaDPAT", "data", "category", "dosen", "univ"));
+        return view("stu_inbound.edit_program", compact("peserta", "pesertaLOA", "pesertaRKAT", "pesertaDPAT", "data", "category", "dosen", "univ"));
     
     }
 

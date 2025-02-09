@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,116 +15,173 @@ use App\Models\MStuOutPeserta;
 class PendaftaranProgramController extends Controller
 {
     public function stuin(Request $request, $url_generate)
-        {
+    {
+        $program =  MStuInProgram::where('url_generate', $url_generate)->first();
+
+        // Jika program tidak ditemukan, langsung redirect ke halaman gagal
+        if (!$program) {
+            return redirect()->route('failed')->withErrors(['error' => 'Program tidak ditemukan.']);
+        }
+
+        // Setelah mendapatkan program, cek apakah masa registrasi sudah berakhir
+        $isActivePeriod = DB::table('m_stu_in_programs')
+            ->where('url_generate', $url_generate)
+            ->whereDate('reg_date_start', '<=', now())
+            ->whereDate('reg_date_closed', '>=', now())
+            ->exists();
+
             
-            $program =  MStuInProgram::where('url_generate', $url_generate)->first();
-            
+        // Jika periode tidak aktif, arahkan ke halaman result_stuin
+        if (!$isActivePeriod) {
+            $title = $program->name; 
+            $message = 'Currently, there is no active registration period for this program type. 
+                        Please check back later or contact support for assistance.';
+
             $cleanPathRoot = ltrim(str_replace('repo/inbound/', '', $program->logo), '/');
             $cleanPathInbound = ltrim(str_replace('repo/', '', $program->logo), '/');
 
-            // Pencarian file dalam repo
             if (Storage::disk('inside')->exists($cleanPathInbound)) {
                 $filePath = $cleanPathInbound;
             } elseif (Storage::disk('inside')->exists($cleanPathRoot)) {
                 $filePath = $cleanPathRoot;
             } else {
                 $filePath = null;
-            }        
+            }
 
-            // Jika file ditemukan, ambil konten file dalam format base64
+            // Konversi gambar ke base64 jika file ditemukan
             if ($filePath) {
                 $fileContent = Storage::disk('inside')->get($filePath);
                 $program->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
             } else {
                 $program->logo_base64 = null;
             }
-    
-            $period = DB::table('m_stu_in_programs')
-                ->whereDate('reg_date_start', '<=', now())
-                ->whereDate('reg_date_closed', '>=', now())
-                ->first();
-        
-            if (!$period) {
-                return redirect()->route('failed')->withErrors(['error' => 'Masa pengisian telah selesai, hubungi admin ']);
-            }
-        
-            $univ = DB::table('m_university')->get();
-            $country = DB::table('m_country')->whereNot('id', 95)->get();
-            $course = DB::table('age_amerta_matkul')->get();
-        
-            return view('pendaftaran.registrasi_stu_in', [
-                'id_period' => $period->id ?? null,
-                'univ' => $univ,
-                'country' => $country,
-                'course' => $course,
-                'program' => $program
-            ]);
+
+            return view('pendaftaran.result_stuin', compact('title', 'message', 'program'));
         }
+
+        // Proses mencari logo program
+        $cleanPathRoot = ltrim(str_replace('repo/inbound/', '', $program->logo), '/');
+        $cleanPathInbound = ltrim(str_replace('repo/', '', $program->logo), '/');
+
+        if (Storage::disk('inside')->exists($cleanPathInbound)) {
+            $filePath = $cleanPathInbound;
+        } elseif (Storage::disk('inside')->exists($cleanPathRoot)) {
+            $filePath = $cleanPathRoot;
+        } else {
+            $filePath = null;
+        }
+
+        // Konversi gambar ke base64 jika file ditemukan
+        if ($filePath) {
+            $fileContent = Storage::disk('inside')->get($filePath);
+            $program->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
+        } else {
+            $program->logo_base64 = null;
+        }
+
+        // Ambil data tambahan
+        $univ = DB::table('m_university')->get();
+        $country = DB::table('m_country')->where('id', '!=', 95)->get(); // Fix `whereNot`
+        $course = DB::table('age_amerta_matkul')->get();
+
+        // Load halaman registrasi dengan semua data
+        return view('pendaftaran.registrasi_stu_in', [
+            'id_period' => $program->id ?? null, // Gunakan $program->id karena $period tidak ada
+            'univ' => $univ,
+            'country' => $country,
+            'course' => $course,
+            'program' => $program
+        ]);
+    }
+
 
     public function Simpan_stuin(Request $request)
     {
-        
-        $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan', 
-            'tgl_lahir' => 'required|date',
-            'telp' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-            'jenjang' => 'required|string|max:50',
-            'prodi_asal' => 'required|string|max:255',
-            'fakultas_asal' => 'required|string|max:255',
-            'univ' => 'required|string|max:255',
-            'negara_asal_univ' => 'required',
-            'kebangsaan' => 'required',
-            'photo_url' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-            'cv_url' => 'required|file|mimes:pdf|max:2048',
-            'passport_url' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'program_info' => 'nullable|string|max:255',
-            'program_id' => 'required',
-        ]);
-
-        $fileFields = [
-            'photo_url' => 'photo_url',
-            'passport_url' => 'passport_url',
-            'cv_url' => 'cv_url',
-        ];
-
-        $mimeTypesMap = [
-            'photo_url' => 'png,jpg,jpeg',
-            'passport_url' => 'pdf',
-            'cv_url' => 'pdf',
-        ];
-
-        foreach ($fileFields as $field => $attribute) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-
-                $mimeTypes = $mimeTypesMap[$field] ?? 'png,jpg,jpeg';
-
-                try {
-                    $request->validate([
-                        $field => 'required|file|mimes:' . $mimeTypes . '|max:2048',
-                    ]);
-                } catch (ValidationException $e) {
-                    return response()->json(['status' => 'error', 'message' => 'Please upload <2 MB valid files!'], 500);
-                }
-
-                $filePath = $this->storeFile($file, 'inbound');
-                $validated[$attribute] = $filePath;
-                $uploadedFiles[] = $filePath;
+        try {
+            
+            $rules = [
+                'nama' => 'required|string|max:255',
+                'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan,Other', 
+                'tgl_lahir' => 'required|date',
+                'telp' => 'required|string|max:20',
+                'email' => 'required|email|max:255',
+                'jenjang' => 'required|string|max:50',
+                'prodi_asal' => 'required|string|max:255',
+                'fakultas_asal' => 'required|string|max:255',
+                'univ' => 'required|string|max:255',
+                'negara_asal_univ' => 'required',
+                'kebangsaan' => 'required',
+                'selected_id' => 'required|in:student_id,passport',
+                'photo_url' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+                'cv_url' => 'required|file|mimes:pdf|max:2048',
+                'program_info' => 'nullable|string|max:255',
+                'kode' => 'required',
+            ];
+    
+            if ($request->selected_id === 'student_id') {
+                $rules['student_no'] = 'required';
+                $rules['student_id_url'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
+            } elseif ($request->selected_id === 'passport') {
+                $rules['passport_no'] = 'required';
+                $rules['passport_url'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
             }
+    
+
+            $validated = $request->validate($rules);
+
+            $fileFields = [
+                'photo_url' => 'photo_url',
+                'passport_url' => 'passport_url',
+                'student_id_url' => 'student_id_url',
+                'cv_url' => 'cv_url',
+            ];
+    
+            foreach ($fileFields as $field => $attribute) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $filePath = $this->storeFile($file, 'inbound');
+                    $validated[$attribute] = $filePath;
+                }
+            }
+    
+            $program = MStuInProgram::where('url_generate', $validated['kode'])->first();
+            if (!$program) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Program tidak ditemukan.'
+                ], 404);
+            }
+            
+    
+            $validated['tujuan_fakultas_unit'] = $program->host_unit;
+            $validated['program_id'] = $program->id;
+            $validated['reg_time'] = now();
+    
+            MStuInPeserta::create($validated);
+
+            session(['kode' => $validated['kode']]);
+    
+            return response()->json([
+                'status' => 'success',
+                'redirect' => route('result.stuin')
+            ]);
+
+        } catch (ValidationException $e) {
+            // **Menangani Error Validasi**
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal!',
+                'errors' => $e->errors()
+            ], 422);
+    
+        } catch (\Exception $e) {
+            // **Menangani Error Sistem**
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan sistem. Silakan coba lagi.',
+                'error_detail' => $e->getMessage()
+            ], 500);
         }
-
-        $validated['reg_time'] = now();
-
-        // dd($validated);
-
-        // Create the record
-        MStuInPeserta::create($validated);
-
-        return redirect('/');
-        // return response()->json(['status' => 'success', 'redirect' => url('/')]);
-
     }
 
     private function storeFile($file, $subfolder = null)
@@ -139,6 +197,44 @@ class PendaftaranProgramController extends Controller
 
         return $subfolder ? "repo/{$subfolder}/{$fileName}" : "repo/{$fileName}";
     }
+
+    public function result(Request $request)
+    {
+        $kode = session('kode', null);
+
+        if (!$kode) {
+            return redirect('/')->with('error', 'Program ID is missing.');
+        }
+
+        try {
+            $program =  MStuInProgram::where('url_generate', $kode)->first();
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect('/')->with('error', 'Program not found.');
+        }
+
+        // Membersihkan path file untuk pencarian di storage
+        $cleanPathRoot = ltrim(str_replace('repo/inbound/', '', $program->logo), '/');
+        $cleanPathInbound = ltrim(str_replace('repo/', '', $program->logo), '/');
+
+        // Cek apakah file ada di dalam storage
+        if (Storage::disk('inside')->exists($cleanPathInbound)) {
+            $filePath = $cleanPathInbound;
+        } elseif (Storage::disk('inside')->exists($cleanPathRoot)) {
+            $filePath = $cleanPathRoot;
+        } else {
+            $filePath = null;
+        }
+
+        $program->logo_base64 = $filePath ? 'data:image/jpeg;base64,' . base64_encode(Storage::disk('inside')->get($filePath)) : null;
+
+        $message = session('success') ?? 'Your registration process has been recorded.';
+
+        return view('pendaftaran.result_stuin', [
+            'message' => $message,
+            'program' => $program
+        ]);
+    }
+
 
     public function stuout(Request $request, $url_generate)
     {

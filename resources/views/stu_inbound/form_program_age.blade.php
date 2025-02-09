@@ -60,7 +60,7 @@
       
               <div class="mb-3">
                   <label class="form-label" for="hostUnit">Unit Penyelenggara</label>
-                  <input class="form-control" id="hostUnit" name="hostUnit" value="{{ Auth::user()->name }}" readonly>
+                  <input class="form-control" id="hostUnit" name="hostUnit" value="Airlangga Global Engagement" readonly>
               </div>
       
               <div class="mb-2">

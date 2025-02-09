@@ -81,7 +81,7 @@ Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramCon
 
 Route::post('/registrasi-peserta-outbound', [PendaftaranProgramController::class, 'Simpan_stuout'])->name('simpan.stuout');
 Route::post('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'Simpan_stuin'])->name('simpan.stuin');
-Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
+Route::get('/inbound-application-submitted', [PendaftaranProgramController::class, 'result'])->name('result.stuin');
 
 Route::get('/inbound-staff-registration-form', action: [PendaftaranInboundController::class, 'external_sta_in'])->name('stain.registrasi');
 
