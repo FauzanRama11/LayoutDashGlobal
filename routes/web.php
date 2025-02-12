@@ -98,12 +98,13 @@ Route::get('/{type}-registration-submitted', [PendaftaranController::class, 'res
 // Pendaftaran Inbound/Outbound
 Route::get('/registrasi-peserta-inbound/{url_generate}', [PendaftaranProgramController::class, 'stuin'])->name('stuin.registrasi');
 Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
+Route::get('/check-email', [PendaftaranProgramController::class, 'checkemail'])->name('stuin.check');
 
 // Route::get('/try', [AgreementController::class, 'view_pelaporan2']);
 
 Route::post('/registrasi-peserta-outbound', [PendaftaranProgramController::class, 'Simpan_stuout'])->name('simpan.stuout');
 Route::post('/registrasi-peserta-inbound', [PendaftaranProgramController::class, 'Simpan_stuin'])->name('simpan.stuin');
-Route::get('/registrasi-peserta-outbound/{url_generate}', [PendaftaranProgramController::class, 'stuout'])->name('stuout.registrasi');
+Route::get('/inbound-application-submitted', [PendaftaranProgramController::class, 'result'])->name('result.stuin');
 
 Route::get('/inbound-staff-registration-form', action: [PendaftaranInboundController::class, 'external_sta_in'])->name('stain.registrasi');
 

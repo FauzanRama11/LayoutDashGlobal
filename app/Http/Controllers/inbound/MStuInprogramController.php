@@ -34,17 +34,26 @@ class MStuInProgramController extends Controller
                     ->where("is_program_age", "N");
             }
 
-                if ($request->has('order')) {
-                    foreach ($request->order as $order) {
-                        $columnIndex = $order['column']; 
-                        $columnDir = $order['dir'];
-                        $columnName = $request->columns[$columnIndex]['data'];      
+            if ($request->has('order')) {
+                foreach ($request->order as $order) {
+                    $columnIndex = $order['column']; 
+                    $columnDir = $order['dir'];
+                    $columnName = $request->columns[$columnIndex]['data']; 
+        
+                    if ($columnName === 'jumlah_peserta') {
+                        $data->orderByRaw("jumlah_peserta $columnDir");
+                    } else {
+                        $data->orderBy($columnName, $columnDir);
                     }
-                } else {
-                    $data->orderBy('created_time', 'desc'); 
                 }
-
+            } else {
+                $data->orderBy('created_time', 'desc'); 
+            }
+            
             return DataTables::of($data)
+                ->filterColumn('jumlah_peserta', function($query, $keyword) {
+                    $query->havingRaw("jumlah_peserta LIKE ?", ["%$keyword%"]);
+                })
                 ->editColumn('is_private_event', function ($item) {
                     return $item->is_private_event === 'Tidak' ? 'Registrasi' : 'Pelaporan';
                 })
@@ -200,13 +209,10 @@ class MStuInProgramController extends Controller
 
         }
 
-        MStuInProgram::create($program->getAttributes());
-        if ($request->input('progAge') === "N"){
-            return redirect()->route('stuin_program_fak');
-        }else{
-            return redirect()->route('stuin_program_age');
-        }
-        
+        $programMStuIn = MStuInProgram::create($program->getAttributes());
+
+        $programId = $programMStuIn->id; 
+        return redirect()->route('program_stuin.edit', ['id' => $programId]);        
     }
 
     public function edit(string $id)
@@ -226,6 +232,13 @@ class MStuInProgramController extends Controller
             ->where('m_stu_in_peserta.program_id', $id)
             ->where('m_stu_in_peserta.pengajuan_dana_status', 'APPROVED')
             ->where('m_stu_in_peserta.sumber_dana', 'DPAT') // Filter DPAT langsung
+            ->select('m_stu_in_peserta.nama', 'm_prodi.level', 'm_prodi.name')
+            ->get();
+
+        $pesertaLOA = DB::table('m_stu_in_peserta')
+            ->join('m_prodi', 'm_stu_in_peserta.tujuan_prodi', '=', 'm_prodi.id')
+            ->where('m_stu_in_peserta.program_id', $id)
+            ->where('m_stu_in_peserta.is_approved', '1')
             ->select('m_stu_in_peserta.nama', 'm_prodi.level', 'm_prodi.name')
             ->get();
 
@@ -266,7 +279,7 @@ class MStuInProgramController extends Controller
         ->leftjoin('m_country', 'm_country.id', '=', 'm_stu_in_peserta.kebangsaan')
         ->get();
 
-        return view("stu_inbound.edit_program", compact("peserta", "pesertaRKAT", "pesertaDPAT", "data", "category", "dosen", "univ"));
+        return view("stu_inbound.edit_program", compact("peserta", "pesertaLOA", "pesertaRKAT", "pesertaDPAT", "data", "category", "dosen", "univ"));
     
     }
 
@@ -347,19 +360,10 @@ class MStuInProgramController extends Controller
         }
 
     }
-
-
+    
     $program->save();
-
-    if ($request->input('progAge') === "N") {
-        return redirect()->route('stuin_program_fak')->with('success', 'Program updated successfully.');
-    } else {
-        return redirect()->route('stuin_program_age')->with('success', 'Program updated successfully.');
-    }
+    return redirect()->route('program_stuin.edit', ['id' => $id]);
 }
-
-
-
 
     public function destroy_program_fak($id)
     {

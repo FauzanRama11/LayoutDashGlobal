@@ -9,7 +9,6 @@
   <div class="card-body">
     <form class="was-validated" action="{{ route('program_stuin.store') }}" method="post" enctype="multipart/form-data">
       @csrf
-      
       <div class="row">
       
         <div class="row">
@@ -60,7 +59,7 @@
       
               <div class="mb-3">
                   <label class="form-label" for="hostUnit">Unit Penyelenggara</label>
-                  <input class="form-control" id="hostUnit" name="hostUnit" value="{{ Auth::user()->name }}" readonly>
+                  <input class="form-control" id="hostUnit" name="hostUnit" value="Airlangga Global Engagement" readonly>
               </div>
       
               <div class="mb-2">
@@ -108,21 +107,24 @@
                       <label class="form-label" for="programDesc">Deskripsi Program</label>
                       <textarea class="form-control" id="programDesc" name="programDesc" placeholder="Deskripsi Program"></textarea>
                   </div>
-                  <div class="mb-3">
-                      <label class="form-label" for="programLogo">Logo/Poster</label>
-                      <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png" onchange="handleFileChange(event)">
-                  </div>
-                 
-                  <div class="mt-3">
-                      <div class="col-sm-12 border border-3 p-3 d-flex justify-content-center align-items-center" id="previewdiv" style="display: none;">
-                          <img id="preview" src="" alt="Preview" class="img-fluid" style="width: 300px; height: 300px; object-fit: cover; display: none;">
-                      </div>
-                  </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="programLogo">Logo/Poster</label>
+                        <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png"
+                            onchange="handleFileChange(event, 'previewdiv', 'preview', 240)" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div id="previewdiv" class="col-sm-12 p-3 justify-content-center align-items-center d-none">
+                            <img id="preview" alt="Photo" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                        </div>
+                    </div>
               </div>
           </div>
     
         <!-- Tombol Submit -->
         <div class="text-end mt-4">
+            <a href="{{ route('stuin_program_age') }}" class="btn btn-info mx-1">Back</a>
             <button class="btn btn-primary" type="submit">Submit</button>
         </div>
     </div>
@@ -137,6 +139,83 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+<script>
+    
+    let isFileValid = true; // Menyimpan status validasi file
+
+    function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
+        validateFileSize(event.target);
+        previewImage(event.target, previewDivId, previewImgId, imgHeight);
+    }
+
+    function validateFileSize(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    title: 'File too large!',
+                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; 
+                isFileValid = false;
+            } else {
+                isFileValid = true;
+            }
+        }
+    }
+    function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+
+        if (!previewDiv || !previewImg) {
+            console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
+            return;
+        }
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
+
+                    // 🔹 Ubah div menjadi `d-flex` dan tambahkan border
+                    previewDiv.classList.remove('d-none');
+                    previewDiv.classList.add('d-flex', 'border', 'border-3');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                Swal.fire({
+                    title: 'Invalid File Type!',
+                    text: 'Only JPG, JPEG, or PNG files are allowed.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+
+                input.value = ''; // Reset input file
+                resetPreview(previewDiv, previewImg);
+            }
+        } else {
+            resetPreview(previewDiv, previewImg);
+        }
+    }
+
+    // 🔹 Fungsi untuk menyembunyikan preview jika file tidak ada
+    function resetPreview(previewDiv, previewImg) {
+        previewDiv.classList.add('d-none'); 
+        previewDiv.classList.remove('d-flex', 'border', 'border-3'); 
+        previewImg.style.display = 'none'; 
+        previewImg.src = ''; 
+    }
+
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {

@@ -110,14 +110,28 @@ class StudentInboundController extends Controller
         if($request->ajax()){
                 
             $data = DB::table('m_stu_in_peserta as t')
-            ->select(
-                't.*', 'p.via as via', 'p.start_date as start_date', 'p.end_date as end_date', 
-                'p.host_unit_text as host_unit', 'u.name as univ_name', 'c.name as country_name', 
-                'p.pt_ft as tipe', 'p.name as program')
-            ->leftJoin('m_university as u', 'u.id', '=', 't.univ')
-            ->leftJoin('m_country as c', 'c.id', '=', 't.kebangsaan')
-            ->leftJoin('m_stu_in_programs as p', 'p.id', '=', 't.program_id')
-            ->where('is_private_event', '=', 'Ya');
+                    ->select(
+                        't.*', 
+                        'p.via as via', 
+                        'p.start_date as start_date', 
+                        'p.end_date as end_date', 
+                        'p.host_unit_text as host_unit', 
+                        'u.name as univ_name', 
+                        'c.name as country_name', 
+                        'p.pt_ft as tipe', 
+                        'p.name as program'
+                    )
+                    ->leftJoin('m_university as u', 'u.id', '=', 't.univ')
+                    ->leftJoin('m_country as c', 'c.id', '=', 't.kebangsaan')
+                    ->leftJoin('m_stu_in_programs as p', 'p.id', '=', 't.program_id')
+                    ->where(function ($query) {
+                        $query->where('is_private_event', '=', 'Ya')  
+                            ->orWhere(function ($subquery) {
+                                $subquery->where('is_private_event', '=', 'Tidak')
+                                        ->where('is_loa', '!=', '0');
+                            });
+                    });
+
 
                 if ($request->has('order')) {
                     foreach ($request->order as $order) {
@@ -156,39 +170,62 @@ class StudentInboundController extends Controller
                            (!empty($item->revision_note) ? '<button type="button" class="btn btn-warning btn-sm viewRevisionButton" data-revision="' . htmlspecialchars($item->revision_note) . '"><i class="fa fa-eye"></i></button>' : '');
                 }
             })
-            ->addColumn('action', function ($item) {
-                if ($item->is_approved == 1) {
-                    return '<form action="' . route('stuin.unapprove', $item->id) . '" method="POST">
-                                ' . csrf_field() . '
-                                <button type="submit" class="btn btn-warning edit-button"><i class="fa fa-times-circle"></i>  Unapprove</button>
-                            </form>';
+            ->editColumn('is_loa', function ($item) {
+                if ($item->is_loa === 1) {
+                    return '<button class="btn btn-warning btn-sm" disabled>Requesting</button>';
+                }elseif ($item->is_loa === 2 || !empty($item->loa_url)) {
+                    return '<button class="btn btn-success btn-sm" disabled>Accepted</button>';        
+                }elseif ($item->is_loa === -1) {
+                    return '<button class="btn btn-danger btn-sm" disabled>Rejected</button>'; 
                 } else {
-                    return '<form action="' . route('stuin.approve', $item->id) . '" method="POST">
-                                ' . csrf_field() . '
-                                <button type="submit" class="btn btn-success edit-button"><i class="fa fa-check-circle"></i>  Approve</button>
-                            </form>';
+                    return '<button class="btn btn-info btn-sm" disabled>Processed</button>';
                 }
-            })
+            })->addColumn('action', function ($item) {
+                if ($item->is_approved == 1) {
+                    return '
+                        <button class="btn btn-warning edit-button" onclick="confirmUnapprove(' . $item->id . ')">
+                            <i class="fa fa-times-circle"></i> Unapprove
+                        </button>';
+                } else {
+                    return '
+                        <button class="btn btn-success edit-button" onclick="confirmApprove(' . $item->id . ')">
+                            <i class="fa fa-check-circle"></i> Approve
+                        </button>';
+                }
+            })            
             ->addColumn('revise', function ($item) {
                 return '<button type="button" class="btn btn-warning reviseButton" data-id="' . $item->id . '">
                             <i class="fa fa-edit"></i> Revise
                         </button>';
             })
             ->addColumn('reject', function ($item) {
-                return '<form action="' . route('stuin.reject', $item->id) . '" method="POST">
-                            ' . csrf_field() . '
-                            <button type="submit" class="btn btn-danger edit-button"><i class="fa fa-ban"></i>  Reject</button>
-                        </form>';
+                return '<button class="btn btn-danger edit-button" onclick="confirmReject(' . $item->id . ')">
+                            <i class="fa fa-ban"></i> Reject
+                        </button>';
+            })
+            ->filterColumn('host_unit', function ($query, $keyword) {
+                $query->where('p.host_unit_text', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('program', function ($query, $keyword) {
+                $query->where('p.name', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('tipe', function ($query, $keyword) {
+                $query->where('p.pt_ft', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('univ_name', function ($query, $keyword) {
+                $query->where('u.name', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('country_name', function ($query, $keyword) {
+                $query->where('c.name', 'like', "%{$keyword}%");
             })
             ->filterColumn('is_approved', function ($query, $keyword) {
-                $sql = "(CASE 
-                            WHEN is_approved = 1 THEN 'Approved'
-                            WHEN is_approved = -1 THEN 'Rejected'
-                            WHEN is_approved = 0 THEN 'Processed'
-                            END) LIKE ?";
-                $query->whereRaw($sql, ["%{$keyword}%"]);
+                $query->whereRaw("(CASE 
+                                    WHEN is_approved = 1 THEN 'Approved'
+                                    WHEN is_approved = -1 THEN 'Rejected'
+                                    WHEN is_approved = 0 THEN 'Processed'
+                                END) LIKE ?", ["%{$keyword}%"]);
             })
-            ->rawColumns(['photo_url', 'passport_url', 'student_id_url', 'loa_url', 'cv_url','is_approved', 'action', 'revise', 'reject']) // Enable HTML rendering
+            ->rawColumns(['photo_url', 'passport_url', 'student_id_url', 'loa_url', 'cv_url','is_approved', 'is_loa', 'action', 'revise', 'reject']) // Enable HTML rendering
             ->make(true);
         }
     
@@ -210,87 +247,96 @@ class StudentInboundController extends Controller
         
         return '<a href="' . $url . '" target="_blank" class="btn btn-primary">
                     <i class="fa fa-download"></i>
-                </a>';
+                </a>
+                <span style="display: none;">' . $url . '</span>'
+                ;
     }
 
     // APPROVAL
-    public function pesertaApprove(Request $request, $id)
+    public function pesertaRequest(Request $request, $id)
+    {
+        $peserta = MStuInPeserta::find($id);
+
+        $peserta->update([
+            'is_approved' => 0,
+            'is_loa' => 1,
+        ]);
+    
+        return redirect()->route('stuin_peserta.edit', [
+            'prog_id' => $peserta->program->id, 
+            'item_id' => $peserta->id
+        ]);
+        
+
+    }
+
+    public function pesertaUnrequest(Request $request, $id)
     {
         $peserta = MStuInPeserta::find($id);
         
-        if (is_null($peserta->approval_code)) {
-            $peserta->approval_code = $this->generateRandomString(10);
-        }
-
         $peserta->update([
-            'is_approved' => 1,
-            'approved_time' => now(),
-            'approved_by' => Auth::id(),
-            'approval_code' => $peserta->approval_code, 
+            'is_approved' => 0,
+            'is_loa' => 0,
         ]);
     
-        if ($peserta->program->is_private_event === 'Ya') {
-            return redirect()->route('stuin_approval_pelaporan');
-        } else {
-            return redirect()->route('stuin_peserta.edit', [
-                'prog_id' => $peserta->program->id, 
-                'item_id' => $peserta->id
-            ]);
-        }
-
+        return redirect()->route('stuin_peserta.edit', [
+            'prog_id' => $peserta->program->id, 
+            'item_id' => $peserta->id
+        ]);
+    
     }
 
     public function pesertaUnapprove(Request $request, $id)
     {
-        $peserta = MStuInPeserta::find($id);
-        
-        if (is_null($peserta->approval_code)) {
-            $peserta->approval_code = $this->generateRandomString(10);
-        }
+        try {
+            $peserta = MStuInPeserta::findOrFail($id);
 
-        $peserta->update([
-            'is_approved' => 0,
-            'approved_time' => now(),
-            'approved_by' => Auth::id(),
-            'approval_code' => $peserta->approval_code, 
-        ]);
-
-        if ($peserta->program->is_private_event === 'Ya') {
-            return redirect()->route('stuin_approval_pelaporan');
-        } else {
-            return redirect()->route('stuin_peserta.edit', [
-                'prog_id' => $peserta->program->id, 
-                'item_id' => $peserta->id
+            $peserta->update([
+                'is_approved' => 0,
+                'is_loa' => 1,
+                'approved_time' => null,
+                'approved_by' => null,
+                'approval_code' => null, 
+                'loa_url' => null, 
             ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Participant unapproved successfully.']);
+        
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to unapprove participant: ' . $e->getMessage()], 500);
         }
-    
     }
+
 
     public function pesertaReject(Request $request, $id)
     {
-        $peserta = MStuInPeserta::find($id);
-        
-        if (is_null($peserta->approval_code)) {
-            $peserta->approval_code = $this->generateRandomString(10);
-        }
-
-        $peserta->update([
-            'is_approved' => -1,
-            'approved_time' => now(),
-            'approved_by' => Auth::id(),
-            'approval_code' => $peserta->approval_code, 
-        ]);
-
-        if ($peserta->program->is_private_event === 'Ya') {
-            return redirect()->route('stuin_approval_pelaporan');
-        } else {
-            return redirect()->route('stuin_peserta.edit', [
-                'prog_id' => $peserta->program->id, 
-                'item_id' => $peserta->id
-            ]);
-        }
+        try {
+            $peserta = MStuInPeserta::findOrFail($id);
     
+            if (is_null($peserta->approval_code)) {
+                $peserta->approval_code = $this->generateRandomString(10);
+            }
+    
+            $peserta->update([
+                'is_approved' => -1,
+                'is_loa' => -1,
+                'approved_time' => null, 
+                'approved_by' => null, 
+                'approval_code' => null, 
+                'loa_url' => null, 
+            ]);
+    
+            $redirectUrl = $peserta->program->is_private_event === 'Ya' 
+                ? route('stuin_approval_pelaporan') 
+                : route('stuin_peserta.edit', ['prog_id' => $peserta->program->id, 'item_id' => $peserta->id]);
+    
+            return response()->json(['status' => 'success', 'message' => 'Participant rejected successfully.', 'redirect' => $redirectUrl]);
+    
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to reject participant: ' . $e->getMessage()], 500);
+        }
     }
+    
 
     public function approveDana($id)
     {
