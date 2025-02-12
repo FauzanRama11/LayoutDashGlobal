@@ -37,7 +37,11 @@
 	                    <div class="form-group">
 	                        <button class="btn btn-primary btn-block" type="submit">Login</button>
 	                    </div>
+						<div class="form-group">
+							<a class="link" href="/confirm-email">Forgot password?</a>
+						</div>
 	                </form>
+			
 	            </div>
 	        </div>
 	    </div>

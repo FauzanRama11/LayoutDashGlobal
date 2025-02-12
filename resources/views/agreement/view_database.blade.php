@@ -19,51 +19,33 @@
 	                    <div class="table-responsive">
 
 	                        <table class="display" id="norm-3" data-columns-export=":not(:eq(0)):not(:eq(1)):not(:gt(44))">
-                                <div class="row align-items-center justify-content-between mb-4">
-                                    <!-- Tombol Tambah di Kiri -->
-                                    <div class="col-auto">
-                                        @role("gpc")
-                                            <a href= "form-master-database">
-                                                <button class="btn btn-success btn-sm active" type="button"  style="padding:8px 44px">+ Tambah</button>
-                                            </a>
-                                        @endrole   
-                                    </div>
-                               
-                                    <!-- Tombol Filter di Kanan -->
-                                    <div class="col-auto" hidden>
-                                        <div class="btn-group" role="group" aria-label="Filter Tanggal">
-                                            <div class="position-relative">
-                                                <button class="btn btn-secondary" id="btn-toggle-date-range" onclick="toggleDateRange()">Between</button>
-                                                <!-- Pop-up Input untuk Filter Between -->
-                                                <div class="position-absolute bg-dark rounded p-3 shadow d-none" id="date-range" style="z-index: 1050; right: 0; top: 40px;">
-                                                    <div class="d-flex flex-column">
-                                                        <!-- Pilihan Filter -->
-                                                        <div class="mb-3">
-                                                            <label for="filter-type" class="form-label text-white">Filter By:</label>
-                                                            <select id="filter-type" class="form-select">
-                                                                <option value="start-date">Start Date</option>
-                                                                <option value="end-date">End Date</option>
-                                                            </select>
-                                                        </div>
-                                                        <!-- Input Tanggal -->
-                                                        <div class="d-flex gap-3 align-items-center">
-                                                            <div class="mb-3 flex-fill">
-                                                                <label for="start-date" class="form-label text-white">From:</label>
-                                                                <input type="date" id="start-date" class="form-control">
-                                                            </div>
-                                                            <div class="mb-3 flex-fill">
-                                                                <label for="end-date" class="form-label text-white">To:</label>
-                                                                <input type="date" id="end-date" class="form-control">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button class="btn btn-success w-100" onclick="applyBetweenFilter()">Apply</button>
-                                                </div>
-                                            </div>
+                            <div class="row align-items-center justify-content-between mb-4">
+                                <!-- Tombol Tambah di Kiri -->
+                                <div class="col-auto">
+                                    @role("gpc")
+                                        <a href="form-master-database" class="btn btn-success btn-sm active px-4">+ Tambah</a>
+                                    @endrole
+                                </div>
+
+                                <!-- Filter Date -->
+                                <div class="col-md-8">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="mou_start_date" class="form-label">Start Date (Start):</label>
+                                            <input type="date" id="mou_start_date" class="form-control">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="mou_end_date" class="form-label">Start Date (End):</label>
+                                            <input type="date" id="mou_end_date" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button id="filter-btn" class="btn btn-primary me-2">Filter</button>
+                                            <button id="reset-btn" class="btn btn-secondary">Reset</button>
                                         </div>
                                     </div>
-
                                 </div>
+                            </div>
+
                            
                             <thead>
                                 <tr>
@@ -332,42 +314,25 @@ return $(tableId).DataTable({
     if (document.getElementById('norm-3')) {
         const tableNorm2 = initializeDataTable('#norm-3');
 
+        // var table = initializeDataTable('#norm-3'); 
+
+        $('#filter-btn').click(function () {
+            var startDate = $('#mou_start_date').val();
+            var endDate = $('#mou_end_date').val();
+
+            tableNorm2.ajax.url("{{ route('view_database') }}?start_date=" + startDate + "&end_date=" + endDate).load();
+        });
+
+        $('#reset-btn').click(function () {
+            $('#mou_start_date').val('');
+            $('#mou_end_date').val('');
+            tableNorm2.ajax.url("{{ route('view_database') }}").load();
+        });
+
         if (tableNorm2) {
             console.log('DataTable "example" initialized successfully.');
 
-            // Filter tanggal custom menggunakan DataTables
-            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                const startDateInput = document.getElementById('start-date')?.value || null;
-                const endDateInput = document.getElementById('end-date')?.value || null;
-
-                if (!startDateInput && !endDateInput) {
-                    return true;
-                }
-
-                const row = tableNorm2.row(dataIndex).node();
-                const rowStartDate = row?.getAttribute('data-start-date')
-                    ? new Date(row.getAttribute('data-start-date'))
-                    : new Date(data[6]); 
-
-                if (isNaN(rowStartDate.getTime())) {
-                    return false; 
-                }
-
-                const startDate = startDateInput ? new Date(startDateInput) : null;
-                const endDate = endDateInput ? new Date(endDateInput) : null;
-
-                return (
-                    (!startDate || rowStartDate >= startDate) &&
-                    (!endDate || rowStartDate <= endDate)
-                );
-
-                console.log(startDate)
-            });
-
-            window.applyBetweenFilter = function () {
-                console.log('Applying date filter...');
-                tableNorm2.draw();
-            };
+    
 
             // Tambahkan event listener pada tombol eksternal untuk eksport
             $('#export-excel').on('click', function () {
@@ -452,6 +417,12 @@ function confirmDelete(itemId, message) {
         }
     });
 }
+
+</script>
+<script>
+    $(document).ready(function () {
+
+});
 
 </script>
 @endsection

@@ -36,6 +36,7 @@
                 <div class="mb-3">
                     <label class="form-label" for="buktiP">Upload Bukti Pelaporan Lapkerma</label>
                     <select class="form-select" id="buktiP" name="buktiP" required>
+            
                         <option value="Belum" {{ old('buktiP', isset($data->status_pelaporan_lapkerma) ? $data->status_pelaporan_lapkerma : '') == 'Belum' ? 'selected' : '' }}>Belum</option>
                         <option value="Sudah" {{ old('buktiP', isset($data->status_pelaporan_lapkerma) ? $data->status_pelaporan_lapkerma : '') == 'Sudah' ? 'selected' : '' }}>Sudah</option>
                     </select>
@@ -75,7 +76,7 @@
             }
 </script>
 <script>
-     document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const submitButton = document.getElementById('submitButton');
     const form = document.getElementById('buktiForm');
     let isFileValid = true; // Status validasi file

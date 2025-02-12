@@ -1,15 +1,122 @@
 <?php
 
 namespace App\Http\Controllers\inbound;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\MStuInPeserta;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class MStuInPesertaController extends Controller
 {
+
+    public function profile(){
+        $data = DB::table('m_stu_in_peserta as m')
+        ->leftJoin('m_university as u', 'm.univ', '=', 'u.id')
+        ->leftJoin('m_country as c', 'm.kebangsaan', '=', 'c.id')
+        ->select(
+            'm.*', 
+            'u.name as university_name', 
+            'c.name as country'
+        )
+        ->where('m.passport_no', Auth::user()->username) 
+        ->orderBy('reg_time', 'desc')
+        // ->orWhere('m.student_id_no', Auth::user()->username) 
+        ->first(); 
+
+        if($data->photo_url){   
+            $photoPaths = [
+                'inbound/' . ltrim(str_replace('repo/inbound/', '', $data->photo_url), '/'),
+                ltrim(str_replace('repo/', '', $data->photo_url), '/')
+            ];
+            $photoPath = $this->getFilePath('inside', $photoPaths); 
+            $data->photo_base64 = $this->getFileBase64('inside', $photoPath, mimeType: 'image/jpeg');
+        }
+
+        
+        if($data->student_id_url){   
+            $studentIdPaths = [
+                'inbound/' . ltrim(str_replace('repo/inbound/', '', $data->student_id_url), '/'),
+                ltrim(str_replace('repo/', '', $data->student_id_url), '/')
+            ];
+            $idFilePath = $this->getFilePath('inside', $studentIdPaths); 
+            $data->id_base64 = $this->getFileBase64('inside', $idFilePath, mimeType: 'image/jpeg');
+        }
+        
+        if($data->passport_url){   
+            $passportPaths = [
+                'inbound/' . ltrim(str_replace('repo/inbound/', '', $data->passport_url), '/'),
+                ltrim(str_replace('repo/', '', $data->passport_url), '/')
+            ];
+
+            $passportFilePath = $this->getFilePath('inside', $passportPaths); 
+            $data->passport_base64 = $this->getFileBase64('inside', $passportFilePath, 'image/png');
+    }
+        
+        return view('stu_inbound.mahasiswa_profile', compact('data'));
+    }
+
+    public function program($params){
+        $programs = DB::table('m_stu_in_peserta as s')
+            ->select('s.*', 'p.*', 'p.name as nama_program', 'u.*')
+            ->leftJoin('m_stu_in_programs as p', 's.program_id', '=', 'p.id')
+            ->leftJoin('m_university as u', 's.univ', '=', 'u.id')
+            ->where('s.passport_no', Auth::user()->username);
+
+        if ($params == "finished") {
+            $programs->whereNotNull('end_date')->whereDate('end_date', '<', now());
+        } else {
+            $programs->where(function ($query) {
+                $query->whereNull('end_date') 
+                    ->orWhereDate('end_date', '>=', now());
+            });
+        }
+
+        $programs = $programs->get();
+        // dd($programs);
+
+        foreach ($programs as $program) {
+        
+            if ($program && $program->logo) {
+                $cleanPathRoot = ltrim(str_replace('repo/inbound/', '', $program->logo), '/');
+                $cleanPathInbound = ltrim(str_replace('repo/', '', $program->logo), '/');
+            
+                if (Storage::disk('inside')->exists($cleanPathInbound)) {
+                    $filePath = $cleanPathInbound;
+                } elseif (Storage::disk('inside')->exists($cleanPathRoot)) {
+                    $filePath = $cleanPathRoot;
+                } else {
+                    $filePath = null;
+                }
+            
+                if ($filePath) {
+                    $fileContent = Storage::disk('inside')->get($filePath);
+                    $program->logo_base64 = 'data:image/jpeg;base64,' . base64_encode($fileContent);
+                } else {
+                    $program->logo_base64 = null;
+                }
+            }else{
+                $program->logo_base64 = null;
+            }
+
+            if($program->photo_url){   
+                $photoPaths = [
+                    'inbound/' . ltrim(str_replace('repo/inbound/', '', $program->photo_url), '/'),
+                    ltrim(str_replace('repo/', '', $program->photo_url), '/')
+                ];
+                $photoPath = $this->getFilePath('inside', $photoPaths); 
+                $program->photo_base64 = $this->getFileBase64('inside', $photoPath, mimeType: 'image/jpeg');
+            }
+    
+        }
+
+        return view('stu_inbound.mahasiswa_program', compact('programs', 'params'));
+    }
+ 
     public function peserta(string $prog_id, $item_id = null){
 
         $univ = DB::table('m_university')
