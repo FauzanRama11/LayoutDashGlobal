@@ -141,13 +141,23 @@ class MStuInPesertaController extends Controller
                 $data->tujuan_fakultas_unit = $fakultasNama;  
             }
             
+            // Student ID ======
             $studentIdPaths = [
                 'inbound/' . ltrim(str_replace('repo/inbound/', '', $data->student_id_url), '/'),
                 ltrim(str_replace('repo/', '', $data->student_id_url), '/')
             ];
             $idFilePath = $this->getFilePath('inside', $studentIdPaths); 
             $data->id_base64 = $this->getFileBase64('inside', $idFilePath, 'image/jpeg');
-            
+
+            // Passport ID ======
+            $passportPaths = [
+                'inbound/' . ltrim(str_replace('repo/inbound/', '', $data->passport_url), '/'),
+                ltrim(str_replace('repo/', '', $data->passport_url), '/')
+            ];
+            $passportFilePath = $this->getFilePath('inside', $passportPaths); 
+            $data->pass_base64 = $this->getFileBase64('inside', $passportFilePath, 'image/jpeg');
+
+            // Photo 
             $photoPaths = [
                 'inbound/' . ltrim(str_replace('repo/inbound/', '', $data->photo_url), '/'),
                 ltrim(str_replace('repo/', '', $data->photo_url), '/')
@@ -184,35 +194,39 @@ class MStuInPesertaController extends Controller
         $peserta->tujuan_fakultas_unit = $unit;
         $peserta->tujuan_prodi = $request->input('tprodiPeserta');
 
-        $peserta->passport_no = $request->input('noPassPeserta');
+        
+        $peserta->selected_id = $request->input('selected_id');
+        $peserta->passport_no = $request->input('passport_no');
+        $peserta->student_no = $request->input('student_no');
         $peserta->home_address = $request->input('homePeserta');
 
         $peserta->is_approved = 0;
+        $peserta->is_loa = 1;
     
         // Inisialisasi array untuk menyimpan path file
         $filePaths = [
             'photo_url' => null,
             'cv_url' => null,
-            'loa_url' => null,
+            // 'loa_url' => null,
             'passport_url' => null,
             'student_id_url' => null,
         ];
     
         // Array field file dan atribut model yang bersesuaian
         $fileFields = [
-            'fotoPeserta' => 'photo_url',
+            'photo_url' => 'photo_url',
             'cvPeserta' => 'cv_url',
-            'loaPeserta' => 'loa_url',
-            'passPeserta' => 'passport_url',
-            'idPeserta' => 'student_id_url',
+            // 'loaPeserta' => 'loa_url',
+            'passport_url' => 'passport_url',
+            'student_id_url' => 'student_id_url',
         ];
 
         $mimeTypesMap = [
             'cvPeserta' => 'pdf',
-            'loaPeserta' => 'pdf',
-            'fotoPeserta' => 'png,jpg,jpeg',
-            'passPeserta' => 'pdf',
-            'idPeserta' => 'pdf',
+            // 'loaPeserta' => 'pdf',
+            'photo_url' => 'png,jpg,jpeg',
+            'passport_url' => 'pdf,png,jpg,jpeg',
+            'student_id_url' => 'pdf,png,jpg,jpeg',
         ];
     
         // Iterasi setiap field file untuk diproses
@@ -227,7 +241,7 @@ class MStuInPesertaController extends Controller
                         $field => 'required|file|mimes:' . $mimeTypes . '|max:2048',
                     ]);
                 } catch (ValidationException $e) {
-                    return response()->json(['status' => 'error', 'message' => 'Please upload <2 MB valid files!'], 500);
+                    return response()->json(['status' => 'error', 'message' => 'Please check again your file type!'], 500);
                 }
 
 
@@ -247,7 +261,7 @@ class MStuInPesertaController extends Controller
     
         $peserta->photo_url = $filePaths['photo_url'];
         $peserta->cv_url = $filePaths['cv_url'];
-        $peserta->loa_url = $filePaths['loa_url'];
+        // $peserta->loa_url = $filePaths['loa_url'];
         $peserta->passport_url = $filePaths['passport_url'];
         $peserta->student_id_url = $filePaths['student_id_url'];
 
@@ -275,7 +289,6 @@ class MStuInPesertaController extends Controller
         $peserta->tgl_lahir = $request->input('dobPeserta');
         $peserta->telp = $request->input('telpPeserta');
         $peserta->email = $request->input('emailPeserta');
-        $peserta->reg_time = now();
 
         $peserta->jenjang = $request->input('jenjangPeserta');
         $peserta->prodi_asal = $request->input('prodi_asal');
@@ -284,27 +297,36 @@ class MStuInPesertaController extends Controller
         $peserta->negara_asal_univ = $request->input('negara_asal');
         $peserta->kebangsaan = $request->input('kebangsaan');
         $peserta->tujuan_fakultas_unit = $unit;
-        $peserta->tujuan_prodi = $request->input('tprodiPeserta');
-        $peserta->passport_no = $request->input('noPassPeserta');
-        $peserta->home_address = $request->input('homePeserta');
-        $peserta->is_approved = 0;
+        $peserta->tujuan_prodi = $request->input('tprodiPeserta'); 
 
-        // Array field file dan atribut model yang bersesuaian
+        if ($peserta->selected_id === null || $peserta->selected_id === '') {
+            $peserta->selected_id = $request->input('selected_id');
+        }
+
+        $peserta->passport_no = $request->input('passport_no');
+        $peserta->student_no = $request->input('student_no');
+        $peserta->home_address = $request->input('homePeserta');
+
+        if ($peserta->tujuan_prodi && $peserta->is_loa === null ) {
+            $peserta->is_loa = 0;
+        }
+
         $fileFields = [
-            'fotoPeserta' => 'photo_url',
             'cvPeserta' => 'cv_url',
-            'loaPeserta' => 'loa_url',
-            'passPeserta' => 'passport_url',
-            'idPeserta' => 'student_id_url',
+            // 'loaPeserta' => 'loa_url',
+            'photo_url' => 'photo_url',
+            'passport_url' => 'passport_url',
+            'student_id_url' => 'student_id_url',
         ];
 
         $mimeTypesMap = [
             'cvPeserta' => 'pdf',
-            'loaPeserta' => 'pdf',
-            'fotoPeserta' => 'png,jpg,jpeg',
-            'passPeserta' => 'png,jpg,jpeg',
-            'idPeserta' => 'png,jpg,jpeg',
+            // 'loaPeserta' => 'pdf',
+            'photo_url' => 'png,jpg,jpeg',
+            'passport_url' => 'pdf,png,jpg,jpeg',
+            'student_id_url' => 'pdf,png,jpg,jpeg',
         ];
+
 
         foreach ($fileFields as $field => $attribute) {
             if ($request->hasFile($field)) {
@@ -333,13 +355,10 @@ class MStuInPesertaController extends Controller
             }
         }
 
-        // dd($peserta);
 
-        // Simpan perubahan pada model
         $peserta->save();
 
-        // return redirect()->route('program_stuin.edit', ['id' => $request->input('progId')]);
-        return response()->json(['status' => 'success', 'redirect' => route('program_stuin.edit', ['id' => $request->input('progId')])]);
+        return response()->json(['peserta' => $peserta,'status' => 'success', 'redirect' => route('stuin_peserta.edit', ['prog_id' => $request->input('progId'), 'item_id' => $request->input('peserta_id')])]);
 
     }
 
