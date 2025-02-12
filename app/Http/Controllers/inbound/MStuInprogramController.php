@@ -34,17 +34,26 @@ class MStuInProgramController extends Controller
                     ->where("is_program_age", "N");
             }
 
-                if ($request->has('order')) {
-                    foreach ($request->order as $order) {
-                        $columnIndex = $order['column']; 
-                        $columnDir = $order['dir'];
-                        $columnName = $request->columns[$columnIndex]['data'];      
+            if ($request->has('order')) {
+                foreach ($request->order as $order) {
+                    $columnIndex = $order['column']; 
+                    $columnDir = $order['dir'];
+                    $columnName = $request->columns[$columnIndex]['data']; 
+        
+                    if ($columnName === 'jumlah_peserta') {
+                        $data->orderByRaw("jumlah_peserta $columnDir");
+                    } else {
+                        $data->orderBy($columnName, $columnDir);
                     }
-                } else {
-                    $data->orderBy('created_time', 'desc'); 
                 }
-
+            } else {
+                $data->orderBy('created_time', 'desc'); 
+            }
+            
             return DataTables::of($data)
+                ->filterColumn('jumlah_peserta', function($query, $keyword) {
+                    $query->havingRaw("jumlah_peserta LIKE ?", ["%$keyword%"]);
+                })
                 ->editColumn('is_private_event', function ($item) {
                     return $item->is_private_event === 'Tidak' ? 'Registrasi' : 'Pelaporan';
                 })
@@ -200,13 +209,10 @@ class MStuInProgramController extends Controller
 
         }
 
-        MStuInProgram::create($program->getAttributes());
-        if ($request->input('progAge') === "N"){
-            return redirect()->route('stuin_program_fak');
-        }else{
-            return redirect()->route('stuin_program_age');
-        }
-        
+        $programMStuIn = MStuInProgram::create($program->getAttributes());
+
+        $programId = $programMStuIn->id; 
+        return redirect()->route('program_stuin.edit', ['id' => $programId]);        
     }
 
     public function edit(string $id)
@@ -354,19 +360,10 @@ class MStuInProgramController extends Controller
         }
 
     }
-
-
+    
     $program->save();
-
-    if ($request->input('progAge') === "N") {
-        return redirect()->route('stuin_program_fak')->with('success', 'Program updated successfully.');
-    } else {
-        return redirect()->route('stuin_program_age')->with('success', 'Program updated successfully.');
-    }
+    return redirect()->route('program_stuin.edit', ['id' => $id]);
 }
-
-
-
 
     public function destroy_program_fak($id)
     {

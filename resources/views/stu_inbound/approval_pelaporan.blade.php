@@ -106,6 +106,133 @@ function getFileUrl($fileUrl) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
+    let approveRoute = @json(route('stuin.approve', ['id' => '__ID__']));
+    let unapproveRoute = @json(route('stuin.unapprove', ['id' => '__ID__']));
+    let rejectRoute = @json(route('stuin.reject', ['id' => '__ID__']));
+
+    function confirmApprove(id) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to approve this participant.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Approve!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Processing...",
+                    text: "Please wait while we process your request.",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: approveRoute.replace('__ID__', id),
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire("Success!", response.message, "success").then(() => {
+                            location.reload(); // 🔄 Reload page after success
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire("Error!", xhr.responseJSON.message, "error");
+                    }
+                });
+            }
+        });
+    }
+
+    function confirmUnapprove(id) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to unapprove this participant.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Unapprove!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Processing...",
+                    text: "Please wait while we process your request.",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: unapproveRoute.replace('__ID__', id),
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire("Success!", response.message, "success").then(() => {
+                            location.reload(); // 🔄 Reload page after success
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire("Error!", xhr.responseJSON.message, "error");
+                    }
+                });
+            }
+        });
+    }
+
+    function confirmReject(id) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to reject this participant.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Reject!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Processing...",
+                    text: "Please wait while we process your request.",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: rejectRoute.replace('__ID__', id),
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire("Success!", response.message, "success").then(() => {
+                            if (response.redirect) {
+                                window.location.href = response.redirect; // 🔄 Redirect if needed
+                            } else {
+                                location.reload(); // 🔄 Reload page if no redirect
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire("Error!", xhr.responseJSON.message, "error");
+                    }
+                });
+            }
+        });
+    }
+</script>
+
+<script>
 	$(document).ready(function () {
 		$(document).on("click", ".reviseButton", function () {
 			let id = $(this).data("id");
@@ -175,9 +302,9 @@ function getFileUrl($fileUrl) {
 			});
 		});
 	});
-	</script>
+</script>
 	
-	<script>
+<script>
 		$(document).ready(function () {
 	   function initializeDataTable(tableId) {
 		   if ($(tableId).length && !$.fn.DataTable.isDataTable(tableId)) {
@@ -204,7 +331,7 @@ function getFileUrl($fileUrl) {
 		   { data: null, sortable: false, render: function (data, type, row, meta) {
 			   return meta.row + meta.settings._iDisplayStart + 1;
 		   }},
-		   { data: 'nama', name: 'nama' },
+		   { data: 'nama', name: 't.nama' },
 		   { data: 'host_unit', name: 'p.host_unit_text' },
 		   { data: 'program', name: 'p.name' },
 		   { data: 'tipe', name: 'p.pt_ft' },
@@ -213,13 +340,13 @@ function getFileUrl($fileUrl) {
 		   { data: 'end_date', name: 'p.end_date' },
 		   { data: 'via', name: 'p.via' },
 		   { data: 'country_name', name: 'c.name' },
-		   { data: 'photo_url', name: 'photo_url' },
-		   { data: 'passport_url', name: 'passport_url' },
-		   { data: 'student_id_url', name: 'student_id_url' },
-		   { data: 'loa_url', name: 'loa_url' },
-		   { data: 'cv_url', name: 'cv_url' },
-		   { data: 'is_loa', name: 'is_loa'},
-		   { data: 'is_approved', name: 'is_approved'},
+		   { data: 'photo_url', name: 't.photo_url' },
+		   { data: 'passport_url', name: 't.passport_url' },
+		   { data: 'student_id_url', name: 't.student_id_url' },
+		   { data: 'loa_url', name: 't.loa_url' },
+		   { data: 'cv_url', name: 't.cv_url' },
+		   { data: 'is_loa', name: 't.is_loa'},
+		   { data: 'is_approved', name: 't.is_approved'},
 		   { data: 'action', name: 'action', orderable:false, searchable:false },
 		   { data: 'revise', name: 'revise',  orderable:false, searchable:false  },
 		   { data: 'reject', name: 'reject',  orderable:false, searchable:false  }
@@ -308,4 +435,4 @@ function getFileUrl($fileUrl) {
 			   }
 		   }
 		});
-	   </script>
+</script>

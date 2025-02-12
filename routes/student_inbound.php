@@ -15,6 +15,7 @@ use App\Http\Controllers\inbound\VTStudenInboundController;
 use App\Http\Controllers\inbound\StudentInboundController;
 use App\Http\Controllers\inbound\MStuInPesertaController;
 use App\Http\Controllers\inbound\PesertaInboundAGEController;
+use App\Http\Controllers\inbound\StudentInboundLoaController;
 use App\Http\Controllers\staff_inbound\PendaftaranInboundController;
 
 // Student Inbound
@@ -100,13 +101,13 @@ Route::middleware(['auth', 'verified', 'role:fakultas|gmp|kps|dirpen'])->group(f
         Route::post('/approve-dana/{id}', [StudentInboundController::class, 'approveDana'])->name('stuin.approve.dana');
         Route::post('/unapprove-dana/{id}', [StudentInboundController::class, 'unapproveDana'])->name('stuin.unapprove.dana');
         Route::get('/pdf-pengajuan-dana/{id}/{tipe}', [StudentInboundController::class, 'pdfPengajuanInbound'])->name('stuin.pengajuan.dana');
-        Route::get('/pdf-pengajuan-loa/{id}', [StudentInboundController::class, 'pdfloa'])->name('stuin.pengajuan.loa');
+        Route::get('/pdf-pengajuan-loa/{id}', [StudentInboundLoaController::class, 'pdfloa'])->name('stuin.pengajuan.loa');
 
         // Approval Peserta
         Route::get('/approval-pelaporan', [StudentInboundController::class, 'approval_pelaporan'])->name('stuin_approval_pelaporan');
         Route::post('/request/{id}', [StudentInboundController::class, 'pesertaRequest'])->name('stuin.request');
         Route::post('/unrequest/{id}', [StudentInboundController::class, 'pesertaUnrequest'])->name('stuin.unrequest');
-        Route::post('/approve/{id}', [StudentInboundController::class, 'pesertaApprove'])->name('stuin.approve');
+        Route::post('/approve/{id}', [StudentInboundLoaController::class, 'pesertaApprove'])->name('stuin.approve');
         Route::post('/unapprove/{id}', [StudentInboundController::class, 'pesertaUnapprove'])->name('stuin.unapprove');
         Route::post('/reject/{id}', [StudentInboundController::class, 'pesertaReject'])->name('stuin.reject');
         Route::post('/save-revision/{id}', [StudentInboundController::class, 'saveRevision'])->name('stuin.revision');

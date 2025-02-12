@@ -119,8 +119,8 @@ class MStuInPesertaController extends Controller
             'cvPeserta' => 'pdf',
             // 'loaPeserta' => 'pdf',
             'photo_url' => 'png,jpg,jpeg',
-            'passport_url' => 'png,jpg,jpeg',
-            'student_id_url' => 'png,jpg,jpeg',
+            'passport_url' => 'pdf,png,jpg,jpeg',
+            'student_id_url' => 'pdf,png,jpg,jpeg',
         ];
     
         // Iterasi setiap field file untuk diproses
@@ -135,7 +135,7 @@ class MStuInPesertaController extends Controller
                         $field => 'required|file|mimes:' . $mimeTypes . '|max:2048',
                     ]);
                 } catch (ValidationException $e) {
-                    return response()->json(['status' => 'error', 'message' => 'Please upload <2 MB valid files!'], 500);
+                    return response()->json(['status' => 'error', 'message' => 'Please check again your file type!'], 500);
                 }
 
 
@@ -193,7 +193,7 @@ class MStuInPesertaController extends Controller
         $peserta->tujuan_fakultas_unit = $unit;
         $peserta->tujuan_prodi = $request->input('tprodiPeserta'); 
 
-        if (is_null($peserta->selected_id || $peserta->selected_id === '')) {
+        if ($peserta->selected_id === null || $peserta->selected_id === '') {
             $peserta->selected_id = $request->input('selected_id');
         }
 
@@ -201,12 +201,10 @@ class MStuInPesertaController extends Controller
         $peserta->student_no = $request->input('student_no');
         $peserta->home_address = $request->input('homePeserta');
 
-        if (is_null($peserta->selected_id || $peserta->selected_id === '')) {
-            $peserta->is_loa = 1;
+        if ($peserta->tujuan_prodi && $peserta->is_loa === null ) {
+            $peserta->is_loa = 0;
         }
-        $peserta->is_approved = 0;
 
-        // Array field file dan atribut model yang bersesuaian
         $fileFields = [
             'cvPeserta' => 'cv_url',
             // 'loaPeserta' => 'loa_url',
@@ -219,8 +217,8 @@ class MStuInPesertaController extends Controller
             'cvPeserta' => 'pdf',
             // 'loaPeserta' => 'pdf',
             'photo_url' => 'png,jpg,jpeg',
-            'passport_url' => 'png,jpg,jpeg',
-            'student_id_url' => 'png,jpg,jpeg',
+            'passport_url' => 'pdf,png,jpg,jpeg',
+            'student_id_url' => 'pdf,png,jpg,jpeg',
         ];
 
 
@@ -251,12 +249,9 @@ class MStuInPesertaController extends Controller
             }
         }
 
-        // dd($peserta);
 
-        // Simpan perubahan pada model
         $peserta->save();
 
-        // return redirect()->route('program_stuin.edit', ['id' => $request->input('progId')]);
         return response()->json(['peserta' => $peserta,'status' => 'success', 'redirect' => route('stuin_peserta.edit', ['prog_id' => $request->input('progId'), 'item_id' => $request->input('peserta_id')])]);
 
     }

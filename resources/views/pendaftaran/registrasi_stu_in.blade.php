@@ -98,7 +98,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="jenis_kelamin">Sex <span class="text-danger">*</span></label>
                         <select class="form-select" id="jenis_kelamin" name="jenis_kelamin" required>
-                            <option value="Laki-Laki" selected>Male</option>
+                            <option value="Laki-laki" selected>Male</option>
                             <option value="Perempuan">Female</option>
                             <option value="Other">Prefer not to disclose</option>
                         </select>
@@ -164,27 +164,38 @@
                         <div class="invalid-feedback">Kewarganegaraan wajib dipilih.</div>
                     </div>
 
+                    <!-- UPLOAD FILE PHOTO -->
                     <div class="mb-3">
                         <label class="form-label" for="photo_url">Photo</label>
                         <input 
-                            class="form-control"  type="file" id="photo_url" name="photo_url" accept=".jpg, .jpeg, .png" 
-                            onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
+                            class="form-control"  
+                            type="file" 
+                            id="photo_url" 
+                            name="photo_url" 
+                            accept=".jpg, .jpeg, .png" 
+                            onchange="handleImageChange(event, 'photoPreviewDiv', 'photoPreview', 240)" 
+                            required>
                     </div>
-                    
+
+                    <!-- Preview Gambar -->
                     <div class="mb-3">
-                        <div 
-                            class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
-                            id="photoPreviewDiv">
-                            
-                            <img id="photoPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                        <div class="col-sm-12 p-3 justify-content-center align-items-center d-none" id="photoPreviewDiv">
+                            <img id="photoPreview" src="" alt="Photo Preview" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
                         </div>
                     </div>
 
+                    <!-- UPLOAD FILE CV -->
                     <div class="mb-3">
                         <label class="form-label" for="cv_url">CV</label>
-                        <input class="form-control" type="file" id="cv_url" name="cv_url"  accept=".pdf"  required onchange="validateFileSize(this)">
+                        <input class="form-control" type="file" id="cv_url" name="cv_url" accept=".pdf" required onchange="handlePDFChange(event, 'cvPDFLink')">
                         <div class="invalid-feedback">CV wajib diisi.</div>
                     </div>
+
+                    <!-- Link untuk PDF -->
+                    <div id="cvPDFLink" class="mt-2 mb-3 d-none">
+                        <a id="pdfViewer" href="#" target="_blank" class="btn btn-primary">View / Download CV</a>
+                    </div>
+
 
                     <div class="mb-3">
                         <label class="form-label" for="selected_id">Selected Identity <span class="text-danger">*</span></label>
@@ -205,13 +216,15 @@
                             <div class="invalid-feedback"></div>
                         </div>
 
+                        {{-- FILE UPLOAD STUDENT --}}
                         <div class="mb-3">
                             <label class="form-label" for="student_id_url">Student ID</label>
                             <input 
-                                class="form-control"  type="file" id="student_id_url" name="student_id_url" accept=".jpg, .jpeg, .png" 
-                                onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 240)" required>
+                                class="form-control"  type="file" id="student_id_url" name="student_id_url" accept=".pdf, .jpg, .jpeg, .png" onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 'studentIdPDFLink', 240)" 
+                                required>
                         </div>
                         
+                        <!-- Preview Gambar -->
                         <div class="mb-3">
                             <div 
                                 class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
@@ -219,6 +232,11 @@
                                 
                                 <img id="studentIdPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
                             </div>
+                        </div>
+
+                        <!-- Link untuk PDF (Student ID) -->
+                        <div id="studentIdPDFLink" class="mt-2 mb-3 d-none">
+                            <a id="studentIdPDFViewer" href="#" target="_blank" class="btn btn-primary">View / Download Student ID</a>
                         </div>
                     </div>
 
@@ -230,21 +248,29 @@
                             <div class="invalid-feedback"></div>
                         </div>
 
+                        {{-- FILE UPLOAD PASSPORT --}}
                         <div class="mb-3">
                             <label class="form-label" for="passport_url">Passport Identity Page</label>
                             <input 
-                                class="form-control"  type="file" id="passport_url" name="passport_url" accept=".jpg, .jpeg, .png" 
-                                onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 240)" required>
+                                class="form-control"  
+                                type="file" 
+                                id="passport_url" 
+                                name="passport_url" 
+                                accept=".pdf, .jpg, .jpeg, .png"
+                                onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 'passportPDFLink', 240)" 
+                                required>
                         </div>
                         
+                        <!-- Preview Gambar -->
                         <div class="mb-3">
-                            <div 
-                                class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
-                                id="passportPreviewDiv">
-                                
-                                <img 
-                                    id="passportPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                            <div class="col-sm-12 p-3 justify-content-center align-items-center d-none" id="passportPreviewDiv">
+                                <img id="passportPreview" src="" alt="Preview" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
                             </div>
+                        </div>
+                        
+                        <!-- Link untuk PDF (Passport) -->
+                        <div id="passportPDFLink" class="mt-2 mb-3 d-none">
+                            <a id="passportPDFViewer" href="#" target="_blank" class="btn btn-primary">View / Download Passport</a>
                         </div>
                     </div>
 
@@ -281,30 +307,95 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
+{{-- AJAX Verifikasi Email --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const selected_program = document.getElementById('selected_id');
-    
-        selected_program.addEventListener('change', function () {
-            const selectedValue = this.value;
-    
-            // Ambil semua elemen dengan kelas yang sesuai
+    $(document).ready(function() {
+        let typingTimer;
+        const doneTypingInterval = 2000; // 2 detik delay
+
+        $("#email").on("keyup", function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(checkEmail, doneTypingInterval);
+        });
+
+        $("#email").on("keydown", function() {
+            clearTimeout(typingTimer);
+        });
+
+        function checkEmail() {
+            let email = $("#email").val().trim();
+            let kode = $("#kode").val().trim();
+
+            if (kode === "") return;
+
+            $.ajax({
+                url: "{{ route('stuin.check') }}",
+                type: "GET",
+                data: { email: email, kode: kode }, 
+                success: function(response) {
+                    if (response.exists_in_peserta) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Email telah digunakan!",
+                            text: "Email ini telah terdaftar dalam program, hubungi PIC jika ada data yang perlu dirubah.",
+                            confirmButtonColor: "#3085d6"
+                        });
+
+                        $("#email").val(""); 
+                    } else if (response.exists_in_users) {
+                        $("#selected_id").prop("disabled", true);
+                        $("#passport_no, #passport_url, #student_no, #student_id_url").prop("readonly", true);
+
+                        // Sembunyikan semua form
+                        hideForms(document.querySelectorAll('.passport_field'));
+                        hideForms(document.querySelectorAll('.studentid_field'));
+                    } else {
+                        $("#selected_id").prop("disabled", false);
+                        $("#passport_no, #passport_url, #student_no, #student_id_url").prop("readonly", false);
+
+                        // Jalankan kembali logika awal form visibility saat onchange
+                        updateFormVisibility();
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error!",
+                        text: xhr.responseJSON?.error || "Terjadi kesalahan saat memeriksa email.",
+                        confirmButtonColor: "#d33"
+                    });
+                }
+            });
+        }
+
+        // Panggil fungsi updateFormVisibility saat halaman dimuat (jika selected_id telah dipilih)
+        updateFormVisibility();
+
+        // Fungsi untuk mengatur form visibility berdasarkan pilihan `selected_id`
+        function updateFormVisibility() {
+            const selected_program = document.getElementById('selected_id');
+            if (!selected_program) return;
+
+            const selectedValue = selected_program.value;
+
             const passport_field = document.querySelectorAll('.passport_field');
             const studentid_field = document.querySelectorAll('.studentid_field');
-    
+
             // Sembunyikan semua form
             hideForms(passport_field);
             hideForms(studentid_field);
-    
-            // Tampilkan form yang sesuai dengan pilihan
+
+            // Tampilkan form sesuai dengan pilihan
             if (selectedValue === 'passport') {
                 showForms(passport_field);
             } else if (selectedValue === 'student_id') {
                 showForms(studentid_field);
-            } 
-        });
-    
+            }
+        }
+
+        // Event listener saat `selected_id` berubah
+        document.getElementById('selected_id').addEventListener('change', updateFormVisibility);
+
         // Fungsi untuk menyembunyikan semua elemen dalam NodeList
         function hideForms(forms) {
             forms.forEach(form => {
@@ -312,7 +403,7 @@
                 toggleInputs(form, true);
             });
         }
-    
+
         // Fungsi untuk menampilkan semua elemen dalam NodeList
         function showForms(forms) {
             forms.forEach(form => {
@@ -320,83 +411,71 @@
                 toggleInputs(form, false);
             });
         }
-    
-       // Fungsi untuk mengaktifkan/menonaktifkan input dalam form
+
+        // Fungsi untuk mengaktifkan/menonaktifkan input dalam form
         function toggleInputs(form, isDisabled) {
             const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.disabled = isDisabled;
-    
-                // Cek apakah elemen awalnya memiliki required
+
                 if (!isDisabled) {
                     if (input.dataset.originalRequired === "true") {
                         input.setAttribute('required', true);
                     }
                 } else {
-                    // Simpan status required sebelum dinonaktifkan
                     if (input.hasAttribute('required')) {
-                        input.dataset.originalRequired = "true"; // Tandai bahwa awalnya required
+                        input.dataset.originalRequired = "true"; 
                     } else {
-                        input.dataset.originalRequired = "false"; // Tandai bahwa awalnya tidak required
+                        input.dataset.originalRequired = "false"; 
                     }
-    
                     input.removeAttribute('required');
                 }
             });
         }
-    
-    
     });
-    
 </script>
 
+
+{{-- HANYA MENERIMA APPLICATION/IMAGE --}}
 <script>
-    
-    let isFileValid = true; // Menyimpan status validasi file
-
-    function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
-        validateFileSize(event.target);
-        previewImage(event.target, previewDivId, previewImgId, imgHeight);
-    }
-
-    function validateFileSize(input) {
+    function handleImageChange(event, previewDivId, previewImgId, imgHeight = null) {
+        const input = event.target;
         const file = input.files[0];
-        if (file) {
-            const maxSize = 2 * 1024 * 1024; // 2MB
-            if (file.size > maxSize) {
-                Swal.fire({
-                    title: 'File too large!',
-                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-                input.value = ""; 
-                isFileValid = false;
-            } else {
-                isFileValid = true;
-            }
+
+        if (!file) {
+            resetPreview(previewDivId, previewImgId);
+            return;
         }
-    }
-    function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
-    const previewDiv = document.getElementById(previewDivId);
-    const previewImg = document.getElementById(previewImgId);
 
-    if (!previewDiv || !previewImg) {
-        console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
-        return;
-    }
+        // Validasi ukuran file (maksimal 5MB)
+        const maxSize = 2 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'File too large!',
+                text: 'The file size exceeds 2 MB. Please upload a smaller image.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = "";
+            resetPreview(previewDivId, previewImgId);
+            return;
+        }
 
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+
+        if (!previewDiv || !previewImg) {
+            console.error(`Preview elements not found: ${previewDivId}, ${previewImgId}`);
+            return;
+        }
 
         if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+            const reader = new FileReader();
             reader.onload = function (e) {
                 previewImg.src = e.target.result;
                 previewImg.style.display = 'block';
                 previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
 
-                // 🔹 Ubah div menjadi `d-flex` dan tambahkan border
                 previewDiv.classList.remove('d-none');
                 previewDiv.classList.add('d-flex', 'border', 'border-3');
             };
@@ -404,64 +483,212 @@
         } else {
             Swal.fire({
                 title: 'Invalid File Type!',
-                text: 'Only JPG, JPEG, or PNG files are allowed.',
+                text: 'Only JPG, JPEG, or PNG files are allowed for photos.',
                 icon: 'error',
                 confirmButtonText: 'OK'
             });
 
-            input.value = ''; // Reset input file
+            input.value = ''; 
             resetPreview(previewDiv, previewImg);
         }
-    } else {
-        resetPreview(previewDiv, previewImg);
     }
-}
 
-// 🔹 Fungsi untuk menyembunyikan preview jika file tidak ada
-function resetPreview(previewDiv, previewImg) {
-    previewDiv.classList.add('d-none'); 
-    previewDiv.classList.remove('d-flex', 'border', 'border-3'); 
-    previewImg.style.display = 'none'; 
-    previewImg.src = ''; 
-}
+    function handlePDFChange(event, pdfLinkId) {
+        const input = event.target;
+        const file = input.files[0];
+
+        if (!file) {
+            resetPDFPreview(pdfLinkId);
+            return;
+        }
+
+        // Validasi ukuran file (maksimal 5MB)
+        const maxSize = 2 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'File too large!',
+                text: 'The file size exceeds 2 MB. Please upload a smaller PDF.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = "";
+            resetPDFPreview(pdfLinkId);
+            return;
+        }
+
+        const pdfLink = document.getElementById(pdfLinkId);
+        const pdfViewer = document.getElementById("pdfViewer");
+
+        if (!pdfLink || !pdfViewer) {
+            console.error(`Preview elements not found: ${pdfLinkId}`);
+            return;
+        }
+
+        if (file.type === 'application/pdf') {
+            pdfLink.classList.remove('d-none');
+            pdfViewer.href = URL.createObjectURL(file);
+        } else {
+            Swal.fire({
+                title: 'Invalid File Type!',
+                text: 'Only PDF files are allowed for CVs.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+
+            input.value = ''; 
+            resetPDFPreview(pdfLinkId);
+        }
+    }
+
+    function resetPreview(previewDivId, previewImgId) {
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+
+        if (previewDiv && previewImg) {
+            previewDiv.classList.add('d-none'); 
+            previewDiv.classList.remove('d-flex', 'border', 'border-3'); 
+            previewImg.style.display = 'none'; 
+            previewImg.src = ''; 
+        }
+    }
+
+    function resetPDFPreview(pdfLinkId) {
+        const pdfLink = document.getElementById(pdfLinkId);
+        const pdfViewer = document.getElementById("pdfViewer");
+
+        if (pdfLink && pdfViewer) {
+            pdfLink.classList.add('d-none');
+            pdfViewer.href = "#";
+        }
+    }
 
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+{{-- MENERIMA APPLICATION DAN IMAGE --}}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    @if(session('file_errors'))
-        let errorMessages = "";
-        @foreach(session('file_errors') as $error)
-            errorMessages += "• {{ $error }}\n";
-        @endforeach
-        Swal.fire({
-            title: 'Validation Failed!',
-            text: errorMessages,
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    @endif
+    function handleFileChange(event, previewDivId, previewImgId, pdfLinkId, imgHeight = null) {
+        const input = event.target;
+        const file = input.files[0];
 
-    @if(session('success'))
-        Swal.fire({
-            title: 'Success!',
-            text: "{{ session('success') }}",
-            icon: 'success',
-            timer: 4000,
-            showConfirmButton: false
-        });
-    @endif
+        if (!file) {
+            resetAllPreview(previewDivId, previewImgId, pdfLinkId);
+            return;
+        }
 
-    @if(session('error'))
-        Swal.fire({
-            title: 'Error!',
-            text: "{{ session('error') }}",
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    @endif
-});
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'File too large!',
+                text: 'The file size exceeds 5 MB. Please upload a smaller file.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = "";
+            resetAllPreview(previewDivId, previewImgId, pdfLinkId);
+            return;
+        }
+
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+        const pdfLink = document.getElementById(pdfLinkId);
+        const pdfViewer = document.getElementById(pdfLinkId.replace("Link", "Viewer")); // ID Unik
+
+        if (!previewDiv || !previewImg || !pdfLink || !pdfViewer) {
+            console.error(`Preview elements not found: ${previewDivId}, ${previewImgId}, ${pdfLinkId}`);
+            return;
+        }
+
+        resetAllPreview(previewDivId, previewImgId, pdfLinkId);
+
+        const fileURL = URL.createObjectURL(file);
+
+        if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
+
+                previewDiv.classList.remove('d-none');
+                previewDiv.classList.add('d-flex', 'border', 'border-3');
+
+                pdfLink.classList.add('d-none'); // Sembunyikan PDF jika file adalah gambar
+            };
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+            pdfLink.classList.remove('d-none');
+            pdfViewer.href = fileURL;
+            pdfViewer.target = "_blank"; // Pastikan file bisa dibuka
+
+            previewDiv.classList.add('d-none'); // Sembunyikan preview gambar
+            previewImg.style.display = 'none';
+        } else {
+            Swal.fire({
+                title: 'Invalid File Type!',
+                text: 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+
+            input.value = ''; 
+            resetAllPreview(previewDivId, previewImgId, pdfLinkId);
+        }
+    }
+
+    function resetAllPreview(previewDivId, previewImgId, pdfLinkId) {
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+        const pdfLink = document.getElementById(pdfLinkId);
+        const pdfViewer = document.getElementById(pdfLinkId.replace("Link", "Viewer"));
+
+        if (previewDiv && previewImg) {
+            previewDiv.classList.add('d-none');
+            previewDiv.classList.remove('d-flex', 'border', 'border-3');
+            previewImg.style.display = 'none';
+            previewImg.src = '';
+        }
+
+        if (pdfLink && pdfViewer) {
+            pdfLink.classList.add('d-none');
+            pdfViewer.href = "#";
+        }
+    }
+</script>
+
+{{-- SWEET ALERT FUNCTION --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        @if(session('file_errors'))
+            let errorMessages = "";
+            @foreach(session('file_errors') as $error)
+                errorMessages += "• {{ $error }}\n";
+            @endforeach
+            Swal.fire({
+                title: 'Validation Failed!',
+                text: errorMessages,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        @endif
+
+        @if(session('success'))
+            Swal.fire({
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                timer: 4000,
+                showConfirmButton: false
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                title: 'Error!',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        @endif
+    });
 </script>
 

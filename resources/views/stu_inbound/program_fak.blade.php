@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title')Program AGE | Student Inbound
+@section('title')Program Fakultas | Student Inbound
 @endsection
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

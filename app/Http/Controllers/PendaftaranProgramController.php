@@ -11,6 +11,7 @@ use App\Models\MStuInProgram;
 use App\Models\MStuInPeserta;
 use App\Models\MStuOutProgram;
 use App\Models\MStuOutPeserta;
+use App\Models\User;
 
 class PendaftaranProgramController extends Controller
 {
@@ -94,14 +95,16 @@ class PendaftaranProgramController extends Controller
         ]);
     }
 
-
     public function Simpan_stuin(Request $request)
     {
         try {
+            DB::beginTransaction(); 
             
+            Log::info('Memulai Simpan_stuin', ['request' => $request->all()]);
+
             $rules = [
                 'nama' => 'required|string|max:255',
-                'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan,Other', 
+                'jenis_kelamin' => 'required|in:Laki-laki,Perempuan,Other',
                 'tgl_lahir' => 'required|date',
                 'telp' => 'required|string|max:20',
                 'email' => 'required|email|max:255',
@@ -111,31 +114,32 @@ class PendaftaranProgramController extends Controller
                 'univ' => 'required|string|max:255',
                 'negara_asal_univ' => 'required',
                 'kebangsaan' => 'required',
-                'selected_id' => 'required|in:student_id,passport',
                 'photo_url' => 'required|file|mimes:jpg,jpeg,png|max:2048',
                 'cv_url' => 'required|file|mimes:pdf|max:2048',
                 'program_info' => 'nullable|string|max:255',
                 'kode' => 'required',
             ];
-    
+
             if ($request->selected_id === 'student_id') {
+                $rules['selected_id'] = 'required|in:student_id';
                 $rules['student_no'] = 'required';
                 $rules['student_id_url'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
             } elseif ($request->selected_id === 'passport') {
+                $rules['selected_id'] = 'required|in:passport';
                 $rules['passport_no'] = 'required';
                 $rules['passport_url'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
             }
-    
 
             $validated = $request->validate($rules);
 
+            // **Simpan File (Jika Ada)**
             $fileFields = [
                 'photo_url' => 'photo_url',
                 'passport_url' => 'passport_url',
                 'student_id_url' => 'student_id_url',
                 'cv_url' => 'cv_url',
             ];
-    
+
             foreach ($fileFields as $field => $attribute) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
@@ -143,7 +147,8 @@ class PendaftaranProgramController extends Controller
                     $validated[$attribute] = $filePath;
                 }
             }
-    
+
+            // **Cari Program Berdasarkan Kode**
             $program = MStuInProgram::where('url_generate', $validated['kode'])->first();
             if (!$program) {
                 return response()->json([
@@ -151,31 +156,61 @@ class PendaftaranProgramController extends Controller
                     'message' => 'Program tidak ditemukan.'
                 ], 404);
             }
-            
-    
+
+            // **Gunakan Data Peserta Lama Jika ID Tidak Dipilih**
+            if (empty($validated['selected_id'])) {
+                $existpeserta = MStuInPeserta::where('email', $request->input('email'))
+                    ->orderBy('reg_time', 'desc')
+                    ->first();
+
+                if ($existpeserta) {
+                    $validated['selected_id'] = $existpeserta->selected_id;
+                    $validated['passport_no'] = $existpeserta->passport_no;
+                    $validated['student_no'] = $existpeserta->student_no;
+                    $validated['passport_url'] = $existpeserta->passport_url;
+                    $validated['student_id_url'] = $existpeserta->student_id_url;
+                }
+            }
+
+            // **Tambahkan Data Ke Peserta**
             $validated['tujuan_fakultas_unit'] = $program->host_unit;
             $validated['program_id'] = $program->id;
             $validated['reg_time'] = now();
-    
+            $validated['is_loa'] = 0;
+
             MStuInPeserta::create($validated);
 
+            // **Tambahkan Data Ke Users**
+            if(!User::where('email', $request->input('email'))->exists()){
+                User::create([
+                    'username' => $validated['passport_no'] ?? $validated['student_no'],
+                    'name' => $validated['nama'],
+                    'email' => $validated['email'],
+                    'password' => bcrypt($validated['email']),
+                    'is_active' => 'False',
+                ]);
+            }
+
+            // **Simpan Kode ke Session**
             session(['kode' => $validated['kode']]);
-    
+
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'redirect' => route('result.stuin')
             ]);
 
         } catch (ValidationException $e) {
-            // **Menangani Error Validasi**
+            DB::rollBack(); 
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal!',
                 'errors' => $e->errors()
             ], 422);
-    
+
         } catch (\Exception $e) {
-            // **Menangani Error Sistem**
+            DB::rollBack(); 
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan sistem. Silakan coba lagi.',
@@ -197,6 +232,49 @@ class PendaftaranProgramController extends Controller
 
         return $subfolder ? "repo/{$subfolder}/{$fileName}" : "repo/{$fileName}";
     }
+
+    public function checkemail(Request $request)
+    {
+        Log::info('Memeriksa email', ['email' => $request->input('email'), 'kode' => $request->input('kode')]);
+
+        $email = $request->input('email');
+        $kode = $request->input('kode');
+
+        if (!$kode) {
+            Log::error('Kode program tidak dikirim');
+            return response()->json(['error' => 'Kode program is missing.'], 400);
+        }
+
+        $program = MStuInProgram::where('url_generate', $kode)->first();
+
+        if (!$program) {
+            Log::error('Program tidak ditemukan', ['kode' => $kode]);
+            return response()->json(['error' => 'Program not found.'], 404);
+        }
+
+        // **Cek apakah email sudah ada dalam peserta program ini**
+        $existsInPeserta = MStuInPeserta::where('program_id', $program->id)
+                                        ->where('email', $email)
+                                        ->exists();
+
+        Log::info('Hasil cek di peserta', ['email' => $email, 'exists_in_peserta' => $existsInPeserta]);
+
+        if ($existsInPeserta) {
+            return response()->json(['exists_in_peserta' => true]);
+        }
+
+        // **Cek apakah email ada di tabel users**
+        $existsInUsers = User::where('email', $email)->exists();
+
+        Log::info('Hasil cek di users', ['email' => $email, 'exists_in_users' => $existsInUsers]);
+
+        return response()->json([
+            'exists_in_peserta' => false,
+            'exists_in_users' => $existsInUsers
+        ]);
+    }
+
+
 
     public function result(Request $request)
     {

@@ -1,6 +1,6 @@
 "use strict";
 
-let formTouched = false; // Menandakan apakah pengguna mencoba lanjut
+let formTouched = false; 
 let currentTab = 0;
 showTab(currentTab);
 

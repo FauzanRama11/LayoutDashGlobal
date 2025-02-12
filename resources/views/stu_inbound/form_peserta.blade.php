@@ -6,7 +6,7 @@
       <div class="row align-items-center">
           <div class="col-md-6 col-12 mb-2">
               <h5 class="mb-1">Form Peserta</h5>
-              <span class="text-muted">This is Optional Notes</span>
+              <span class="text-muted">Untuk mengajukan LOA, Isi Program studi terkait terlebih dahulu!</span>
           </div>
 
           @if ($data)
@@ -18,51 +18,49 @@
                       <i class="fa fa-arrow-left"></i> Back
                   </button>
 
-                  {{-- Check if LoA URL exists --}}
-                  @if ($data->tujuan_prodi)
-                      @if ($data->is_loa == 1 || $data->is_loa == 2)
-                            @if ($data->program->is_private_event === 'Tidak' && $data->is_approved == 0)
-                              @role('fakultas')
-                                  {{-- Unapprove Button --}}
-                                  <button type="button" id="unrequestButton" class="btn btn-warning">
-                                      <i class="fa fa-times-circle"></i> Unrequest
-                                  </button>
-                              @endrole
-                            @endif
-                            @if ($data->is_approved == 1)      
-                                {{-- Ajukan Bantuan Dana Button --}}
-                                @if ($data->pengajuan_dana_status === 'EMPTY')
-                                    <button type="button" id="bantuanButton" class="btn btn-secondary">
-                                        <i class="fa fa-hand-holding-usd"></i> Ajukan Bantuan Dana
-                                    </button>
-                                @endif
-                            @endif
-                      @elseif ($data->is_loa === 0)
-                          @role('fakultas')
-                              @if ($data->program->is_private_event === 'Tidak')
-                                  {{-- Approve Button --}}
-                                  <button type="button" id="requestButton" class="btn btn-success">
-                                      <i class="fa fa-check-circle"></i> Request for LOA
-                                  </button>
-                                  {{-- Reject Button --}}
-                                  @if ($data->is_approved === 0)
-                                      <button type="button" id="rejectButton" class="btn btn-danger">
-                                          <i class="fa fa-ban"></i> Reject
-                                      </button>
-                                  @endif
-                              @endif
-                          @endrole
-                      @else
-                        @role('fakultas')
-                            @if ($data->program->is_private_event === 'Tidak')
-                                {{-- Approve Button --}}
-                                <button type="button" id="requestButton" class="btn btn-success">
-                                    <i class="fa fa-check-circle"></i> Request for LOA
+                    @if ($data->tujuan_prodi)
+                        @if ($data->is_loa === 1 && $data->program->is_private_event === 'Tidak' && $data->is_approved == 0)
+
+                            {{-- Unapprove Button --}}
+                            @role('fakultas')
+                                <button type="button" id="unrequestButton" class="btn btn-warning">
+                                    <i class="fa fa-times-circle"></i> Unrequest
+                                </button>
+                            @endrole
+
+                        @elseif (($data->loa_url || $data->is_loa === 2) && $data->is_approved == 1)
+                             
+                            {{-- Ajukan Bantuan Dana Button --}}
+                            @if ($data->pengajuan_dana_status === 'EMPTY')
+                                <button type="button" id="bantuanButton" class="btn btn-secondary">
+                                    <i class="fa fa-hand-holding-usd"></i> Ajukan Bantuan Dana
                                 </button>
                             @endif
-                        @endrole
-                      @endif
-                  @endif
+
+                        @elseif ($data->is_loa === null || $data->is_loa === 0)
+                            @role('fakultas')
+                                @if ($data->program->is_private_event === 'Tidak')
+                                    {{-- Approve Button --}}
+                                    <button type="button" id="requestButton" class="btn btn-success">
+                                        <i class="fa fa-check-circle"></i> Request for LOA
+                                    </button>
+                                    {{-- Reject Button --}}
+                                    @if ($data->is_approved === 0)
+                                        <button type="button" id="rejectButton" class="btn btn-danger">
+                                            <i class="fa fa-ban"></i> Reject
+                                        </button>
+                                    @endif
+                                @endif
+                            @endrole
+                        @endif
+                    @elseif ($data->program->is_private_event === 'Tidak' && $data->is_approved === 0)
+                            
+                        {{-- Reject Button --}}
+                        <button type="button" id="rejectButton" class="btn btn-danger">
+                            <i class="fa fa-ban"></i> Reject
+                        </button>
+                
+                    @endif
               </div>
           </div>
           @endif
@@ -109,7 +107,7 @@
           <div class="mb-3">
             <label class="form-label" for="jkPeserta">Jenis Kelamin</label>
             <select class="form-select" id="jkPeserta" name="jkPeserta">
-              <option value="Laki-Laki" {{ old('jkPeserta', $data->jenis_kelamin ?? '') == 'Laki-Laki' ? 'selected' : '' }}>Laki-Laki</option>
+              <option value="Laki-Laki" {{ old('jkPeserta', $data->jenis_kelamin ?? '') == 'Laki-laki' ? 'selected' : '' }}>Laki-Laki</option>
               <option value="Perempuan" {{ old('jkPeserta', $data->jenis_kelamin ?? '') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
               <option value="Other" {{ old('jkPeserta', $data->jenis_kelamin ?? '') == 'Other' ? 'selected' : '' }}>Prefer not to disclose</option>
             </select>
@@ -203,47 +201,61 @@
             <div class="invalid-feedback"></div>
           </div>
           
-           {{-- Photo URL --}}
-           @if($data)
-            <div class="mb-3">
-                    <label class="form-label" for="photo_url">Photo</label>
-                    <input 
-                        class="form-control"  type="file" id="photo_url" name="photo_url" accept=".jpg, .jpeg, .png" 
-                        onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)">
-                </div>
-            @else
+            <!-- UPLOAD FILE PHOTO -->
             <div class="mb-3">
                 <label class="form-label" for="photo_url">Photo</label>
                 <input 
-                    class="form-control" type="file" id="photo_url" name="photo_url" accept=".jpg, .jpeg, .png" 
-                    onchange="handleFileChange(event, 'photoPreviewDiv', 'photoPreview', 240)" required>
+                    class="form-control"  
+                    type="file" 
+                    id="photo_url" 
+                    name="photo_url" 
+                    accept=".jpg, .jpeg, .png" 
+                    onchange="handleImageChange(event, 'photoPreviewDiv', 'photoPreview', 'photoWarning', 240)" 
+                    {{ isset($data) ? '' : 'required' }}>
             </div>
-            @endif 
 
+            <!-- Preview Gambar -->
             <div class="mb-3">
-                <div 
-                    class="col-sm-12 p-3 justify-content-center align-items-center {{ isset($data->photo_base64) ? 'd-flex border border-3' : 'd-none' }}" 
+                <div class="col-sm-12 p-3 justify-content-center align-items-center 
+                    {{ isset($data->photo_url) ? 'd-flex border border-3' : 'd-none' }}" 
                     id="photoPreviewDiv">
+
+                    @if(isset($data->photo_base64) && !empty($data->photo_base64))
+                        
+                        <img id="photoPreview" 
+                            src="{{ $data->photo_base64 }}" 
+                            alt="Photo Preview" 
+                            class="img-fluid" 
+                            style="height: 240px; object-fit: cover;">
                     
-                    <img id="photoPreview" 
-                        src="{{ $data->photo_base64 ?? '' }}" 
-                        alt="Photo" 
+                    @elseif(isset($data->photo_url) && empty($data->photo_base64))
+                        
+                        <p id="photoWarning" class="text-muted">Gambar tidak dapat ditemukan, silakan perbarui!</p>
+
+                        <img id="photoPreview" 
+                        src="" 
+                        alt="Photo Preview" 
                         class="img-fluid" 
-                        style="height: 240px; object-fit: cover; {{ isset($data->photo_base64) ? '' : 'display: none;' }}">
+                        style="height: 240px; object-fit: cover; display: none;">
+                    
+                    @else
+                        <img id="photoPreview" 
+                            src="" 
+                            alt="Photo Preview" 
+                            class="img-fluid" 
+                            style="height: 240px; object-fit: cover; display: none;">
+                    @endif
                 </div>
             </div>
 
-          {{-- CV --}}
-          <div class="mb-3">
-            <label class="form-label" for="cvPeserta">CV</label>
-              @if (isset($data) && !empty($data->cv_url))
-              <input class="form-control" type="file" id="cvPeserta" name="cvPeserta" accept=".pdf" onchange="validateFileSize(this)">
-                  <div class="form-text">Upload a new file to replace the existing document (optional).</div>
-                  @error('url_attachment')
-                      <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-                  
-                  <div class="mt-2">
+            <!-- UPLOAD FILE CV -->
+            <div class="mb-3">
+                <label class="form-label" for="cv_url">CV</label>
+                
+                @if (isset($data) && !empty($data->cv_url))
+                    <input class="form-control" type="file" id="cv_url" name="cv_url" accept=".pdf" onchange="handlePDFChange(event, 'cvPDFLink')">
+                    <div class="form-text mb-3">Upload a new file to replace the existing document (optional).</div>
+            
                     @php
                         $filePath = ltrim(str_replace('repo/', '', $data->cv_url), '/');
                         $segments = explode('/', $filePath);
@@ -252,25 +264,47 @@
 
                         $encodedFileName = urlencode($fileName);
                         $encodedFolder = urlencode($folder);
-                        
                     @endphp
-        
-                    <a href="{{ !empty($encodedFolder) 
-                          ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
-                          : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
-                      target="_blank" class="btn btn-primary">
-                      View / Download CV
-                  </a>
-                </div>
-                
-              @else
-                  <!-- Input file jika ID tidak ada -->
-                  <input class="form-control @error('cvPeserta') is-invalid @enderror" type="file" name="cvPeserta" accept=".pdf" onchange="validateFileSize(this)" required>
-                  @error('cvPeserta')
-                      <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-              @endif
-          </div>
+                    
+                    <div class="row mt-2 d-flex align-items-center gap-2">
+                        <div class="col-auto d-flex justify-content-start">
+                            <a href="{{ !empty($encodedFolder) 
+                                ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                                : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
+                            target="_blank" 
+                            class="btn btn-primary">
+                                View / Download Old CV
+                            </a>
+                        </div>
+
+                        <!-- Tombol "View / Download New CV" (Hanya tampil jika ada file baru) -->
+                        <div class="col-auto d-flex justify-content-start">
+                            <div id="cvPDFLink" class="d-none">
+                                <a id="pdfViewer" href="#" target="_blank" class="btn btn-secondary"> 
+                                    View / Download New CV
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                @else
+                    <!-- Jika belum ada CV sebelumnya -->
+                    <input class="form-control @error('cv_url') is-invalid @enderror" 
+                           type="file" 
+                           id="cv_url" 
+                           name="cv_url"  
+                           accept=".pdf" 
+                           onchange="handlePDFChange(event, 'cvPDFLink')" 
+                           required>
+                    <div class="invalid-feedback">CV wajib diisi.</div>
+
+                    
+                    <div id="cvPDFLink" class="mt-2 mb-3 d-none">
+                        <a id="pdfViewer" href="#" target="_blank" class="btn btn-primary">View / Download CV</a>
+                    </div>
+
+                @endif
+            </div>
         </div>
       </div>
     </div>
@@ -360,16 +394,31 @@
       <div class="row">
         <div class="col-md-6">
 
-            @if(isset($data) && !empty($data->selected_id))
+                @if(isset($data))
+                @php
+                    // Ambil nilai lama jika ada, atau set default dari database
+                    $selectedIdentity = old('selected_id', $data->selected_id ?? '');
+
+                    // Prioritaskan passport kalau ada
+                    if (!empty($data->passport_url)) {
+                        $selectedIdentity = 'passport'; 
+                    } elseif (!empty($data->student_id_url)) {
+                        $selectedIdentity = 'student_id';
+                    }
+                @endphp
+
                 <div class="mb-3">
                     <label class="form-label" for="selected_id">Selected Identity <span class="text-danger">*</span></label>
-                    <select class="form-select" id="selected_id" name="selected_id" required disabled>
+                    <select class="form-select" id="selected_id" name="selected_id" required {{ isset($data) && !empty($selectedIdentity) ? 'disabled' : '' }}>
                         <option value="">Selected Identity</option>
-                        <option value="student_id" {{ old('selected_id', $data->selected_id ?? '') == 'student_id' ? 'selected' : '' }}>Student ID</option>
-                        <option value="passport" {{ old('selected_id', $data->selected_id ?? '') == 'passport' ? 'selected' : '' }}>Passport</option>
+                        <option value="student_id" {{ $selectedIdentity == 'student_id' ? 'selected' : '' }}>Student ID</option>
+                        <option value="passport" {{ $selectedIdentity == 'passport' ? 'selected' : '' }}>Passport</option>
                     </select>
                     <div class="invalid-feedback"></div>
                 </div>
+
+                <!-- Hidden Input -->
+                <input type="hidden" name="selected_id" value="{{ $selectedIdentity }}">
             @else
                 <div class="mb-3">
                     <label class="form-label" for="selected_id">Selected Identity <span class="text-danger">*</span></label>
@@ -391,7 +440,7 @@
 
         <div class="col-md-6">
 
-            @if(isset($data) && $data->selected_id === 'student_id')
+            @if(isset($data) && $selectedIdentity  === 'student_id')
 
                     <div class="mb-3">
                         <label class="form-label" for="student_no">Student Identity Number</label>
@@ -399,27 +448,71 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
+                    @php
+                        $isPdf = isset($data->student_id_url) && Str::endsWith($data->student_id_url, '.pdf');
+                        $isImage = isset($data->student_id_url) && !$isPdf;
+                        
+                        $filePath = isset($data->student_id_url) ? ltrim(str_replace('repo/', '', $data->student_id_url), '/') : '';
+                        $segments = explode('/', $filePath);
+                        $fileName = array_pop($segments);
+                        $folder = implode('/', $segments);
+                        $encodedFileName = urlencode($fileName);
+                        $encodedFolder = urlencode($folder);
+                    @endphp
+
+                    <!-- UPLOAD FILE STUDENT ID -->
                     <div class="mb-3">
                         <label class="form-label" for="student_id_url">Student ID</label>
                         <input 
-                            class="form-control"  type="file" id="student_id_url" name="student_id_url" accept=".jpg, .jpeg, .png" 
-                            onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 240)">
+                            class="form-control"  
+                            type="file" 
+                            id="student_id_url" 
+                            name="student_id_url" 
+                            accept=".pdf, .jpg, .jpeg, .png" 
+                            onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 'studentIdPDFLinkOld', 'studentIdPDFLinkNew', 240)" 
+                            {{ isset($data) ? '' : 'required' }}>
                     </div>
 
+                    <!-- PREVIEW GAMBAR STUDENT ID -->
+                    @if($isImage)
                     <div class="mb-3">
-                        <div 
-                            class="col-sm-12 p-3 justify-content-center align-items-center {{ isset($data->id_base64) ? 'd-flex border border-3' : 'd-none' }}" 
+                        <div class="col-sm-12 p-3 justify-content-center align-items-center d-flex border border-3" 
                             id="studentIdPreviewDiv">
-                            
                             <img id="studentIdPreview" 
-                                src="{{ $data->id_base64 ?? '' }}" 
-                                alt="Photo" 
+                                src="{{ $data->id_base64 }}" 
+                                alt="Student ID Preview" 
                                 class="img-fluid" 
-                                style="height: 240px; object-fit: cover; {{ isset($data->id_base64) ? '' : 'display: none;' }}">
+                                style="height: 240px; object-fit: cover;">
                         </div>
                     </div>
+                    @else
+                    <div class="col-sm-12 p-3 justify-content-center align-items-center d-none" id="studentIdPreviewDiv">
+                        <img id="studentIdPreview" src="" alt="Photo Preview" class="img-fluid" 
+                            style="height: 240px; object-fit: cover; display: none;">
+                    </div>
+                    @endif
 
-            @elseif(isset($data) && $data->selected_id === 'passport')
+                    <!-- LINK DOWNLOAD STUDENT ID -->
+                    @if($isPdf)
+                        <div id="studentIdPDFLinkOld" class="mt-2 mb-3">
+                            <a href="{{ !empty($encodedFolder) 
+                                ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                                : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
+                            target="_blank" 
+                            class="btn btn-primary">
+                                View / Download Old Student ID (PDF)
+                            </a>
+                        </div> 
+                    @endif
+
+                    <!-- LINK DOWNLOAD FILE BARU (SETELAH UPLOAD) -->
+                    <div id="studentIdPDFLinkNew" class="mt-2 mb-3 d-none">
+                        <a id="studentIdPDFViewerNew" href="#" target="_blank" class="btn btn-secondary">
+                            View / Download New Student ID
+                        </a>
+                    </div>
+                        
+            @elseif(isset($data) &&  $selectedIdentity  === 'passport')
             
                     <div class="mb-3">
                         <label class="form-label" for="passport_no">Paspport Number</label>
@@ -427,52 +520,144 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
+                    @php
+                    $isPdf = isset($data->passport_url) && Str::endsWith($data->passport_url, '.pdf');
+                    $isImage = isset($data->passport_url) && !$isPdf;
+                
+                    $filePath = isset($data->passport_url) ? ltrim(str_replace('repo/', '', $data->passport_url), '/') : '';
+                    $segments = explode('/', $filePath);
+                    $fileName = array_pop($segments);
+                    $folder = implode('/', $segments);
+                    $encodedFileName = urlencode($fileName);
+                    $encodedFolder = urlencode($folder);
+                @endphp
+                
+                <!-- UPLOAD FILE PASSPORT -->
+                <div class="mb-3">
+                    <label class="form-label" for="passport_url">Passport Identity Page</label>
+                    <input 
+                        class="form-control"  
+                        type="file" 
+                        id="passport_url" 
+                        name="passport_url" 
+                        accept=".pdf, .jpg, .jpeg, .png" 
+                        onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 'passportPDFLinkOld', 'passportPDFLinkNew', 240)" 
+                        {{ isset($data) ? '' : 'required' }}>
+                </div>
+                
+                <!-- PREVIEW GAMBAR PASSPORT -->
+                @if($isImage)
                     <div class="mb-3">
-                        <label class="form-label" for="passport_url">Passport Identity Page</label>
-                        <input 
-                            class="form-control"  type="file" id="passport_url" name="passport_url" accept=".jpg, .jpeg, .png" 
-                            onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 240)">
-                    </div>
-                    
-                    
-                    <div class="mb-3">
-                        <div 
-                            class="col-sm-12 p-3 justify-content-center align-items-center {{ isset($data->pass_base64) ? 'd-flex border border-3' : 'd-none' }}" 
+                        <div class="col-sm-12 p-3 justify-content-center align-items-center d-flex border border-3" 
                             id="passportPreviewDiv">
-                            
                             <img id="passportPreview" 
-                                src="{{ $data->pass_base64 ?? '' }}" 
-                                alt="Photo" 
+                                src="{{ $data->pass_base64 }}" 
+                                alt="Passport Preview" 
                                 class="img-fluid" 
-                                style="height: 240px; object-fit: cover; {{ isset($data->pass_base64) ? '' : 'display: none;' }}">
+                                style="height: 240px; object-fit: cover;">
                         </div>
                     </div>
+                @else
+                    <div class="col-sm-12 p-3 justify-content-center align-items-center d-none" id="passportPreviewDiv">
+                        <img id="passportPreview" src="" alt="Passport Preview" class="img-fluid" 
+                            style="height: 240px; object-fit: cover; display: none;">
+                    </div>
+                @endif
+                
+                <!-- LINK DOWNLOAD PASSPORT -->
+                @if($isPdf)
+                    <div id="passportPDFLinkOld" class="mt-2 mb-3">
+                        <a href="{{ !empty($encodedFolder) 
+                            ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                            : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
+                        target="_blank" 
+                        class="btn btn-primary">
+                            View / Download Old Passport (PDF)
+                        </a>
+                    </div> 
+                @endif
+                
+                <!-- LINK DOWNLOAD FILE BARU (SETELAH UPLOAD) -->
+                <div id="passportPDFLinkNew" class="mt-2 mb-3 d-none">
+                    <a id="passportPDFViewerNew" href="#" target="_blank" class="btn btn-secondary">
+                        View / Download New Passport
+                    </a>
+                </div>
+                
 
             @else
-        
+
                 {{-- STUDENT ID FIELD --}}
                 <div class="studentid_field" style="display: none;">
 
                     <div class="mb-3">
                         <label class="form-label" for="student_no">Student Identity Number</label>
-                        <input class="form-control" id="student_no" name="student_no" placeholder="Enter your Student Id Number"  required>
+                        <input class="form-control" id="student_no" name="student_no" placeholder="Enter your Student Id Number" value="{{ old('student_no', $data->student_no ?? '') }}" required>
                         <div class="invalid-feedback"></div>
                     </div>
 
+                    @php
+                        $isPdf = isset($data->student_id_url) && Str::endsWith($data->student_id_url, '.pdf');
+                        $isImage = isset($data->student_id_url) && !$isPdf;
+                        
+                        $filePath = isset($data->student_id_url) ? ltrim(str_replace('repo/', '', $data->student_id_url), '/') : '';
+                        $segments = explode('/', $filePath);
+                        $fileName = array_pop($segments);
+                        $folder = implode('/', $segments);
+                        $encodedFileName = urlencode($fileName);
+                        $encodedFolder = urlencode($folder);
+                    @endphp
+
+                    <!-- UPLOAD FILE STUDENT ID -->
                     <div class="mb-3">
                         <label class="form-label" for="student_id_url">Student ID</label>
                         <input 
-                            class="form-control"  type="file" id="student_id_url" name="student_id_url" accept=".jpg, .jpeg, .png" 
-                            onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 240)" required>
+                            class="form-control"  
+                            type="file" 
+                            id="student_id_url" 
+                            name="student_id_url" 
+                            accept=".pdf, .jpg, .jpeg, .png" 
+                            onchange="handleFileChange(event, 'studentIdPreviewDiv', 'studentIdPreview', 'studentIdPDFLinkOld', 'studentIdPDFLinkNew', 240)" 
+                            {{ isset($data) ? '' : 'required' }}>
                     </div>
-                    
+
+                    <!-- PREVIEW GAMBAR STUDENT ID -->
+                    @if($isImage)
                     <div class="mb-3">
-                        <div 
-                            class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
+                        <div class="col-sm-12 p-3 justify-content-center align-items-center d-flex border border-3" 
                             id="studentIdPreviewDiv">
-                            
-                            <img id="studentIdPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                            <img id="studentIdPreview" 
+                                src="{{ $data->id_base64 }}" 
+                                alt="Student ID Preview" 
+                                class="img-fluid" 
+                                style="height: 240px; object-fit: cover;">
                         </div>
+                    </div>
+                    @else
+                    <div class="col-sm-12 p-3 justify-content-center align-items-center d-none" id="studentIdPreviewDiv">
+                        <img id="studentIdPreview" src="" alt="Photo Preview" class="img-fluid" 
+                            style="height: 240px; object-fit: cover; display: none;">
+                    </div>
+                    @endif
+
+                    <!-- LINK DOWNLOAD STUDENT ID -->
+                    @if($isPdf)
+                        <div id="studentIdPDFLinkOld" class="mt-2 mb-3">
+                            <a href="{{ !empty($encodedFolder) 
+                                ? route('view.dokumen', ['folder' => $encodedFolder, 'fileName' => $encodedFileName]) 
+                                : route('view.dokumen', ['folder' => $encodedFileName]) }}" 
+                            target="_blank" 
+                            class="btn btn-primary">
+                                View / Download Old Student ID (PDF)
+                            </a>
+                        </div> 
+                    @endif
+
+                    <!-- LINK DOWNLOAD FILE BARU (SETELAH UPLOAD) -->
+                    <div id="studentIdPDFLinkNew" class="mt-2 mb-3 d-none">
+                        <a id="studentIdPDFViewerNew" href="#" target="_blank" class="btn btn-secondary">
+                            View / Download New Student ID
+                        </a>
                     </div>
                 </div>
 
@@ -484,25 +669,32 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
+                    {{-- FILE UPLOAD PASSPORT --}}
                     <div class="mb-3">
                         <label class="form-label" for="passport_url">Passport Identity Page</label>
                         <input 
-                            class="form-control"  type="file" id="passport_url" name="passport_url" accept=".jpg, .jpeg, .png" 
-                            onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 240)" required>
+                            class="form-control"  
+                            type="file" 
+                            id="passport_url" 
+                            name="passport_url" 
+                            accept=".pdf, .jpg, .jpeg, .png"
+                            onchange="handleFileChange(event, 'passportPreviewDiv', 'passportPreview', 'passportPDFLink', 240)" 
+                            required>
                     </div>
                     
+                    <!-- Preview Gambar -->
                     <div class="mb-3">
-                        <div 
-                            class="col-sm-12 p-3 justify-content-center align-items-center d-none" 
-                            id="passportPreviewDiv">
-                            
-                            <img 
-                                id="passportPreview" src="" alt="" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
+                        <div class="col-sm-12 p-3 justify-content-center align-items-center d-none" id="passportPreviewDiv">
+                            <img id="passportPreview" src="" alt="Preview" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
                         </div>
+                    </div>
+                    
+                    <!-- Link untuk PDF (Passport) -->
+                    <div id="passportPDFLink" class="mt-2 mb-3 d-none">
+                        <a id="passportPDFViewer" href="#" target="_blank" class="btn btn-primary">View / Download Passport</a>
                     </div>
                 </div>
             @endif
-
         </div>
       </div>
     </div>
@@ -517,7 +709,7 @@
 
 @endsection
 
-
+{{-- VALIDATE FORM --}}
 <script>
   document.addEventListener("DOMContentLoaded", function() {
       var inputs = document.querySelectorAll("input[required], select[required], textarea[required]");
@@ -557,6 +749,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+{{-- SUBMISSION SWEET ALERT --}}
 <script>
     let isSubmitting = false;
 
@@ -628,81 +821,221 @@
 </script>
 
 
+{{-- HANYA MENERIMA APPLICATION/IMAGE --}}
 <script>
-    
-    let isFileValid = true; // Menyimpan status validasi file
-
-    function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
-        validateFileSize(event.target);
-        previewImage(event.target, previewDivId, previewImgId, imgHeight);
-    }
-
-    function validateFileSize(input) {
+    function handleImageChange(event, previewDivId, previewImgId, warningId, imgHeight = null) {
+        const input = event.target;
         const file = input.files[0];
-        if (file) {
-            const maxSize = 2 * 1024 * 1024; // 2MB
-            if (file.size > maxSize) {
-                Swal.fire({
-                    title: 'File too large!',
-                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-                input.value = ""; 
-                isFileValid = false;
-            } else {
-                isFileValid = true;
-            }
-        }
-    }
-    function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
-        const previewDiv = document.getElementById(previewDivId);
-        const previewImg = document.getElementById(previewImgId);
 
-        if (!previewDiv || !previewImg) {
-            console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
+        if (!file) {
+            resetPreview(previewDivId, previewImgId, warningId);
             return;
         }
 
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const reader = new FileReader();
+        // Validasi ukuran file (maksimal 5MB)
+        const maxSize = 2 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'File terlalu besar!',
+                text: 'Ukuran file melebihi 5 MB. Harap unggah file yang lebih kecil.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = "";
+            resetPreview(previewDivId, previewImgId, warningId);
+            return;
+        }
 
-            if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-                reader.onload = function (e) {
-                    previewImg.src = e.target.result;
-                    previewImg.style.display = 'block';
-                    previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+        const warningMessage = document.getElementById(warningId);
 
-                    // 🔹 Ubah div menjadi `d-flex` dan tambahkan border
-                    previewDiv.classList.remove('d-none');
-                    previewDiv.classList.add('d-flex', 'border', 'border-3');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                Swal.fire({
-                    title: 'Invalid File Type!',
-                    text: 'Only JPG, JPEG, or PNG files are allowed.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
+        if (!previewDiv || !previewImg) {
+            console.error(`Elemen preview tidak ditemukan: ${previewDivId}, ${previewImgId}`);
+            return;
+        }
 
-                input.value = ''; // Reset input file
-                resetPreview(previewDiv, previewImg);
-            }
+        // Jika user upload gambar baru, hilangkan warning message
+        if (warningMessage) {
+            warningMessage.style.display = 'none';
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
+            previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
+
+            previewDiv.classList.remove('d-none');
+            previewDiv.classList.add('d-flex', 'border', 'border-3');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handlePDFChange(event, pdfLinkId) {
+        const input = event.target;
+        const file = input.files[0];
+
+        if (!file) {
+            resetPDFPreview(pdfLinkId);
+            return;
+        }
+
+        // Validasi ukuran file (maksimal 5MB)
+        const maxSize = 2 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'File too large!',
+                text: 'The file size exceeds 2 MB. Please upload a smaller PDF.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = "";
+            resetPDFPreview(pdfLinkId);
+            return;
+        }
+
+        const pdfLink = document.getElementById(pdfLinkId);
+        const pdfViewer = document.getElementById("pdfViewer");
+
+        if (!pdfLink || !pdfViewer) {
+            console.error(`Preview elements not found: ${pdfLinkId}`);
+            return;
+        }
+
+        if (file.type === 'application/pdf') {
+            pdfLink.classList.remove('d-none');
+            pdfViewer.href = URL.createObjectURL(file);
         } else {
-            resetPreview(previewDiv, previewImg);
+            Swal.fire({
+                title: 'Invalid File Type!',
+                text: 'Only PDF files are allowed for CVs.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+
+            input.value = ''; 
+            resetPDFPreview(pdfLinkId);
         }
     }
 
-    // 🔹 Fungsi untuk menyembunyikan preview jika file tidak ada
-    function resetPreview(previewDiv, previewImg) {
-        previewDiv.classList.add('d-none'); 
-        previewDiv.classList.remove('d-flex', 'border', 'border-3'); 
-        previewImg.style.display = 'none'; 
-        previewImg.src = ''; 
+    function resetPreview(previewDivId, previewImgId, warningId) {
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+        const warningMessage = document.getElementById(warningId);
+
+        if (previewDiv && previewImg) {
+            previewDiv.classList.add('d-none');
+            previewDiv.classList.remove('d-flex', 'border', 'border-3');
+            previewImg.style.display = 'none';
+            previewImg.src = "";
+        }
+
+        if (warningMessage) {
+            warningMessage.style.display = 'block'; // Pastikan warning tetap muncul jika tidak ada file baru
+        }
     }
 
+    function resetPDFPreview(pdfLinkId) {
+        const pdfLink = document.getElementById(pdfLinkId);
+        const pdfViewer = document.getElementById("pdfViewer");
+
+        if (pdfLink && pdfViewer) {
+            pdfLink.classList.add('d-none');
+            pdfViewer.href = "#";
+        }
+    }
+
+</script>
+
+{{-- MENERIMA APPLICATION DAN IMAGE --}}
+<script>
+    function handleFileChange(event, previewDivId, previewImgId, pdfLinkOldId, pdfLinkNewId, imgHeight = null) {
+        const input = event.target;
+        const file = input.files[0];
+
+        if (!file) {
+            resetAllPreview(previewDivId, previewImgId, pdfLinkOldId, pdfLinkNewId);
+            return;
+        }
+
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'File too large!',
+                text: 'The file size exceeds 5 MB. Please upload a smaller file.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = "";
+            resetAllPreview(previewDivId, previewImgId, pdfLinkOldId, pdfLinkNewId);
+            return;
+        }
+
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+        const pdfLinkOld = document.getElementById(pdfLinkOldId);
+        const pdfLinkNew = document.getElementById(pdfLinkNewId);
+        const pdfViewer = document.getElementById(pdfLinkNewId.replace("Link", "Viewer"));
+
+        resetAllPreview(previewDivId, previewImgId, pdfLinkOldId, pdfLinkNewId);
+
+        const fileURL = URL.createObjectURL(file);
+
+        if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+            // Jika file adalah gambar, tampilkan preview
+            previewImg.src = fileURL;
+            previewImg.style.display = 'block';
+            previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
+
+            previewDiv.classList.remove('d-none');
+            previewDiv.classList.add('d-flex', 'border', 'border-3');
+
+            pdfLinkOld.classList.add('d-none'); // Sembunyikan PDF link
+        } else if (file.type === 'application/pdf') {
+            // Jika file adalah PDF, tampilkan tombol download baru
+            pdfLinkNew.classList.remove('d-none');
+            pdfViewer.href = fileURL;
+            pdfViewer.target = "_blank";
+
+            previewDiv.classList.add('d-none'); // Sembunyikan preview gambar
+            previewImg.style.display = 'none';
+        } else {
+            Swal.fire({
+                title: 'Invalid File Type!',
+                text: 'Only JPG, JPEG, PNG, or PDF files are allowed.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+
+            input.value = ''; 
+            resetAllPreview(previewDivId, previewImgId, pdfLinkOldId, pdfLinkNewId);
+        }
+    }
+
+    function resetAllPreview(previewDivId, previewImgId, pdfLinkOldId, pdfLinkNewId) {
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+        const pdfLinkOld = document.getElementById(pdfLinkOldId);
+        const pdfLinkNew = document.getElementById(pdfLinkNewId);
+        const pdfViewer = document.getElementById(pdfLinkNewId.replace("Link", "Viewer"));
+
+        if (previewDiv && previewImg) {
+            previewDiv.classList.add('d-none');
+            previewDiv.classList.remove('d-flex', 'border', 'border-3');
+            previewImg.style.display = 'none';
+            previewImg.src = '';
+        }
+
+        if (pdfLinkOld) {
+            pdfLinkOld.classList.remove('d-none'); // Biarkan link lama tetap ada
+        }
+
+        if (pdfLinkNew && pdfViewer) {
+            pdfLinkNew.classList.add('d-none');
+            pdfViewer.href = "#";
+        }
+    }
 </script>
 
 <script>
@@ -826,15 +1159,15 @@
           $('#requestButton').click(function () {
               Swal.fire({
                   title: "Requesting for LOA?",
-                  text: "This participant will be officially recognized by Airlangga gLOBAL Engagement.",
+                  text: "This participant will be officially recognized by Airlangga Global Engagement.",
                   icon: "success",
                   showCancelButton: true,
                   confirmButtonColor: "#28a745",
                   cancelButtonColor: "#d33",
-                  confirmButtonText: "Yes, Approve!"
+                  confirmButtonText: "Yes, Request LOA!"
               }).then((result) => {
                   if (result.isConfirmed) {
-                      sendRequest("{{ route('stuin.request', $data->id) }}", "POST", {}, "Participant approved successfully!");
+                      sendRequest("{{ route('stuin.request', $data->id) }}", "POST", {}, "LOA request has sent successfully!");
                   }
               });
           });
@@ -850,7 +1183,7 @@
                   confirmButtonText: "Yes, Undo request!"
               }).then((result) => {
                   if (result.isConfirmed) {
-                      sendRequest("{{ route('stuin.unrequest', $data->id) }}", "POST", {}, "Participant approval has been removed.");
+                      sendRequest("{{ route('stuin.unrequest', $data->id) }}", "POST", {}, "Participant LOA Request has been removed.");
                   }
               });
           });

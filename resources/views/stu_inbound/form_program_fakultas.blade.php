@@ -109,12 +109,13 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="programLogo">Logo/Poster</label>
-                    <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png" onchange="handleFileChange(event)">
+                    <input class="form-control" type="file" id="programLogo" name="programLogo" accept=".jpg, .jpeg, .png"
+                        onchange="handleFileChange(event, 'previewdiv', 'preview', 240)" required>
                 </div>
-               
-                <div class="mt-3">
-                    <div class="col-sm-12 border border-3 p-3 d-flex justify-content-center align-items-center" id="previewdiv" style="display: none;">
-                        <img id="preview" src="" alt="Preview" class="img-fluid" style="width: 300px; height: 300px; object-fit: cover; display: none;">
+                
+                <div class="mb-3">
+                    <div id="previewdiv" class="col-sm-12 p-3 justify-content-center align-items-center d-none">
+                        <img id="preview" alt="Photo" class="img-fluid" style="height: 240px; object-fit: cover; display: none;">
                     </div>
                 </div>
             </div>
@@ -122,6 +123,7 @@
     
         <!-- Tombol Submit -->
         <div class="text-end mt-4">
+            <a href="{{ route('stuin_program_fak')}}" class="btn btn-info mx-1">Back</a>
             <button class="btn btn-primary" type="submit">Submit</button>
         </div>
     </div>
@@ -135,6 +137,170 @@
 
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+    
+    let isFileValid = true; // Menyimpan status validasi file
+
+    function handleFileChange(event, previewDivId, previewImgId, imgHeight = null) {
+        validateFileSize(event.target);
+        previewImage(event.target, previewDivId, previewImgId, imgHeight);
+    }
+
+    function validateFileSize(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    title: 'File too large!',
+                    text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                input.value = ""; 
+                isFileValid = false;
+            } else {
+                isFileValid = true;
+            }
+        }
+    }
+    function previewImage(input, previewDivId, previewImgId, imgHeight = null) {
+        const previewDiv = document.getElementById(previewDivId);
+        const previewImg = document.getElementById(previewImgId);
+
+        if (!previewDiv || !previewImg) {
+            console.error(`Preview div or image element not found: ${previewDivId}, ${previewImgId}`);
+            return;
+        }
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    previewImg.style.height = imgHeight ? imgHeight + 'px' : '';
+
+                    // 🔹 Ubah div menjadi `d-flex` dan tambahkan border
+                    previewDiv.classList.remove('d-none');
+                    previewDiv.classList.add('d-flex', 'border', 'border-3');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                Swal.fire({
+                    title: 'Invalid File Type!',
+                    text: 'Only JPG, JPEG, or PNG files are allowed.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+
+                input.value = ''; // Reset input file
+                resetPreview(previewDiv, previewImg);
+            }
+        } else {
+            resetPreview(previewDiv, previewImg);
+        }
+    }
+
+    // 🔹 Fungsi untuk menyembunyikan preview jika file tidak ada
+    function resetPreview(previewDiv, previewImg) {
+        previewDiv.classList.add('d-none'); 
+        previewDiv.classList.remove('d-flex', 'border', 'border-3'); 
+        previewImg.style.display = 'none'; 
+        previewImg.src = ''; 
+    }
+
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const jenisSelect = document.getElementById('jenisSelect');
+    const regSection = document.querySelector('.reg');
+    const regInputs = regSection.querySelectorAll('input, select, textarea'); 
+    
+    jenisSelect.addEventListener('change', function () {
+      if (this.value === 'Tidak') {
+        regSection.style.display = 'block';
+        regInputs.forEach(input => input.setAttribute('required', '')); 
+      } else {
+        regSection.style.display = 'none';
+        regInputs.forEach(input => input.removeAttribute('required')); 
+      }
+    });
+  });
+  </script>
+
+<script>
+  let isFileValid = true; 
+
+  document.addEventListener("DOMContentLoaded", function () {
+      const fileInputs = document.querySelectorAll("input[type='file']");
+      console.log('File validation initialized.');
+
+      fileInputs.forEach(input => {
+          input.addEventListener("change", handleFileChange);
+      });
+  });
+
+  function handleFileChange(event) {
+      validateFileSize(event.target); 
+      previewImage(event.target); 
+  }
+
+  function validateFileSize(input) {
+      const file = input.files[0]; 
+      if (file) {
+          const maxSize = 2 * 1024 * 1024; 
+          if (file.size > maxSize) {
+              Swal.fire({
+                  title: 'File too large!',
+                  text: 'The file size exceeds 2 MB. Please upload a smaller file.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              input.value = ""; 
+              isFileValid = false; 
+          } else {
+              isFileValid = true; 
+          }
+      }
+  }
+
+  function previewImage(input) {
+      const previewDiv = document.getElementById('previewdiv'); 
+      const previewImg = document.getElementById('preview'); 
+
+      if (input.files && input.files[0]) {
+          const file = input.files[0]; 
+          const reader = new FileReader(); 
+
+          if (['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+              reader.onload = function (e) {
+                  previewImg.src = e.target.result; 
+                  previewImg.style.display = 'block'; 
+                  previewDiv.style.display = 'flex'; 
+              };
+              reader.readAsDataURL(file); 
+          } else {
+              Swal.fire({
+                  title: 'Invalid File Type!',
+                  text: 'Only JPG, JPEG, or PNG files are allowed.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              input.value = ''; 
+              previewDiv.style.display = 'none'; 
+          }
+      } else {
+          previewDiv.style.display = 'none';
+          previewImg.style.display = 'none';
+      }
+  }
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
