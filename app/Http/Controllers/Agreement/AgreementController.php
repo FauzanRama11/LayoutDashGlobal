@@ -55,6 +55,14 @@ class AgreementController extends Controller
         $prodi = DB::table('m_prodi')
         ->get();
         $data = $id ? GrieMoaAcademicPelaporan::findOrFail($id) : null;
+        
+        $user_unit = DB::table('m_dosen')
+        ->select('id_fakultas', 'm_fakultas_unit.nama_ind as nama_ind')
+        ->leftJoin('m_fakultas_unit',  'm_fakultas_unit.id', '=','id_fakultas' )
+        ->where('nik', '=', Auth::user()->username)
+        ->first();
+
+        // dd($user_unit);
 
         if ($data !== null) {
                 $selPartners = GrieMoaAcademicPelaporanPartner::where('id_moa_academic', $data->id)->get()->toArray();
@@ -68,7 +76,7 @@ class AgreementController extends Controller
                 return view('agreement.form_pelaporan', compact('data',  'selPartners', 'selFaculties','selScopes', 'selProdis', 'univ', 'unit','country', 'scope', 'department', 'prodi'));
             }
         else{ 
-            return view('agreement.form_pelaporan', compact('data',  'univ', 'unit','country', 'scope', 'department', 'prodi'));}
+            return view('agreement.form_pelaporan', compact('data',  'univ', 'unit','country', 'scope', 'department', 'prodi', 'user_unit'));}
     }
 
 
@@ -91,55 +99,89 @@ public function destroy_pelaporan($id){
 } 
 
 public function store_pelaporan(Request $request, $id = null) {
-
-
-        try {
-            $request->validate([
-                'jenisP' => 'required|string', 
-                'triDharma' => 'required|string', 
-                'unitP' => 'required|integer', 
-                'countryP' => 'required|integer', 
-                'partnerP' => 'required|array', 
-                'partnerP.*' => 'integer',
-                'docP' => 'required|string', 
-                'tittleP' => 'required|string|max:255', 
-                'scopeP' => 'required|array', 
-                'scopeP.*' => 'integer', 
-                'startDate' => 'required|date', 
-                'endDate' => 'required|date|after:startDate', 
-                'deptP' => 'required|integer', 
-                'FacP' => 'required|array', 
-                'FacP.*' => 'integer', 
-                'stuProgP' => 'required|array', 
-                'stuProgP.*' => 'integer',
-                'partDept' => 'required|string', 
-                'partnerFac' => 'required|string', 
-                'partnerStuProg' => 'required|string', 
-                'typeP' => 'required|string', 
-                'nosUnair' => 'required|string', 
-                'nopUnair' => 'required|string', 
-                'nosPart' => 'required|string', 
-                'nopPart' => 'required|string', 
-                'namePic' => 'required|string', 
-                'postPic' => 'required|string', 
-                'emailPic' => 'required|email', 
-                'telpPic' => 'required|numeric', 
-                'namePic2' => 'required|string', 
-                'postPic2' => 'required|string', 
-                'emailPic2' => 'required|email', 
-                'telpPic2' => 'required|numeric', 
+    try {
+        if($request->input('docP') != "MoU"){
+        $request->validate([
+            'jenisP' => 'required|string', 
+            'triDharma' => 'required|string', 
+            'unitP' => 'required|integer', 
+            'countryP' => 'required|integer', 
+            'partnerP' => 'required|array', 
+            'partnerP.*' => 'integer',
+            'docP' => 'required|string', 
+            'tittleP' => 'required|string|max:255', 
+            'scopeP' => 'required|array', 
+            'scopeP.*' => 'integer', 
+            'startDate' => 'required|date', 
+            'endDate' => 'required|date', 
+            'deptP' => 'required|integer', 
+            'FacP' => 'required|array', 
+            'FacP.*' => 'integer', 
+            'stuProgP' => 'required|array', 
+            'stuProgP.*' => 'integer',
+            'partDept' => 'required|string', 
+            'partnerFac' => 'required|string', 
+            'partnerStuProg' => 'required|string', 
+            'typeP' => 'required|string', 
+            'nosUnair' => 'required|string', 
+            'nopUnair' => 'required|string', 
+            'nosPart' => 'required|string', 
+            'nopPart' => 'required|string', 
+            'namePic' => 'required|string', 
+            'postPic' => 'required|string', 
+            'emailPic' => 'required|email', 
+            'telpPic' => 'required|numeric', 
+            'namePic2' => 'required|string', 
+            'postPic2' => 'required|string', 
+            'emailPic2' => 'required|email', 
+            'telpPic2' => 'required|numeric', 
+        ]);
+    }else{
+        $request->validate([
+            'jenisP' => 'required|string', 
+            'triDharma' => 'required|string', 
+            'unitP' => 'required|integer', 
+            'countryP' => 'required|integer', 
+            'partnerP' => 'required|array', 
+            'partnerP.*' => 'integer',
+            'docP' => 'required|string', 
+            'tittleP' => 'required|string|max:255', 
+            'scopeP' => 'required|array', 
+            'scopeP.*' => 'integer', 
+            'startDate' => 'required|date', 
+            'endDate' => 'required|date', 
+            'deptP' => 'required|integer', 
+            'FacP' => 'array', 
+            'FacP.*' => 'integer', 
+            'stuProgP' => 'array', 
+            'stuProgP.*' => 'integer',
+            'partDept' => 'required|string', 
+            'partnerFac' => 'required|string', 
+            'partnerStuProg' => 'required|string', 
+            'typeP' => 'required|string', 
+            'nosUnair' => 'required|string', 
+            'nopUnair' => 'required|string', 
+            'nosPart' => 'required|string', 
+            'nopPart' => 'required|string', 
+            'namePic' => 'required|string', 
+            'postPic' => 'required|string', 
+            'emailPic' => 'required|email', 
+            'telpPic' => 'required|numeric', 
+            'namePic2' => 'required|string', 
+            'postPic2' => 'required|string', 
+            'emailPic2' => 'required|email', 
+            'telpPic2' => 'required|numeric', 
+        ]);
+    }
+        if($request->input('jenisP') == "Riset"){
+            $request->validate([                  
+                'sourceFund' => 'required', 
+                'sumFund' => 'required|numeric'
             ]);
-
-            if($request->input('jenisP') == "Riset"){
-                $request->validate([                  
-                    'sourceFund' => 'required', 
-                    'sumFund' => 'required|numeric'
-                ]);
-
-            }
-        } catch (ValidationException $e) {
-            return response()->json(['status' => 'error', 'message' => 'Please make sure all required fields are completed!'], 500);
         }
+    } catch (ValidationException $e) {
+        return response()->json(['status' => 'error', 'message' => 'Please make sure all required fields are completed!'], 500);
+    }
 
 
     if($request->hasFile('linkDownload')){
@@ -332,11 +374,13 @@ public function store_pelaporan(Request $request, $id = null) {
             }elseif((!$item->approval_pelaporan || $item->approval_pelaporan == 0) && $item->approval_status == null){
                 return '<button type="submit" class="btn btn-dark btn-sm">SUBMITTED</button>';
             }elseif($item->approval_status == 'NEED REVISE' || $item->approval_status == 'REVISE' ){
-                return '<button type="submit" class="btn btn-warning btn-sm">NEED REVISE</button>';
+                return '<button type="submit" class="btn btn-warning btn-sm">NEED REVISE</button>' . 
+                       (!empty($item->approval_note) ? '<button type="button" class="btn btn-info btn-sm viewRevisionButton" data-revision="' . htmlspecialchars($item->approval_note) . '"><i class="fa fa-eye"></i></button>' : '');
             }elseif($item->approval_status == 'REJECTED' || $item->approval_status == 'REJECT'){
-                return '<button type="submit" class="btn btn-danger btn-sm">REJECTED</button>';
+                return '<button type="submit" class="btn btn-danger btn-sm">REJECTED</button>' . 
+                       (!empty($item->approval_note) ? '<button type="button" class="btn btn-info btn-sm viewRevisionButton" data-revision="' . htmlspecialchars($item->approval_note) . '"><i class="fa fa-eye"></i></button>' : '');
             }
-          })
+        })        
           ->addColumn('edit', function ($item) {
             return '<form action="' . route('pelaporan.edit', ['id' => $item->id]) . '" method="GET" style="display:inline;">
                         <button class="btn btn-success btn-sm" type="submit" data-toggle="tooltip" data-placement="top" title="Edit">
@@ -452,20 +496,29 @@ public function store_pelaporan(Request $request, $id = null) {
     }
 
     public function reject_pelaporan(Request $request, $id){
+        $validated = $request->validate([
+            'revision_note' => 'required|string|max:255'
+        ]);
+
         $pelaporan = GrieMoaAcademicPelaporan::find($id);
         $pelaporan->approval_pelaporan = 0;
         $pelaporan->approval_status = "REJECTED";
-        $pelaporan->approval_note = $request->input('notes');
+        $pelaporan->approval_note = $request->input('revision_note');
         $pelaporan->save();
         // return redirect()->route('view_pelaporan');
         return response()->json(['status' => 'success', 'redirect' => route('view_pelaporan')]);
     }
 
     public function revise_pelaporan(Request $request, $id){
+
+        $validated = $request->validate([
+            'revision_note' => 'required|string|max:255'
+        ]);
+
         $pelaporan = GrieMoaAcademicPelaporan::find($id);
         $pelaporan->approval_pelaporan = 0;
         $pelaporan->approval_status = "NEED REVISE";
-        $pelaporan->approval_note = $request->input('notes');
+        $pelaporan->approval_note = $request->input('revision_note');
         $pelaporan->save();
       
         // return redirect()->route('view_pelaporan');

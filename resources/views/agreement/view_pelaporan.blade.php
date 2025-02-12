@@ -66,6 +66,21 @@
 	</div>
 
 <script>
+$(document).ready(function () {
+$(document).on("click", ".viewRevisionButton", function () {
+			let revisionNote = $(this).data("revision"); 
+			Swal.fire({
+				title: 'Revisi',
+				text: revisionNote,
+				icon: 'info',
+				confirmButtonText: 'Tutup',
+				confirmButtonColor: "#007bff"
+			});
+		});
+	});
+</script>
+
+<script>
  
  $(document).ready(function () {
     console.log('Initializing DataTables...');

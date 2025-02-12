@@ -86,6 +86,10 @@ class MasterController extends Controller
                 ->whereNotNull('g.link_download_naskah')
                 ->where('g.link_download_naskah', '!=', '');
 
+                if ($request->has('start_date') && $request->has('end_date')) {
+                    $data->whereBetween('mou_start_date', [$request->start_date, $request->end_date]);
+                }
+
                 if ($request->has('order')) {
                     foreach ($request->order as $order) {
                         $columnIndex = $order['column']; 
@@ -119,7 +123,12 @@ class MasterController extends Controller
             
             return DataTables::of($data)
             ->editColumn('link_download_naskah', function($item){
-                $url = route('view_naskah.pdf', basename($item->link_download_naskah));
+                if (strtotime($item->created_date) >= strtotime("2025-01-09 14:54:42")) {
+                    $url = route('view_naskah.pdf', basename($item->link_download_naskah));
+                } else {
+                    $url = $item->link_download_naskah;
+                }
+            
                 return '<a href="' . $url . '" target="_blank" class="btn btn-primary">
                             <i class="fa fa-download"></i>
                         </a>
@@ -416,6 +425,7 @@ class MasterController extends Controller
 
     public function store_master_database(Request $request, $id = null) {
         try {
+            if($request->input('docP') != "MoU"){
             $request->validate([
                 'jenisP' => 'required|string', 
                 'queueP' => 'required|string', 
@@ -430,7 +440,7 @@ class MasterController extends Controller
                 'scopeP' => 'required|array', 
                 'scopeP.*' => 'integer', 
                 'startDate' => 'required|date', 
-                'endDate' => 'required|date|after:startDate', 
+                'endDate' => 'required|date|', 
                 'catNaskah' => 'required|string', 
                 'skema' => 'required|string', 
                 'deptP' => 'required|integer', 
@@ -455,13 +465,52 @@ class MasterController extends Controller
                 'emailPic2' => 'required|email', 
                 'telpPic2' => 'required|numeric', 
             ]);
-
+        }else{
+            $request->validate([
+                'jenisP' => 'required|string', 
+                'queueP' => 'required|string', 
+                'triDharma' => 'required|string', 
+                'statusLapkerma' => 'required|string', 
+                'unitP' => 'required|integer', 
+                'countryP' => 'required|integer', 
+                'partnerP' => 'required|array', 
+                'partnerP.*' => 'integer',
+                'docP' => 'required|string', 
+                'tittleP' => 'required|string|max:255', 
+                'scopeP' => 'required|array', 
+                'scopeP.*' => 'integer', 
+                'startDate' => 'required|date', 
+                'endDate' => 'required|date|', 
+                'catNaskah' => 'required|string', 
+                'skema' => 'required|string', 
+                'deptP' => 'required|integer', 
+                // 'FacP' => 'required|array', 
+                // 'FacP.*' => 'integer', 
+                // 'stuProgP' => 'required|array', 
+                // 'stuProgP.*' => 'integer',
+                'partDept' => 'required|string', 
+                'partnerFac' => 'required|string', 
+                'partnerStuProg' => 'required|string', 
+                'typeP' => 'required|string', 
+                'nosUnair' => 'required|string', 
+                'nopUnair' => 'required|string', 
+                'nosPart' => 'required|string', 
+                'nopPart' => 'required|string', 
+                'namePic' => 'required|string', 
+                'postPic' => 'required|string', 
+                'emailPic' => 'required|email', 
+                'telpPic' => 'required|numeric', 
+                'namePic2' => 'required|string', 
+                'postPic2' => 'required|string', 
+                'emailPic2' => 'required|email', 
+                'telpPic2' => 'required|numeric', 
+            ]);
+        }
             if($request->input('jenisP') == "Riset"){
                 $request->validate([                  
                     'sourceFund' => 'required', 
                     'sumFund' => 'required|numeric'
                 ]);
-
             }
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Please make sure all required fields are completed!'], 500);

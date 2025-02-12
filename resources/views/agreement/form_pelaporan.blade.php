@@ -14,54 +14,33 @@
 
     <div class="card-body">
     @if(isset($data))
-    @hasrole("gpc")
+
             <div class="d-flex justify-content-start" style="margin-bottom: 15px;">
+            @hasrole("gpc")
               @if(isset($data) && isset($data->approval_pelaporan) && $data->approval_pelaporan != 1)
               <form id="approveForm{{ $data->id }}" style="margin: 5px;" action="{{ route('pelaporan.approve', ['id' => $data->id]) }}" method="POST">
                 @csrf
                 @method('PUT') 
-                <button type="submit" class="btn btn-primary mr-2" onclick="confirmAction('{{ $data->id }}', 'approve', 'Approve Data', event)">Approve</button>
+                <button type="submit" class="btn btn-primary mr-2" onclick="confirmAction('{{ $data->id }}', 'approve', 'Approve Data', event)"><i class="fa fa-check"></i> Approve</button>
             </form>
-                      <button style="margin: 5px;" type="submit" id = "rejectButton" class="btn btn-danger mr-2">Reject</button>
-                      <button style="margin: 5px;" type="submit" id = "reviseButton" class="btn btn-warning">Revise</button>
+                      <!-- <button style="margin: 5px;" type="submit" id = "rejectButton" class="btn btn-danger mr-2">Reject</button> -->
+                      <button style="margin: 5px;" type="button" class="btn btn-danger mr-2 rejectButton" data-id="{{$data->id}}"><i class="fa fa-close"></i> Reject</button>
+                      <button style="margin: 5px;" type="button" class="btn btn-warning mr-2 reviseButton" data-id="{{$data->id}}"><i class="fa fa-edit"></i> Revise</button>
               @endif
+
+              @endhasrole
+              @if(isset($data) && isset($data->approval_note))
+                <button style="margin: 5px;"  type="button" class="btn btn-info btn-sm viewRevisionButton" data-revision="<?= htmlspecialchars($data->approval_note); ?>">
+                  <i class="fa fa-eye"></i> Notes</button>
+              @endif      
           </div>
 
-          <div id="reNotes">
-          <form id="reviseForm{{ $data->id }}" style="margin: 5px;" action="{{ route('pelaporan.revise', ['id' => $data->id]) }}" method="POST">
-                @csrf
-                @method('PUT') 
-                <div class="mb-3">
-                    <label class="form-label" for="notes">Notes</label>
-                    <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-                    <div class="invalid-feedback">Notes wajib diisi.</div>
-                </div>
-                <button type="submit" class="btn btn-warning" onclick="confirmAction('{{ $data->id }}', 'revise', 'Revise Data', event)">Click to Revise</button>
-            </form>
-          </div>
-          
-          <div id="reNotes2">
-            <form id="rejectForm{{ $data->id }}" style="margin: 5px;" action="{{ route('pelaporan.reject', ['id' => $data->id]) }}" method="POST">
-              @csrf
-              @method('PUT') 
-                <div class="mb-3">
-                  <label class="form-label" for="notes">Notes</label>
-                  <textarea class="form-control" id="notes" name="notes" placeholder="Notes" required>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-                  <div class="invalid-feedback">Notes wajib diisi.</div>
-                </div>
-                <button type="submit" class="btn btn-danger mr-2" onclick="confirmAction('{{ $data->id }}', 'reject', 'Reject Data', event)">Reject</button>
-            </form>
-          </div>
-      @endhasrole
+      
     @endif
 
-    @hasrole('wadek3')
-      @if(isset($data) && isset($data->approval_note))
-        <label class="form-label" for="notesRead">Revision or Rejection Notes</label>
-        <textarea class="form-control" id="notesRead" name="notesRead" placeholder="notesRead" readonly>{{ old('Notes', isset($data) ? $data->approval_note : '') }}</textarea>
-        <div class="invalid-feedback">.</div>
-        @endif
-    @endhasrole
+    
+     
+ 
         
     <form id="pelaporanForm" class="was-validated" action="{{ isset($data) ? route('pelaporan.update', $data->id) : route('pelaporan.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmSubmission(event)">
         @csrf
@@ -76,36 +55,44 @@
       <div class="mb-3">
         <label class="form-label" for="jenisP">Type of Agreement</label>
         <select class="form-select" id="jenisP" name="jenisP" required>
+          <option value="" selected disabled>Type of Agreement</option>
             <option value="General" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'General' ? 'selected' : '' }}>General</option>
             <option value="Riset" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
         </select>
+        <div class="invalid-feedback">Type of Agreement wajib diisi.</div>
       </div>
 
       <div class="mb-3">
         <label class="form-label" for="triDharma">Kategori Tri Dharma</label>
         <select class="form-select" id="triDharma" name="triDharma" required>
+          <option value="" selected disabled>Kategori Tri Dharma</option>
             <option value="Pendidikan" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
             <option value="Riset" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
             <option value="Pengabdian Masyarakat" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Pengabdian Masyarakat' ? 'selected' : '' }}>Pengabdian Masyarakat</option>
         </select>
+        <div class="invalid-feedback">Kategori Tri Dharma wajib diisi.</div>
       </div>
 
       <div class="mb-2">
         <label class="form-label" for="unitP">Faculty/Unit (UNAIR) Pengaju</label>
-        <select class="js-example-basic-single col-sm-12" id="unitP" name="unitP" required>
+        <select class="js-example-basic-single col-sm-12 form-select" id="unitP" name="unitP" required>
+          <option value="" selected disabled>Faculty/Unit (UNAIR) Pengaju</option>
           @foreach($unit as $item)
             <option value="{{ $item->id }}" {{ old('unitP', isset($data->id_fakultas) ? $data->id_fakultas : '') == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
           @endforeach
         </select>
+        <div class="invalid-feedback">Faculty/Unit (UNAIR) Pengaju wajib diisi.</div>
       </div>
-
+      
     <div class="mb-2">
         <label class="form-label" for="countryP">Country</label>
-        <select class="js-example-basic-single col-sm-12" id="countryP" name="countryP" required>
+        <select class="js-example-basic-single col-sm-12 form-select" id="countryP" name="countryP" required>
+        <option value="" selected disabled>Country</option>
             @foreach($country as $item)
                 <option value="{{ $item->id }}" {{ old('countryP', $data->id_country ?? '') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
             @endforeach
         </select>
+        <div class="invalid-feedback">Country wajib diisi.</div>
     </div>
 
     <div class="mb-2">
@@ -123,6 +110,7 @@
     <div class="mb-3">
         <label class="form-label" for="docP">Type of Document</label>
         <select class="form-select" id="docP" name="docP" required>
+        <option value="" selected disabled>Type of Document</option>
             <option value="MoU" {{ old('docP', $data->jenis_naskah ?? '') == 'MoU' ? 'selected' : '' }}>MoU</option>
             <option value="MoA" {{ old('docP', $data->jenis_naskah ?? '') == 'MoA' ? 'selected' : '' }}>MoA</option>
             <option value="IA" {{ old('docP', $data->jenis_naskah ?? '') == 'IA' ? 'selected' : '' }}>IA</option>
@@ -146,23 +134,34 @@
                   </option>
               @endforeach
           </select>
+
       </div>
 
         <div class="mb-3">
           <label class="form-label" for="linkDownload">Agreement</label>
             @if (isset($data) && !empty($data->link_download_naskah))
+              @if(strtotime($data->created_date) >= strtotime("2025-01-09 14:54:42"))
                 <div class="mb-2">
                     <a href="{{ route('view_naskah.pdf', basename($data->link_download_naskah)) }}" target="_blank" class="btn btn-primary">
                       View / Download Document
                     </a>
-                </div>                              
+                </div>   
+              @else   
+                <div class="mb-2">
+                    <a href="{{$data->link_download_naskah}}" target="_blank" class="btn btn-primary">
+                      View / Download Document
+                    </a>
+                </div>        
+              @endif
                   <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)">
                   <div class="mb-2">
                     <small>Current file: {{ basename($data->link_download_naskah) }}</small>
                   </div>
-              @else
-                <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)" required>
-              @endif
+              
+            @else
+              <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)" required>
+            @endif
+            <div class="invalid-feedback">Agreement wajib diisi.</div>
         </div>
 
         <div class="mb-3">
@@ -182,11 +181,13 @@
 
       <div class="mb-3">
         <label class="form-label" for="deptP">Department</label>
-        <select  class="js-example-basic-single col-sm-12"  id="deptP" name="deptP" required>
+        <select  class="js-example-basic-single col-sm-12 form-select" id="deptP" name="deptP" required>
+        <option value="" selected disabled>Department</option>
             @foreach ($department as $item)
-                <option value="{{$item -> id}}">{{$item->nama_ind}}</option>
+                <option value="{{$item -> id}}"  {{ old('deptP', isset($data->id_department_unair) ? $data->id_department_unair : '') == $item->id ? 'selected' : '' }}>{{$item->nama_ind}}</option>
             @endforeach
         </select>
+        <div class="invalid-feedback">Department wajib diisi.</div>
       </div>
 
       <div class="mb-2">
@@ -230,6 +231,7 @@
 <div class="mb-3">
     <label class="form-label" for="typeP">Type of Partner</label>
     <select class="form-select" id="typeP" name="typeP" required>
+        <option value="" selected disabled>Type of Partner</option>
         <option value="University/Higher Education Institution (HEI)" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'University/Higher Education Institution (HEI)' ? 'selected' : '' }}>University/Higher Education Institution (HEI)</option>
         <option value="TOP 200 QS by Subject University/Higher Education Institution" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'TOP 200 QS by Subject University/Higher Education Institution' ? 'selected' : '' }}>TOP 200 QS by Subject University/Higher Education Institution</option>
         <option value="Top National Company" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'Top National Company' ? 'selected' : '' }}>Top National Company</option>
@@ -244,6 +246,7 @@
         <option value="Organisation" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'Organisation' ? 'selected' : '' }}>Organisation</option>
         <option value="Government, private, national, or even international research centre" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'Government, private, national, or even international research centre' ? 'selected' : '' }}>Government, private, national, or even international research centre</option>
     </select>
+    <div class="invalid-feedback">Type of Partner wajib diisi.</div>
 </div>
 
 <!-- Conditional Fields for Riset -->
@@ -253,6 +256,7 @@
         <div class="mb-3">
             <label class="form-label" for="sourceFund">Source of Funding</label>
             <select class="form-select" id="sourceFund" name="sourceFund" required>
+            <option value="" selected disabled>Source of Funding</option>
                 <option value="Universitas Airlangga" {{ old('sourceFund', isset($data->source_funding) ? $data->source_funding : '') == 'Universitas Airlangga' ? 'selected' : '' }}>Universitas Airlangga</option>
                 <option value="Fakultas" {{ old('sourceFund', isset($data->source_funding) ? $data->source_funding : '') == 'Fakultas' ? 'selected' : '' }}>Fakultas</option>
                 <option value="Mitra Institusi" {{ old('sourceFund', isset($data->source_funding) ? $data->source_funding : '') == 'Mitra Institusi' ? 'selected' : '' }}>Mitra Institusi</option>
@@ -266,7 +270,7 @@
         </div>
 
         <!-- Sum of Funding -->
-        <div class="col-md-4 mb-3">
+        <div class="mb-3">
             <label class="form-label" for="sumFund">Sum of Funding</label>
             <div class="input-group"><span class="input-group-text" id="inputGroupPrepend">Rp</span>
                 <input class="form-control" id="sumFund" type="number" name="sumFund" placeholder="Sum of Fund (Rp)" aria-describedby="inputGroupPrepend" value="{{ old('sumFund', isset($data->sum_funding) ? $data->sum_funding : '') }}" required>
@@ -481,20 +485,134 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 </script>
 <script>
-  document.getElementById("reNotes").style.display ="none";
-    function openTest() {
-        document.getElementById("reNotes").style.display = "block";
-    }
-    document.getElementById('reviseButton').addEventListener('click', openTest);
-</script>
-<script>
-  document.getElementById("reNotes2").style.display ="none";
-    function openTest() {
-        document.getElementById("reNotes2").style.display = "block";
-    }
+  $(document).ready(function () {
+		$(document).on("click", ".reviseButton", function () {
+			let id = $(this).data("id");
+			console.log("ID yang dikirim:", id); 
 
-    document.getElementById('rejectButton').addEventListener('click', openTest);
+			Swal.fire({
+				title: 'Rejection Notes',
+				input: 'text',
+				inputPlaceholder: 'Masukkan catatan tolak di sini...',
+				showCancelButton: true,
+				confirmButtonText: '<i class="fa fa-save"></i> Simpan',
+				cancelButtonText: '<i class="fa fa-times"></i> Batal',
+				confirmButtonColor: "#007bff",
+				cancelButtonColor: "#d33",
+				inputValidator: (value) => {
+					if (!value.trim()) {
+						return 'Catatan tidak boleh kosong!';
+					}
+				}
+			}).then((result) => {
+				if (result.isConfirmed) {
+					let revisionNote = result.value;
+					console.log("Revisi Note:", revisionNote); 
+	
+					Swal.fire({
+						title: 'Menyimpan...',
+						text: 'Mohon tunggu sementara revisi disimpan.',
+						allowOutsideClick: false,
+						didOpen: () => {
+							Swal.showLoading();
+						}
+					});
+	
+					$.ajax({
+						url: "{{ route('pelaporan.revise', ':id') }}".replace(':id', id), 
+						type: "PUT",
+						headers: {
+							'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') 
+						},
+						data: {
+							revision_note: revisionNote
+						},
+						success: function (response) {
+							console.log("Response sukses:", response); 
+							Swal.fire('Berhasil!', 'Data berhasil disimpan.', 'success')
+							.then(() => {
+								location.reload();
+							});
+						},
+						error: function (xhr) {
+							console.log("Error response:", xhr.responseText); 
+							Swal.fire('Error!', 'Terjadi kesalahan: ' + xhr.responseText, 'error');
+						}
+					});
+				}
+			});
+		});
+
+    $(document).on("click", ".rejectButton", function () {
+			let id = $(this).data("id");
+			console.log("ID yang dikirim:", id); 
+
+			Swal.fire({
+				title: 'Notes',
+				input: 'text',
+				inputPlaceholder: 'Masukkan catatan revisi di sini...',
+				showCancelButton: true,
+				confirmButtonText: '<i class="fa fa-save"></i> Simpan',
+				cancelButtonText: '<i class="fa fa-times"></i> Batal',
+				confirmButtonColor: "#007bff",
+				cancelButtonColor: "#d33",
+				inputValidator: (value) => {
+					if (!value.trim()) {
+						return 'Catatan revisi tidak boleh kosong!';
+					}
+				}
+			}).then((result) => {
+				if (result.isConfirmed) {
+					let revisionNote = result.value;
+					console.log("Revisi Note:", revisionNote); 
+	
+					Swal.fire({
+						title: 'Menyimpan...',
+						text: 'Mohon tunggu sementara revisi disimpan.',
+						allowOutsideClick: false,
+						didOpen: () => {
+							Swal.showLoading();
+						}
+					});
+	
+					$.ajax({
+						url: "{{ route('pelaporan.reject', ':id') }}".replace(':id', id), 
+						type: "PUT",
+						headers: {
+							'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') 
+						},
+						data: {
+							revision_note: revisionNote
+						},
+						success: function (response) {
+							console.log("Response sukses:", response); 
+							Swal.fire('Berhasil!', 'Revisi berhasil disimpan.', 'success')
+							.then(() => {
+								location.reload();
+							});
+						},
+						error: function (xhr) {
+							console.log("Error response:", xhr.responseText); 
+							Swal.fire('Error!', 'Terjadi kesalahan: ' + xhr.responseText, 'error');
+						}
+					});
+				}
+			});
+		});
+	
+		$(document).on("click", ".viewRevisionButton", function () {
+			let revisionNote = $(this).data("revision"); 
+			Swal.fire({
+				title: 'Revisi',
+				text: revisionNote,
+				icon: 'info',
+				confirmButtonText: 'Tutup',
+				confirmButtonColor: "#007bff"
+			});
+		});
+	});
 </script>
+
 <script src="{{ asset('assets/js/datatable/datatables/jquery-3.6.0.min.js') }}"></script>
 <!-- SweetAlert2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
