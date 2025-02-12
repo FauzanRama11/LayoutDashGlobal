@@ -22,51 +22,63 @@
       <div class="mb-3">
         <label class="form-label" for="jenisP">Type of Agreement</label>
         <select class="form-select" id="jenisP" name="jenisP" required>
+        <option value="" selected disabled>Type of Agreement</option>
             <option value="General" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'General' ? 'selected' : '' }}>General</option>
             <option value="Riset" {{ old('jenisP', isset($data->tipe_moa) ? $data->tipe_moa : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
         </select>
+        <div class="invalid-feedback">Type of Agreement wajib diisi.</div>
       </div>
       <div class="mb-3">
         <label class="form-label" for="queueP">On Queue</label>
             <select class="form-select" id="queueP" name="queueP" required>
+            <option value="" selected disabled>On Queue</option>
                 <option value="Y" {{ old('queueP', isset($data->is_queue) ? $data->is_queue : '') == 'Y' ? 'selected' : '' }}>Ya</option>
                 <option value="N" {{ old('queueP', isset($data->is_queue) ? $data->is_queue : '') == 'N' ? 'selected' : '' }}>Tidak</option>
             </select>
+            <div class="invalid-feedback">On Queue wajib diisi.</div>
       </div>
  
       <div class="mb-3">
         <label class="form-label" for="triDharma">Kategori Tri Dharma</label>
         <select class="form-select" id="triDharma" name="triDharma" required>
+          <option value="" selected disabled>Kategori Tri Dharma</option>
             <option value="Pendidikan" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
             <option value="Riset" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Riset' ? 'selected' : '' }}>Riset</option>
             <option value="Pengabdian Masyarakat" {{ old('triDharma', isset($data->kategori_tridharma) ? $data->kategori_tridharma : '') == 'Pengabdian Masyarakat' ? 'selected' : '' }}>Pengabdian Masyarakat</option>
         </select>
+        <div class="invalid-feedback">Kategori Tri Dharma wajib diisi.</div>
       </div>
 
       <div class="mb-3">
       <label class="form-label" for="statusLapkerma">Status Lapkerma</label>
         <select class="form-select" id="statusLapkerma" name="statusLapkerma" required>
+        <option value="" selected disabled>Status Lapkerma</option>
             <option value="SUDAH" {{ old('statusLapkerma', isset($data->status_lapkerma) ? $data->status_lapkerma : '') == 'SUDAH' ? 'selected' : '' }}>Sudah</option>
             <option value="BELUM" {{ old('statusLapkerma', isset($data->status_lapkerma) ? $data->status_lapkerma : '') == 'BELUM' ? 'selected' : '' }}>Belum</option>
         </select>
+        <div class="invalid-feedback">Status Lapkerma wajib diisi.</div>
       </div>
 
       <div class="mb-2">
         <label class="form-label" for="unitP">Faculty/Unit (UNAIR) Pengaju</label>
-        <select class="js-example-basic-single col-sm-12" id="unitP" name="unitP" required>
+        <select class="js-example-basic-single col-sm-12 form-select" id="unitP" name="unitP" required>
+        <option value="" selected disabled>Faculty/Unit (UNAIR) Pengaju</option>
           @foreach($unit as $item)
             <option value="{{ $item->id }}" {{ old('unitP', isset($data->id_fakultas) ? $data->id_fakultas : '') == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
           @endforeach
         </select>
+        <div class="invalid-feedback">Faculty/Unit (UNAIR) Pengaju wajib diisi.</div>
       </div>
 
     <div class="mb-2">
         <label class="form-label" for="countryP">Country</label>
-        <select class="js-example-basic-single col-sm-12" id="countryP" name="countryP" required>
+        <select class="js-example-basic-single col-sm-12 form-select" id="countryP" name="countryP" required>
+        <option value="" selected disabled>Country</option>
             @foreach($country as $item)
                 <option value="{{ $item->id }}" {{ old('countryP', $data->id_country ?? '') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
             @endforeach
         </select>
+        <div class="invalid-feedback">Country wajib diisi.</div>
     </div>
 
     <div class="mb-2">
@@ -81,10 +93,12 @@
     <div class="mb-3">
         <label class="form-label" for="docP">Type of Document</label>
         <select class="form-select" id="docP" name="docP" required>
+        <option value="" selected disabled>Type of Document</option>
             <option value="MoU" {{ old('docP', $data->jenis_naskah ?? '') == 'MoU' ? 'selected' : '' }}>MoU</option>
             <option value="MoA" {{ old('docP', $data->jenis_naskah ?? '') == 'MoA' ? 'selected' : '' }}>MoA</option>
             <option value="IA" {{ old('docP', $data->jenis_naskah ?? '') == 'IA' ? 'selected' : '' }}>IA</option>
         </select>
+        <div class="invalid-feedback">Type of Document wajib diisi.</div>
     </div>
 
 
@@ -103,21 +117,31 @@
         </select>
             </div>
 
-        <div class="mb-3">
+            <div class="mb-3">
           <label class="form-label" for="linkDownload">Agreement</label>
             @if (isset($data) && !empty($data->link_download_naskah))
+              @if(strtotime($data->created_date) >= strtotime("2025-01-09 14:54:42"))
                 <div class="mb-2">
                     <a href="{{ route('view_naskah.pdf', basename($data->link_download_naskah)) }}" target="_blank" class="btn btn-primary">
                       View / Download Document
                     </a>
-                </div>                              
+                </div>   
+              @else   
+                <div class="mb-2">
+                    <a href="{{$data->link_download_naskah}}" target="_blank" class="btn btn-primary">
+                      View / Download Document
+                    </a>
+                </div>        
+              @endif
                   <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)">
                   <div class="mb-2">
                     <small>Current file: {{ basename($data->link_download_naskah) }}</small>
                   </div>
-              @else
-                <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)" required>
-              @endif
+              
+            @else
+              <input class="form-control" type="file" name="linkDownload" accept=".pdf" onchange="validateFileSize(this)" required>
+              <div class="invalid-feedback">Agreement wajib diisi.</div>
+            @endif
         </div>
 
         <div class="mb-3">
@@ -138,6 +162,7 @@
       <div class="mb-3">
         <label class="form-label" for="catNaskah">Kategori Naskah</label>
         <select class="form-select" id="catNaskah" name="catNaskah" required>
+        <option value="" selected disabled>Kategori Naskah</option>
             <option value="Research Collaboration Agreement" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Research Collaboration Agreement' ? 'selected' : '' }}>Research Collaboration Agreement</option>
             <option value="Letter Of Intent" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Letter Of Intent' ? 'selected' : '' }}>Letter Of Intent</option>
             <option value="Adjunct Professor" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Adjunct Professor' ? 'selected' : '' }}>Adjunct Professor</option>
@@ -152,12 +177,14 @@
             <option value="Letter of Appointment" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Letter of Appointment' ? 'selected' : '' }}>Letter of Appointment</option>
             <option value="Contract of The Online Airlangga Post-Doctoral Fellowship" {{ old('catNaskah', isset($data->category_document) ? $data->category_document : '') == 'Contract of The Online Airlangga Post-Doctoral Fellowship' ? 'selected' : '' }}>Contract of The Online Airlangga Post-Doctoral Fellowship</option>
         </select>
+        <div class="invalid-feedback">Kategori Naskah wajib diisi.</div>
       </div>
 
 
       <div class="mb-3">
         <label class="form-label" for="skema">Skema</label>
         <select class="form-select" id="skema" name="skema" required>
+        <option value="" selected disabled>Skema</option>
             <option value="International Research Collaboration Hibah Mandate" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Hibah Mandate' ? 'selected' : '' }}>International Research Collaboration Hibah Mandate</option>
             <option value="International Research Collaboration Top 100" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Top 100' ? 'selected' : '' }}>International Research Collaboration Top 100</option>
             <option value="International Research Collaboration Top 300" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Collaboration Top 300' ? 'selected' : '' }}>International Research Collaboration Top 300</option>
@@ -170,15 +197,18 @@
             <option value="International Research Consortium (IRCON)" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'International Research Consortium (IRCON)' ? 'selected' : '' }}>International Research Consortium (IRCON)</option>
             <option value="Other" {{ old('skema', isset($data->skema) ? $data->skema : '') == 'Other' ? 'selected' : '' }}>Other</option>
         </select>
+        <div class="invalid-feedback">Skema wajib diisi.</div>
     </div>
 
       <div class="mb-3">
         <label class="form-label" for="deptP">Department</label>
-        <select  class="js-example-basic-single col-sm-12"  id="deptP" name="deptP" required>
+        <select  class="js-example-basic-single col-sm-12 form-select" id="deptP" name="deptP" required>
+        <option value="" selected disabled>Department</option>
             @foreach ($department as $item)
-                <option value="{{$item -> id}}">{{$item->nama_ind}}</option>
+                <option value="{{$item -> id}}"  {{ old('deptP', isset($data->id_department_unair) ? $data->id_department_unair : '') == $item->id ? 'selected' : '' }}>{{$item->nama_ind}}</option>
             @endforeach
         </select>
+        <div class="invalid-feedback">Department wajib diisi.</div>
       </div>
 
       <div class="mb-2">
@@ -221,6 +251,7 @@
 <div class="mb-3">
     <label class="form-label" for="typeP">Type of Partner</label>
     <select class="form-select" id="typeP" name="typeP" required>
+    <option value="" selected disabled>Type of Partner</option>
         <option value="University/Higher Education Institution (HEI)" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'University/Higher Education Institution (HEI)' ? 'selected' : '' }}>University/Higher Education Institution (HEI)</option>
         <option value="TOP 200 QS by Subject University/Higher Education Institution" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'TOP 200 QS by Subject University/Higher Education Institution' ? 'selected' : '' }}>TOP 200 QS by Subject University/Higher Education Institution</option>
         <option value="Top National Company" {{ old('typeP', isset($data->type_institution_partner) ? $data->type_institution_partner : '') == 'Top National Company' ? 'selected' : '' }}>Top National Company</option>
@@ -244,6 +275,7 @@
         <div class="mb-3">
             <label class="form-label" for="sourceFund">Source of Funding</label>
             <select class="form-select" id="sourceFund" name="sourceFund" required>
+                <option value="" selected disabled>Source of Funding</option>
                 <option value="Universitas Airlangga" {{ old('sourceFund', isset($data->source_funding) ? $data->source_funding : '') == 'Universitas Airlangga' ? 'selected' : '' }}>Universitas Airlangga</option>
                 <option value="Fakultas" {{ old('sourceFund', isset($data->source_funding) ? $data->source_funding : '') == 'Fakultas' ? 'selected' : '' }}>Fakultas</option>
                 <option value="Mitra Institusi" {{ old('sourceFund', isset($data->source_funding) ? $data->source_funding : '') == 'Mitra Institusi' ? 'selected' : '' }}>Mitra Institusi</option>
@@ -257,7 +289,7 @@
         </div>
 
         <!-- Sum of Funding -->
-        <div class="col-md-4 mb-3">
+        <div class="mb-3">
             <label class="form-label" for="sumFund">Sum of Funding</label>
             <div class="input-group"><span class="input-group-text" id="inputGroupPrepend">Rp</span>
                 <input class="form-control" id="sumFund" type="number" name="sumFund" placeholder="Sum of Fund (Rp)" aria-describedby="inputGroupPrepend" value="{{ old('sumFund', isset($data->sum_funding) ? $data->sum_funding : '') }}" required>

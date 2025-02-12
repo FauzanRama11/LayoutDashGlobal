@@ -1,7 +1,8 @@
 <header class="main-nav">
     <div class="sidebar-user text-start">
         <a href="user-profile"> <h6 class="mt-3 f-14 f-w-600">{{ Auth::user()->name}}</h6></a>
-        <p class="mb-0 font-roboto">Email</p>
+        <p class="mb-0 font-roboto">{{ Auth::user()->email}}</p>
+
     </div>
     <nav>
         <div class="main-navbar">
@@ -15,7 +16,7 @@
                         <div>
                             <h6>General</h6>
                         </div>            
-                        @hasanyrole("fakultas|gmp|gpc|wadek3")
+                        @hasanyrole("fakultas|gmp|gpc|wadek3|mahasiswa")
                             <li class=""><a class="nav-link menu-title link-nav" href="{{ route('back.home') }}"><i data-feather="monitor"></i><span>Home</span></a></li>
                         @endrole
                         
@@ -33,7 +34,11 @@
                         
                         @hasanyrole("gpc|wadek3")
                             @includeIf('layouts.partials.button-route.agreement')
-                        @endhasanyrole    
+                        @endhasanyrole 
+                        
+                        @hasanyrole("mahasiswa")
+                            @includeIf('layouts.partials.button-route.mahasiswa_inbound')
+                        @endhasanyrole 
 
                         @hasanyrole("gmp")
                             <li class=""><a class="nav-link menu-title link-nav" href=""><i data-feather="monitor"></i><span>Tagged Meeting</span></a></li>

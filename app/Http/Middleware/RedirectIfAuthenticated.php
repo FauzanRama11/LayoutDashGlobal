@@ -27,6 +27,7 @@ class RedirectIfAuthenticated
                 'pusbamulya' => 'pusba.dashboard',
                 'gpc' => 'gpc.dashboard',
                 'wadek3' => 'wadek3.dashboard',
+                'mahasiswa' => 'mahasiswa.dashboard',
 
             ];
 

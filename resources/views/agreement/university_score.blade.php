@@ -19,7 +19,7 @@
 	                        @endrole    
 							<thead>
 	                                <tr>
-                                        <th>No</th>
+                                        <th>Rank</th>
 	                                    <th>University</th>
 	                                    <th>MoU</th>
 	                                    <th>MoA</th>
@@ -60,7 +60,7 @@
 	                            </tbody>
 	                            <tfoot>
 	                                <tr>
-                                        <th>No</th>
+                                        <th>Rank</th>
 	                                    <th>University</th>
 	                                    <th>MoU</th>
 	                                    <th>MoA</th>
