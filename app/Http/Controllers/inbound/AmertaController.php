@@ -53,18 +53,6 @@ class AmertaController extends Controller
         return view('stu_inbound.amerta.pendaftar', compact('processedData'));
     }
 
-    // public function synced_data()
-    // {
-    //     $data = $data = DB::table('v_stu_in_synced')
-    //     ->select('nama','surel', 'nim', 'kode_mk', 'nm_fakultas', 'nm_program_studi', 'nm_jenjang', 'semester')
-    //     ->limit(500)
-    //     ->get();
-
-    //     return view('stu_inbound.amerta.synced_data', compact('data'));
-    // }
-
-    // CRUD Periode Amerta
-
     public function periode()
     {
         $data = $data = DB::table('age_amerta')
@@ -308,6 +296,67 @@ class AmertaController extends Controller
 
         return redirect()->route('am_nominasi_matkul')->with('success', 'Data mata kuliah berhasil dihapus.');
     }
+
+    // Backup data table: gabisa filter
+    // public function pendaftar(Request $request)
+    // {
+    //     if ($request->ajax()) {
+    //         $data = DB::table('age_peserta_inbound')
+    //             ->select(
+    //                 'age_peserta_inbound.id as id',
+    //                 'age_peserta_inbound.type as type',
+    //                 'age_peserta_inbound.email as email',
+    //                 'age_peserta_inbound.metadata as metadata',
+    //                 'age_peserta_inbound.created_date as created_date',
+    //                 DB::raw("CONCAT(TO_CHAR(age_amerta.start_date_program, 'DD Mon YYYY'), ' - ', TO_CHAR(age_amerta.end_date_program, 'DD Mon YYYY')) as date_program"),
+    //                 'age_peserta_inbound.is_approve as is_approve'
+    //             )
+    //             ->leftJoin('age_amerta', 'age_peserta_inbound.id_period', '=', 'age_amerta.id')
+    //             ->where('age_peserta_inbound.type', 'amerta');
+
+    //         return DataTables::of($data)
+    //             ->addColumn('fullname', function ($item) {
+    //                 $metadata = json_decode($item->metadata, true); // Decode JSON jika belum otomatis array
+    //                 return $metadata['fullname'] ?? '';
+    //             })
+    //             ->addColumn('selected_program', function ($item) {
+    //                 $metadata = json_decode($item->metadata, true);
+    //                 return ($metadata['selected_program'] ?? '') === 'AMERTA' ? 'Amerta' : ($metadata['selected_program'] ?? '');
+    //             })
+    //             ->addColumn('edit', function ($item) {
+    //                 return '<form action="' . route('edit_peserta_inbound', ['id' => $item->id]) . '" method="GET">
+    //                             <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-edit"></i>  Edit</button>
+    //                         </form>';
+    //             })
+    //             ->addColumn('approve', function ($item) {
+    //                 $metadata = json_decode($item->metadata, true);
+    //                 if (!empty($metadata['loaPeserta'])) {
+    //                     if ($item->is_approve === true) {
+    //                         return '<form action="' . route('unapprove_peserta_inbound', ['id' => $item->id]) . '" method="POST">
+    //                                     ' . csrf_field() . method_field('PUT') . '
+    //                             <button type="submit" class="btn btn-warning edit-button"><i class="fa fa-times-circle"></i>  Unapprove</button>
+    //                                 </form>';
+    //                     } else {
+    //                         return '<form action="' . route('approve_peserta_inbound', ['id' => $item->id]) . '" method="POST">
+    //                                     ' . csrf_field() . method_field('PUT') . '
+    //                             <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-ban"></i>  Approve</button>
+    //                                 </form>';
+    //                     }
+    //                 }
+    //                 return '';
+    //             })
+    //             ->addColumn('reject', function ($item) {
+    //                 return '<form action="' . route('reject_peserta_inbound', ['id' => $item->id]) . '" method="POST">
+    //                             ' . csrf_field() . method_field('PUT') . '
+    //                             <button type="submit" class="btn btn-danger edit-button"><i class="fa fa-ban"></i>  Reject</button>
+    //                         </form>';
+    //             })
+    //             ->rawColumns(['fullname','edit', 'approve', 'reject'])
+    //             ->make(true);
+    //     }  
+    //     return view('stu_inbound.amerta.pendaftar');
+    // }
+
 
     
 }

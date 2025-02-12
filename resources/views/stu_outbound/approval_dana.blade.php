@@ -1,4 +1,8 @@
 @extends('layouts.master') 
+
+@section('title')Approval Dana | Student Outbound
+@endsection
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
@@ -7,8 +11,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vfs-fonts/2.0.0/vfs_fonts.min.js"></script>
 
 @section('content') 
-    <h2>Student Outbound</h2>
-    <p>This is Approval Dana.</p>
 
 @php										
 function getFileUrl($fileUrl) {
@@ -29,6 +31,9 @@ function getFileUrl($fileUrl) {
 }
 
 @endphp
+
+    <h2>Student Outbound</h2>
+    <p>This is Approval Dana.</p>
 
     <div class="container-fluid">
 	    <div class="row">
@@ -88,7 +93,6 @@ function getFileUrl($fileUrl) {
 	    </div>
 	</div>
 
-	
 <script>
  $(document).ready(function () {
 function initializeDataTable(tableId) {
@@ -98,11 +102,11 @@ function initializeDataTable(tableId) {
 return $(tableId).DataTable({
     order: [ ],
 
-        pageLength: 25,
-        lengthMenu: [
-            [25, 50, 100, 250, 500, 1000, -1],
-            ['25', '50', '100', '250', '500', '1000', 'All']
-        ],
+		pageLength: 10,
+		lengthMenu: [
+			[10, 25, 100, 250, 500, 1000, -1],
+			['10', '25', '100', '250', '500', '1000', 'All']
+		],
 
         processing: true,
         serverSide: true,

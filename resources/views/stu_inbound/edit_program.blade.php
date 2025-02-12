@@ -68,7 +68,7 @@ function getFileUrl($fileUrl) {
                         @if ($data)
                           <div class="d-flex">
                   
-                            <a href="" class="btn btn-info mx-1">Back</a>
+                            <a href="{{ $data->is_program_age === 'Y' ? route('stuin_program_age') : route('stuin_program_fak')}}" class="btn btn-info mx-1">Back</a>
                             <button type="button" id="generatePdfRkat" class="btn btn-secondary mx-1">PDF RKAT</button>
                             <button type="button" id="generatePdfDpat" class="btn btn-secondary mx-1">PDF DPAT</button>
                   
@@ -226,11 +226,13 @@ function getFileUrl($fileUrl) {
 	                    <div class="table-responsive">
                             @if($data->is_private_event === "Ya")
                                 <div class="d-flex justify-content-end my-4">
+                                    @role('fakultas')
                                     <a href="{{ route('stuin_peserta.create', ['prog_id' => $data->id]) }}">
                                         <button class="btn btn-success btn-sm active" type="button" >
                                             + Tambah Peserta
                                         </button>
                                     </a>
+                                    @endrole
                                 </div>
                             @endif   
 	                        <table class="display" id="API-2">   
@@ -310,7 +312,7 @@ function getFileUrl($fileUrl) {
                                             </td>
                                             <td>
                                                 <form  action="{{ route('stuin_peserta.edit', ['item_id' => $item->id, 'prog_id' => $data->id]) }}" method="GET">
-                                                    <button type="submit" class="btn btn-primary edit-button">Edit</button>
+                                                    <button type="submit" class="btn btn-primary edit-button"><i class="fa fa-edit"></i>  Edit</button>
                                                 </form>
                                             </td>
                                         </tr>

@@ -3,7 +3,7 @@
 @section('content') 
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5>Form Periode Amerta</h5>
+                    <h5>Form Target</h5>
                     <span>This is Optional Notes</span>
                 </div>
                 <div class="card-body">
@@ -20,7 +20,7 @@
                                     <label class="form-label" for="fakultas">Fakultas</label>
                                     <select class="form-select js-example-basic-single" id="fakultas" name="fakultas" required>
                                         @foreach($unit as $item)
-                                            <option value="{{ $item->id }}" {{ old('fakultas', $target->id_fakultas) == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
+                                            <option value="{{ $item->id }}" {{ old('fakultas', $target->id_fakultas ?? null) == $item->id ? 'selected' : '' }}>{{ $item->nama_ind }}</option>
                                         @endforeach
                                     </select>
                                 </div>

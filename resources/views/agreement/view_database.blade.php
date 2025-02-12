@@ -332,8 +332,6 @@ return $(tableId).DataTable({
         if (tableNorm2) {
             console.log('DataTable "example" initialized successfully.');
 
-    
-
             // Tambahkan event listener pada tombol eksternal untuk eksport
             $('#export-excel').on('click', function () {
                 if (tableNorm2) {

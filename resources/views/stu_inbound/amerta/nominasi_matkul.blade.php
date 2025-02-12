@@ -54,13 +54,13 @@
 											@endif
 										</td>
                                         <td>
-											<a href="{{ route('am_form_matkul.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">Edit</a>
+											<a href="{{ route('am_form_matkul.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i>  Edit</a>
 										</td>
 										<td>
 											<form action="{{ route('am_hapus_matkul', ['id' => $item->id]) }}" method="POST">
 												@csrf
 												@method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>  Delete</button>
 											</form>
 										</td>
                                     </tr>
